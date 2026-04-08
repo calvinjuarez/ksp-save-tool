@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+	<!-- Base #e0e0e0 (palette gray 200); strokes #fd7e14 (template / orange 500). See docs/design-tokens.md. -->
+	<rect width="512" height="512" rx="96" fill="#e0e0e0"/>
+	<rect
+		x="56"
+		y="56"
+		width="400"
+		height="400"
+		rx="56"
+		fill="none"
+		stroke="#fd7e14"
+		stroke-width="14"
+		stroke-dasharray="44 44"
+		stroke-linecap="round"
+	/>
+	<g fill="none" stroke="#fd7e14" stroke-linecap="round" stroke-linejoin="round">
+		<path
+			d="M 166 160 C 223 130 283 147 305 199 C 328 252 290 304 238 318 C 186 332 175 274 216 239 C 256 205 320 229 330 284 C 342 338 278 373 230 381"
+			stroke-width="32"
+			opacity="0.4"
+		/>
+		<path
+			d="M 145 342 C 164 287 112 226 202 198 C 291 170 312 262 271 310 C 230 359 314 344 343 287 C 371 231 302 175 253 208 C 204 241 235 316 296 295 C 358 275 368 200 322 167 C 276 134 204 180 192 249 C 179 318 266 359 327 331 C 409 303 388 116 322 184 C 206 252 245 318 346 371"
+			stroke-width="22"
+		/>
+	</g>
+</svg>

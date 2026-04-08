@@ -1,0 +1,32 @@
+{
+	"[css]": {
+		"editor.defaultFormatter": "vscode.css-language-features"
+	},
+	"[markdown]": {
+		"editor.defaultFormatter": "DavidAnson.vscode-markdownlint"
+	},
+	"css.format.braceStyle": "collapse",
+	"css.format.maxPreserveNewLines": 3,
+	"css.format.newlineBetweenRules": false,
+	"css.format.newlineBetweenSelectors": true,
+	"css.format.preserveNewLines": true,
+	"css.format.spaceAroundSelectorSeparator": true,
+	"css.lint.duplicateProperties": "warning",
+	"css.lint.emptyRules": "ignore",
+	"css.lint.idSelector": "error",
+	"css.lint.important": "error",
+	"css.lint.universalSelector": "warning",
+	"editor.codeActionsOnSave": {
+		"source.fixAll.css": "always",
+		"source.organizeImports": "always",
+		"source.removeUnusedImports": "always",
+	},
+	"editor.detectIndentation": false,
+	"editor.formatOnSave": true,
+	"editor.insertSpaces": false,
+	"editor.tabSize": 3,
+	"files.autoSave": "onWindowChange",
+	"markdownlint.configFile": ".markdownlint.json",
+	"typescript.tsserver.enableRegionDiagnostics": false,
+	"typescript.tsserver.useSyntaxServer": "never"
+}

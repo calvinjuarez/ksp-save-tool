@@ -1,0 +1,342 @@
+@import 'bootstrap/dist/css/bootstrap-reboot.css';
+
+
+/*
+ * DESIGN TOKENS
+ * ============
+ * see docs/design-tokens.md
+ */
+:root {
+	/* ## DEFINITIONS */
+
+	/* ### Colors */
+	/* NOTE: native `black` and `white` are allowed as de-facto design tokens */
+	/* #### Grays */
+	--house--gray-100: #f2f2f2;
+	--house--gray-200: #e0e0e0;
+	--house--gray-300: #c9c9c9;
+	--house--gray-400: #999;
+	--house--gray-500: #666;
+	--house--gray-600: #333;
+	/* #### Blues */
+	--house--blue-100: #f0f7ff;
+	--house--blue-200: #c7dcff;
+	--house--blue-300: #93c5fd;
+	--house--blue-400: #60a5fa;
+	--house--blue-500: #0d6efd;
+	--house--blue-600: #0a5dd9;
+	/* #### Reds */
+	--house--red-100: #fef2f2;
+	--house--red-200: #fecaca;
+	--house--red-300: #fca5a5;
+	--house--red-400: #f87171;
+	--house--red-500: #dc3545;
+	--house--red-600: #b91c1c;
+	/* #### Oranges (balanced “pure” orange; complements primary blue) */
+	--house--orange-100: #fff4ed;
+	--house--orange-200: #ffe0cc;
+	--house--orange-300: #ffc090;
+	--house--orange-400: #ff994d;
+	--house--orange-500: #fd7e14;
+	--house--orange-600: #dc6505;
+	/* #### Semantic families – 4 faintness levels each */
+	/* ##### Ink (gray) */
+	--house--color--ink: var(--house--gray-600);
+	--house--color--ink-dark: black;
+	--house--color--ink-muted: var(--house--gray-500);
+	--house--color--ink-hint: var(--house--gray-400);
+	--house--color--ink-faint: var(--house--gray-100);
+	/* ##### Primary (blue) */
+	--house--color--primary: var(--house--blue-500);
+	--house--color--primary-dark: var(--house--blue-600);
+	--house--color--primary-muted: var(--house--blue-400);
+	--house--color--primary-hint: var(--house--blue-200);
+	--house--color--primary-faint: var(--house--blue-100);
+	/* ##### Danger (red) */
+	--house--color--danger: var(--house--red-500);
+	--house--color--danger-dark: var(--house--red-600);
+	--house--color--danger-muted: var(--house--red-400);
+	--house--color--danger-hint: var(--house--red-200);
+	--house--color--danger-faint: var(--house--red-100);
+	/* ##### Template (orange) – default / placeholder affordances; swap for real brand */
+	--house--color--template: var(--house--orange-500);
+	--house--color--template-dark: var(--house--orange-600);
+	--house--color--template-muted: var(--house--orange-400);
+	--house--color--template-hint: var(--house--orange-200);
+	--house--color--template-faint: var(--house--orange-100);
+
+	/* ## APPLICATIONS */
+
+	/* ### Base */
+	--house--border_radius-lg: 8px;
+	--house--border_radius-md: 6px;
+	--house--border_radius-sm: 4px;
+	--house--border_color: var(--house--gray-100);
+	--house--border_color-interactive: var(--house--gray-200);
+	--house--border_color-interactive_hover: var(--house--gray-400);
+
+	/* ### Inputs */
+	--house--input--padding_x: 0.5rem;
+	--house--input--padding_y: 0.25rem;
+	--house--input--padding: var(--house--input--padding_y) var(--house--input--padding_x);
+	--house--input--border_radius: var(--house--border_radius-sm);
+	--house--input--border_color: var(--house--border_color-interactive);
+
+	--house--input-focus--border_color: var(--house--color--primary-muted);
+
+	/* ### Page layout */
+	--house--page--max_width: 1400px;
+
+}
+
+
+/*
+ * HOUSE STYLES
+ * ============
+ */
+
+:root {
+	/* set `rem` explicitly – 12px for narrow (phones portrait), 16px from 400px up */
+	font-size: 12px;
+	color: var(--house--color--ink);
+	background: white;
+
+	@media (min-width: 400px) {
+		font-size: 14px;
+	}
+	@media (min-width: 450px) {
+		font-size: 16px;
+	}
+}
+
+
+html {}
+body {
+	margin: 0;
+}
+
+small {
+	font-size: 0.85em;
+}
+
+
+.lead {
+	color: var(--house--color--ink-muted);
+	margin-bottom: 1.5rem;
+}
+
+.card {
+	border-radius: var(--house--border_radius-lg);
+	border: 1px solid var(--house--border_color);
+	background: white;
+}
+.card-vw_400_up {
+	/* no card styling below 400px */
+	@media (min-width: 400px) {
+		border-radius: var(--house--border_radius-lg);
+		border: 1px solid var(--house--border_color);
+		background: white;
+	}
+}
+
+.hidden-vw_400_down {
+	display: none;
+
+	@media (min-width: 400px) {
+		display: revert;
+	}
+}
+.hidden-vw_600_down {
+	display: none;
+
+	@media (min-width: 600px) {
+		display: revert;
+	}
+}
+
+.well {
+	border-radius: var(--house--border_radius-lg);
+	background: var(--house--color--ink-faint);
+}
+
+
+/* ## BUTTONS */
+
+/* iOS Safari reset: removes default blue text and tap highlight on interactive elements */
+button,
+input,
+select,
+textarea {
+	-webkit-tap-highlight-color: transparent;
+	color: inherit;
+}
+
+.btn,
+.btn-slot {
+	padding: 0.5rem 1rem;
+	border: 2px solid var(--house--border_color-interactive);
+	background: white;
+	cursor: pointer;
+	border-radius: var(--house--border_radius-md);
+	text-decoration: none;
+}
+.btn-nowrap {
+	white-space: nowrap;
+}
+.btn:hover {
+	border-color: var(--house--border_color-interactive_hover);
+}
+.btn.selected {
+	border-color: var(--house--color--primary);
+	background: var(--house--color--primary-faint);
+}
+.btn-primary {
+	background: transparent;
+	border: 2px solid var(--house--color--primary);
+	color: var(--house--color--primary);
+
+	&:hover {
+		color: white;
+		background: var(--house--color--primary);
+		border-color: transparent;
+	}
+}
+.btn-danger {
+	background: transparent;
+	border: 2px solid var(--house--color--danger);
+	color: var(--house--color--danger);
+
+	&:hover {
+		color: white;
+		background: var(--house--color--danger);
+		border-color: transparent;
+	}
+}
+.btn-sm {
+	padding: 0.2rem 0.4rem;
+	font-size: 0.8rem;
+}
+
+.btn-slot {
+	cursor: default;
+	background-color: var(--house--gray-200);
+	border-color: transparent;
+
+	&:empty::before {
+		/* non-breaking space */
+		content: '\00A0';
+	}
+}
+
+
+/* ## FORMS */
+
+input:not([type="hidden"], [type="radio"], [type="checkbox"]),
+select,
+textarea {
+	display: inline flow-root;
+	padding: var(--house--input--padding);
+	background: white;
+	border: 2px solid var(--house--input--border_color);
+	border-radius: var(--house--input--border_radius);
+
+	&:focus {
+		outline: 2px solid var(--house--input-focus--border_color);
+		outline-offset: 1px;
+	}
+}
+/* reset select to allow custom appearance */
+select {
+	--_caret_size: 0.75em;
+	--_caret_space: calc((2 * var(--house--input--padding_x)) + var(--_caret_size));
+
+	appearance: none;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2 4 L6 8 L10 4' stroke='currentColor' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-size: var(--_caret_size) var(--_caret_size);
+
+	&:dir(ltr) {
+		padding-right: var(--_caret_space);
+		padding-left: var(--house--input--padding_x);
+		background-position: right var(--house--input--padding_x) center;
+	}
+	&:dir(rtl) {
+		padding-left: var(--_caret_space);
+		padding-right: var(--house--input--padding_x);
+		background-position: left var(--house--input--padding_x) center;
+	}
+}
+
+select,
+input[type="checkbox"],
+input[type="radio"] {
+	cursor: pointer;
+}
+
+input:read-only,
+textarea:read-only {
+	/* NOTE: <select> is _always_ treated as read-only, so we don't want to include it in this rule */
+	background: none;
+	border-color: transparent;
+}
+
+label {
+	&:has(input[type="radio"], input[type="checkbox"]) {}
+	&:not(:has(input[type="radio"], input[type="checkbox"])) {
+		font-size: 0.85rem;
+		color: var(--house--color--ink-muted);
+		margin-bottom: 0.25rem;
+	}
+}
+
+/**
+ * @example
+ * <label class="form--radio">
+ * 	<input type="radio" name="radio-group" value="option-1" />
+ * 	Option 1
+ * </label>
+ */
+.form--checkbox,
+.form--radio {
+	cursor: pointer;
+
+	input {
+		vertical-align: middle;
+		margin-bottom: 0.2ex;
+		margin-right: 0.2em;
+		margin-left: 0.2em;
+	}
+}
+
+/* ### Form Groups */
+.form_group {
+	margin-bottom: 1rem;
+}
+.form_group--label {
+	display: block;
+	margin-bottom: 0.5rem;
+}
+.form_group-inline .form_group--label {
+	display: inline-block;
+	width: 80px;
+}
+/* #### A Group of Radio Options */
+.form_group-radio {}
+.form_group-radio--option {
+	margin-bottom: 0.5rem;
+
+	&:last-child {
+		margin-bottom: 0;
+	}
+}
+.form_group-radio-stacked .form_group-radio--option {
+	display: block;
+}
+
+/* ### Form Help Text */
+.form_help {
+	font-size: 0.85rem;
+	color: var(--house--color--ink-muted);
+	margin-top: 0.5rem;
+	margin-bottom: 0;
+}
