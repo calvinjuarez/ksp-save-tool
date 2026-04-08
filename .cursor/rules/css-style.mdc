@@ -1,0 +1,9 @@
+---
+description: CSS (house tokens, naming, nesting)
+globs: "**/*.css"
+alwaysApply: false
+---
+
+# CSS
+
+Follow [docs/style-guide--css.md](docs/style-guide--css.md). Token reference: [docs/design-tokens.md](docs/design-tokens.md). Principles: [docs/design-system.md](docs/design-system.md).

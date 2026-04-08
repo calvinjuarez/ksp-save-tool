@@ -1,0 +1,15 @@
+{
+	"default": true,
+	"MD041": {
+		"front_matter_title": "^\\s*(title|name)\\s*[:=]"
+	},
+	"MD010": false,
+	"MD009": false,
+	"MD013": false,
+	"MD022": true,
+	"MD036": true,
+	"MD040": true,
+	"MD047": true,
+	"MD055": { "style": "leading_only" },
+	"MD060": { "style": "aligned" }
+}

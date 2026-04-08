@@ -1,0 +1,9 @@
+---
+description: HTML and Vue markup (class grouping, structure)
+globs: "**/*.{vue,html}"
+alwaysApply: false
+---
+
+# HTML / Vue
+
+Follow [docs/style-guide--html.md](docs/style-guide--html.md).

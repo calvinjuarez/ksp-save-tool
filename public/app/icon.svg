@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="KSP Save File Explorer">
+	<!--
+		See docs/design-tokens.md.  Only use colors from the design system.
+		- Background: gray 600 #333
+		- Paper: white
+		- Fold: gray 200 #e0e0e0
+		- Rocket & exhaust: orange 500 #fd7e14
+		- Rocket window: white
+	-->
+	<rect id="background" width="512" height="512" rx="96" fill="#333"/>
+	<g id="paper">
+		<path
+			id="paper-sheet"
+			fill="#ffffff"
+			d="
+				M 80 64
+				A 16 16 0 0 1 96 48
+				H 336
+				l 96 96
+				V 448
+				A 16 16 0 0 1 416 464
+				H 96
+				A 16 16 0 0 1 80 448
+				V 64
+				Z
+			"
+		/>
+		<path
+			id="paper-fold"
+			fill="#e0e0e0"
+			d="
+				M 336 48
+				V 128
+				A 16 16 0 0 0 352 144
+				H 432
+				Z
+			"
+		/>
+	</g>
+	<g id="rocket">
+		<path
+			id="rocket-plume"
+			fill="#fd7e14"
+			stroke="#fd7e14"
+			stroke-width="32"
+			stroke-linejoin="round"
+			stroke-linecap="round"
+			paint-order="stroke fill"
+			d="
+				M 256 432
+				C 222 400 216 388 224 368
+				L 288 368
+				C 296 388 288 400 256 432
+				Z
+			"
+		/>
+		<path
+			id="rocket-ship"
+			fill="#fd7e14"
+			stroke="#fd7e14"
+			stroke-width="32"
+			stroke-linejoin="round"
+			stroke-linecap="round"
+			paint-order="stroke fill"
+			d="
+				M 256 80
+				L 192 144
+				L 192 224
+				L 144 272
+				L 144 336
+				L 176 304
+				L 336 304
+				L 368 336
+				L 368 272
+				L 320 224
+				L 320 144
+				L 256 80
+				Z
+			"
+		/>
+		<g
+			id="rocket-fin-tips"
+			fill="none"
+			stroke="#fd7e14"
+			stroke-width="16"
+			stroke-linecap="round"
+			stroke-linejoin="round"
+		>
+			<path id="rocket-fin-tip-l" d="M 136 340 L 136 356 L 152 340" />
+			<path id="rocket-fin-tip-r" d="M 376 340 L 376 356 L 360 340" />
+		</g>
+		<circle id="rocket-window" cx="256" cy="192" r="32" fill="#ffffff"/>
+	</g>
+</svg>

@@ -1,0 +1,10 @@
+---
+description: Where to find Markdown, CSS, HTML, and design docs for this repo
+alwaysApply: true
+---
+
+# Style guide index
+
+Canonical lists: [docs/README.md](docs/README.md) and [AGENTS.md](AGENTS.md).
+
+When you edit a file type, the matching rule in `.cursor/rules/` points at the right guide—read that guide instead of inventing conventions.

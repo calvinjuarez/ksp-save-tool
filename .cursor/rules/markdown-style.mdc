@@ -1,0 +1,13 @@
+---
+description: Markdown (markdownlint, tables, ADRs, fenced code)
+globs: "**/*.md"
+alwaysApply: false
+---
+
+# Markdown
+
+Follow [docs/style-guide--markdown.md](docs/style-guide--markdown.md). Lint config: [.markdownlint.json](.markdownlint.json).
+
+Cursor helpers: [.cursor/skills/markdown/SKILL.md](.cursor/skills/markdown/SKILL.md), [scripts/align_table.py](.cursor/skills/markdown/scripts/align_table.py).
+
+ADR process: [docs/adr/README.md](docs/adr/README.md).
