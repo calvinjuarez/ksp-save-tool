@@ -4,21 +4,31 @@ import { APP_NAME } from './app/app.const.js'
 const routes = [
 	{
 		path: '/',
-		name: 'home',
-		component: () => import('./app/HomeView.vue'),
-		meta: { title: 'Home' },
+		redirect: { name: 'save-explorer' },
+	},
+	{
+		path: '/save-explorer',
+		name: 'save-explorer',
+		component: () => import('./save-file/SaveFileExplorerView.vue'),
+		meta: { title: 'Save Explorer' },
+		children: [
+			{
+				path: 'crew-manifest',
+				name: 'crew-manifest',
+				component: () => import('./crew-manifest/CrewManifestView.vue'),
+				meta: { title: 'Crew Manifest' },
+			},
+		],
+	},
+	{
+		path: '/crew-manifest',
+		redirect: { name: 'crew-manifest' },
 	},
 	{
 		path: '/settings',
 		name: 'settings',
 		component: () => import('./settings/SettingsView.vue'),
 		meta: { title: 'Settings' },
-	},
-	{
-		path: '/crew-manifest',
-		name: 'crew-manifest',
-		component: () => import('./crew-manifest/CrewManifestView.vue'),
-		meta: { title: 'Crew manifest' },
 	},
 	{
 		path: '/:pathMatch(.*)*',

@@ -5,9 +5,8 @@ import { RouterLink, RouterView } from 'vue-router';
 <template>
 	<div class="app">
 		<nav class="nav">
-			<RouterLink to="/">Home</RouterLink>
-			<RouterLink to="/crew-manifest">Crew manifest</RouterLink>
-			<RouterLink to="/settings">Settings</RouterLink>
+			<RouterLink :to="{ name: 'save-explorer' }">Save Explorer</RouterLink>
+			<RouterLink :to="{ name: 'settings' }">Settings</RouterLink>
 		</nav>
 		<main class="main">
 			<RouterView />
@@ -20,10 +19,13 @@ import { RouterLink, RouterView } from 'vue-router';
 	min-height: 100vh;
 }
 .nav {
+	position: sticky;
+	top: 0;
 	display: flex;
 	gap: 1rem;
 	padding: 0.75rem 1rem;
 	border-bottom: 1px solid var(--house--border_color-interactive);
+	background-color: white;
 
 	@media (min-width: 600px) {
 		padding: 1rem 2rem;
@@ -40,10 +42,14 @@ import { RouterLink, RouterView } from 'vue-router';
 .main {
 	max-width: var(--house--page--max_width);
 	margin: 0 auto;
-	padding: 1rem;
+	padding-bottom: 1rem;
+	padding-left: 1rem;
+	padding-right: 1rem;
 
 	@media (min-width: 600px) {
-		padding: 1.75rem;
+		padding-bottom: 1.75rem;
+		padding-left: 1.75rem;
+		padding-right: 1.75rem;
 	}
 }
 </style>

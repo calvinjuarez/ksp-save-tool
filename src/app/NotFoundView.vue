@@ -6,7 +6,7 @@ import { RouterLink } from 'vue-router'
 	<div class="v-not-found">
 		<h1>Page not found</h1>
 		<p class="lead">That route doesn't exist. Head back to get started.</p>
-		<RouterLink to="/" class="btn btn-primary">Home</RouterLink>
+		<RouterLink :to="{ name: 'save-explorer' }" class="btn btn-primary">Save Explorer</RouterLink>
 	</div>
 </template>
 

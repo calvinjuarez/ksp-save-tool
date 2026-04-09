@@ -1,8 +1,7 @@
 <script setup>
 import { computed, ref } from 'vue'
-import { RouterLink } from 'vue-router'
-import { buildCrewManifestRows, formatCrewManifestMarkdown } from './crew-manifest.util.js'
 import { useSaveFileStore } from '../save-file/save-file.store.js'
+import { buildCrewManifestRows, formatCrewManifestMarkdown } from './crew-manifest.util.js'
 
 const saveFile = useSaveFileStore()
 
@@ -39,53 +38,48 @@ function downloadMarkdown() {
 
 <template>
 	<div class="v-crew-manifest">
-		<h1>Crew manifest</h1>
-		<p v-if="!saveFile.hasSave" class="lead">
-			Load a save from <RouterLink to="/">Home</RouterLink> to see the crew table.
+		<h2>Crew Manifest</h2>
+		<p class="lead">
+			Generated from <strong>{{ saveFile.fileName }}</strong> ({{ rows.length }} kerbals).
 		</p>
-		<template v-else>
-			<p class="lead">
-				Generated from <strong>{{ saveFile.fileName }}</strong> ({{ rows.length }} kerbals).
-			</p>
-			<div class="v-crew-manifest--actions">
-				<button type="button" class="btn btn-primary" @click="copyMarkdown">Copy markdown</button>
-				<button type="button" class="btn" @click="downloadMarkdown">Download .md</button>
-				<span v-if="copyMessage" class="form_help" role="status">{{ copyMessage }}</span>
-			</div>
-			<div class="v-crew-manifest--table_wrap">
-				<table class="v-crew-manifest--table">
-					<thead>
-						<tr>
-							<th>Kerbal</th>
-							<th>Role</th>
-							<th>Vessel</th>
-							<th>Situation</th>
-							<th>Body</th>
-							<th>Suit</th>
-							<th>Build</th>
-							<th>Color</th>
-							<th>Status</th>
-						</tr>
-					</thead>
-					<tbody>
-						<tr v-for="(r, idx) in rows" :key="`${r.name}-${idx}`">
-							<td>{{ r.name }}</td>
-							<td>{{ r.role }}</td>
-							<td>{{ r.vessel }}</td>
-							<td>{{ r.situation }}</td>
-							<td>{{ r.body }}</td>
-							<td>{{ r.suit }}</td>
-							<td>
-								<abbr v-if="r.build" :title="r.build.title">{{ r.build.abbr }}</abbr>
-								<span v-else>—</span>
-							</td>
-							<td>{{ r.color }}</td>
-							<td>{{ r.status }}</td>
-						</tr>
-					</tbody>
-				</table>
-			</div>
-		</template>
+		<div class="v-crew-manifest--actions">
+			<button type="button" class="btn" @click="downloadMarkdown">Download .md</button>
+			<button type="button" class="btn" @click="copyMarkdown">Copy Markdown</button>
+			<span v-if="copyMessage" class="form_help" role="status">{{ copyMessage }}</span>
+		</div>
+		<div class="v-crew-manifest--table_wrap">
+			<table class="v-crew-manifest--table">
+				<thead>
+					<tr>
+						<th>Kerbal</th>
+						<th>Role</th>
+						<th>Vessel</th>
+						<th>Situation</th>
+						<th>Body</th>
+						<th>Suit</th>
+						<th>Build</th>
+						<th>Color</th>
+						<th>Status</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr v-for="(r, idx) in rows" :key="`${r.name}-${idx}`">
+						<td>{{ r.name }}</td>
+						<td>{{ r.role }}</td>
+						<td>{{ r.vessel }}</td>
+						<td>{{ r.situation }}</td>
+						<td>{{ r.body }}</td>
+						<td>{{ r.suit }}</td>
+						<td>
+							<abbr v-if="r.build" :title="r.build.title">{{ r.build.abbr }}</abbr>
+							<span v-else>—</span>
+						</td>
+						<td>{{ r.color }}</td>
+						<td>{{ r.status }}</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
 	</div>
 </template>
 

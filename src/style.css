@@ -81,6 +81,16 @@
 	/* ### Page layout */
 	--house--page--max_width: 1400px;
 
+	/* ### Typography */
+	--house--text--size: 1rem;
+	--house--text--size-small: 0.85rem;
+
+
+	--house--nav--height: 3rem;
+
+	@media (min-width: 600px) {
+		--house--nav--height: 3.5rem;
+	}
 }
 
 
@@ -110,9 +120,13 @@ body {
 }
 
 small {
-	font-size: 0.85em;
+	font-size: var(--house--text--size-small);
 }
 
+.sticky-top {
+	position: sticky;
+	top: var(--house--nav--height);
+}
 
 .lead {
 	color: var(--house--color--ink-muted);
@@ -133,6 +147,77 @@ small {
 	}
 }
 
+/*
+ * Tab bar + single panel (“dossier”) — gray tab strip, white active tab, shared border with panel.
+ * Wrap `<nav class="tab_dossier--nav">` and `<section class="tab_dossier--panel">` in `.tab_dossier`
+ * so there is no extra vertical gap between bar and panel. Tab links may use RouterLink or `<a>`;
+ * active: `.router-link-active` or `.is-active` (e.g. exact parent route).
+ */
+.tab_dossier {
+	display: flex;
+	flex-direction: column;
+	gap: 0;
+	min-width: 0;
+}
+.tab_dossier--nav {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.25rem 0.35rem;
+	align-items: flex-end;
+	padding: 0.35rem 0.35rem 0;
+	background: var(--house--gray-100);
+	border: 1px solid var(--house--border_color-interactive);
+	border-radius: var(--house--border_radius-sm) var(--house--border_radius-sm) 0 0;
+	border-bottom: 1px solid var(--house--border_color-interactive);
+}
+.tab_dossier--link {
+	display: inline-block;
+	padding: 0.5rem 0.85rem;
+	color: var(--house--color--ink);
+	text-decoration: none;
+	font-weight: 500;
+	white-space: nowrap;
+	border-radius: var(--house--border_radius-sm) var(--house--border_radius-sm) 0 0;
+	border: 1px solid transparent;
+	border-bottom: none;
+	background: var(--house--gray-100);
+}
+.tab_dossier--link:hover {
+	color: var(--house--color--primary);
+}
+.tab_dossier--link.router-link-active,
+.tab_dossier--link.is-active {
+	color: var(--house--color--primary);
+	background: white;
+	border-color: var(--house--border_color-interactive);
+	border-bottom: 1px solid white;
+	margin-bottom: -1px;
+}
+
+.tab_dossier--panel {
+	min-width: 0;
+	margin-top: -1px;
+	border: 1px solid var(--house--border_color-interactive);
+	border-top: none;
+	border-radius: 0 0 var(--house--border_radius-sm) var(--house--border_radius-sm);
+	padding: 0.75rem;
+}
+
+
+.page_header {
+	padding-top: 1rem;
+	padding-bottom: 1rem;
+
+	@media (min-width: 600px) {
+		padding-top: 1.75rem;
+		padding-bottom: 1.75rem;
+	}
+
+	:last-child {
+		margin-bottom: 0;
+	}
+}
+
 /* ## Layout */
 
 .l-stack {
@@ -141,8 +226,45 @@ small {
 	gap: 1rem;
 }
 
-.l-stack--tight {
-	gap: 0.5rem;
+/*
+ * Two-column layout: sidebar + content. Below 600px, default block flow (stacked).
+ * From 600px up: flex row, content grows. Put content before sidebar in the DOM for a right-hand sidebar.
+ */
+.l-with_sidebar {
+	width: 100%;
+	min-width: 0;
+}
+.l-with_sidebar--sidebar {
+	margin-bottom: 1.25rem;
+}
+
+@media (min-width: 600px) {
+	.l-with_sidebar {
+		display: flex;
+		flex-wrap: nowrap;
+		gap: 1rem;
+		align-items: flex-start;
+	}
+	.l-with_sidebar--sidebar {
+		margin-bottom: 0;
+		flex: 0 1 14rem;
+		max-width: 22rem;
+		min-width: min(100%, 11rem);
+		display: flex;
+		flex-direction: column;
+		align-items: stretch;
+		gap: 1rem;
+	}
+	.l-with_sidebar--content {
+		flex: 1 1 0%;
+		min-width: 0;
+		display: flex;
+		flex-direction: column;
+	}
+
+	.l-with_sidebar-reverse {
+		flex-direction: row-reverse;
+	}
 }
 
 .hidden-vw_400_down {
@@ -220,7 +342,7 @@ textarea {
 }
 .btn-sm {
 	padding: 0.2rem 0.4rem;
-	font-size: 0.8rem;
+	font-size: var(--house--text--size-small);
 }
 
 .btn-slot {
@@ -289,7 +411,7 @@ textarea:read-only {
 label {
 	&:has(input[type="radio"], input[type="checkbox"]) {}
 	&:not(:has(input[type="radio"], input[type="checkbox"])) {
-		font-size: 0.85rem;
+		font-size: var(--house--text--size-small);
 		color: var(--house--color--ink-muted);
 		margin-bottom: 0.25rem;
 	}
@@ -341,7 +463,7 @@ label {
 
 /* ### Form Help Text */
 .form_help {
-	font-size: 0.85rem;
+	font-size: var(--house--text--size-small);
 	color: var(--house--color--ink-muted);
 	margin-top: 0.5rem;
 	margin-bottom: 0;
