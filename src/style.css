@@ -133,6 +133,18 @@ small {
 	}
 }
 
+/* ## Layout */
+
+.l-stack {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+}
+
+.l-stack--tight {
+	gap: 0.5rem;
+}
+
 .hidden-vw_400_down {
 	display: none;
 
