@@ -55,7 +55,7 @@ Project sites are served at `https://<user>.github.io/<repo>/`; the app and serv
 	Commit **`package.json`** and **`package-lock.json`**, then use **`npm ci`** for day-to-day installs.
 
 - Set **`VITE_BASE_PATH`** in [`.env.production`](.env.production) to `/<repo-name>/` (with a trailing slash) when the GitHub repo name does not match the checked-in default.
-- User-facing labels and PWA fields are centralized in [`src/app/app.const.js`](src/app/app.const.js) (used for the generated manifest, [`index.html`](index.html) placeholders, [`src/router.js`](src/router.js), and [`src/app/HomeView.vue`](src/app/HomeView.vue)). The canonical vector icon is [`icon.svg`](icon.svg) at the repo root; after editing it, run [`npm run icons`](package.json) and commit `public/app/` (copied SVG, PNGs, and `icon.svg.sha256`). [`npm run test:run`](package.json) runs [`verify:icons`](package.json) so CI fails if the SVG drifted from the last generated assets.
+- User-facing labels and PWA fields are centralized in [`src/app/app.const.js`](src/app/app.const.js) (used for the generated manifest, [`index.html`](index.html) placeholders, [`src/router.js`](src/router.js), and [`src/save-file/SaveFileExplorerView.vue`](src/save-file/SaveFileExplorerView.vue)). The canonical vector icon is [`icon.svg`](icon.svg) at the repo root; after editing it, run [`npm run icons`](package.json) and commit `public/app/` (copied SVG, PNGs, and `icon.svg.sha256`). [`npm run test:run`](package.json) runs [`verify:icons`](package.json) so CI fails if the SVG drifted from the last generated assets.
 
 ## Docs
 

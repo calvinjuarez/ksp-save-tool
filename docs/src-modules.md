@@ -12,21 +12,25 @@ See [ADR-005](adr/005-module-style-src-layout.md) for rationale and trade-offs.
 
 ## File suffixes
 
-| Suffix        | Meaning
-| ---           | ---
-| `.const.js`   | Frozen data: maps, string constants, `APP_*` exports.
-| `.util.js`    | Pure functions: no Vue, no side effects.
-| `.store.js`   | Pinia stores (global reactive state).
-| `.compose.js` | Vue composables: `ref`/`computed`/lifecycle; exports use `use*` names.
-| `.test.js`    | Vitest tests.
-| `View.vue`    | Route-level view (PascalCase, like Vue’s component convention).
+| Suffix           | Meaning
+| ---              | ---
+| `.component.vue` | Non-route Vue component (PascalCase), e.g. shared UI building blocks.
+| `.compose.js`    | Vue composables: `ref`/`computed`/lifecycle; exports use `use*` names.
+| `.const.js`      | Frozen data: maps, string constants, `APP_*` exports.
+| `.store.js`      | Pinia stores (global reactive state).
+| `.test.js`       | Vitest tests.
+| `.util.js`       | Pure functions: no Vue, no side effects.
+| `View.vue`       | Route-level view (PascalCase, like Vue’s component convention).
+
+**Future (not adopted):** a `{domain}.view.vue` pattern (aligned with other dot-suffix files) may replace `View.vue` for route components—deferred until a project-wide rename.
 
 **Composable files:** Filenames are `{domain}.compose.js`, not `use-feature.js`, so one file can export several `use*` functions and stay aligned with the suffix pattern. Call sites still use `useSomething()` per Vue convention.
 
 ## Module categories
 
-- **`app/`** – Shell: root `App.vue`, env store, home and 404 views, `app.const.js` (PWA + copy).
-- **`save-file/`** – Parse upload, Pinia tree, helpers that read `.sfs`/`GAME` trees.
+- **`app/`** – Shell: root `App.vue`, env store, 404 view, `app.const.js` (PWA + copy).
+- **`save-file/`** – Parse upload, Pinia tree, helpers that read `.sfs`/`GAME` trees, and `SaveFileExplorerView.vue` (nested `/save-explorer` routes).
+- **`shared/`** – Cross-feature UI and utilities (e.g. generic `FileUpload.component.vue`).
 - **`settings/`** – Settings route and future UI.
 - **`ksp/`** – pure KSP helpers: body names from `ORBIT.REF` (`body.util.js`), kerbal roster parsing (`kerbal.util.js`), and related utilities.
 - **`crew-manifest/`** – crew table and markdown export from a loaded save.
