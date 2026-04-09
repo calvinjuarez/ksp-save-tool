@@ -17,7 +17,7 @@
  */
 
 /**
- * @typedef {'name'|'mark'|'role'|'vessel'|'situation'|'body'|'suit'|'build'|'color'} CrewManifestSortColumn
+ * @typedef {'name'|'mark'|'role'|'rank'|'vessel'|'situation'|'body'|'suit'|'build'|'color'} CrewManifestSortColumn
  */
 
 /** @type {readonly CrewManifestSortColumn[]} */
@@ -25,6 +25,7 @@ export const CREW_MANIFEST_SORT_COLUMNS = [
 	'name',
 	'mark',
 	'role',
+	'rank',
 	'vessel',
 	'situation',
 	'body',
@@ -134,6 +135,8 @@ function compareByColumn(key, a, b) {
 			return markSortRank(a) - markSortRank(b)
 		case 'role':
 			return compareLocaleText(a.role, b.role)
+		case 'rank':
+			return a.totalXp - b.totalXp
 		case 'vessel':
 			return compareLocaleText(a.vessel, b.vessel)
 		case 'situation':
@@ -172,6 +175,7 @@ function applyDir(dir, cmp) {
 /**
  * Stable sort: primary column dominates; secondary breaks ties; kerbal name
  * ascending is always the final tiebreaker (locale rules, em dash last).
+ * The `rank` column sorts by `totalXp` (experience points), not star count.
  *
  * @param {CrewManifestRow[]} rows
  * @param {CrewManifestSortSpec} primary
@@ -206,4 +210,31 @@ export function cycleCrewManifestSortDir(dir) {
 	if (dir === 'asc') return 'desc'
 	if (dir === 'desc') return null
 	return 'asc'
+}
+
+/**
+ * Rank sorts highest-first by default; cycle order is desc → asc → null → desc.
+ * Other columns keep {@link cycleCrewManifestSortDir} (asc → desc → null → asc).
+ *
+ * @param {CrewManifestSortColumn} key
+ * @param {CrewManifestSortDir} dir
+ * @returns {CrewManifestSortDir}
+ */
+export function cycleCrewManifestSortDirForColumn(key, dir) {
+	if (key === 'rank') {
+		if (dir === 'desc') return 'asc'
+		if (dir === 'asc') return null
+		return 'desc'
+	}
+	return cycleCrewManifestSortDir(dir)
+}
+
+/**
+ * First click on a column: rank starts at desc; others at asc.
+ *
+ * @param {CrewManifestSortColumn} key
+ * @returns {'asc'|'desc'}
+ */
+export function initialCrewManifestSortDirForColumn(key) {
+	return key === 'rank' ? 'desc' : 'asc'
 }

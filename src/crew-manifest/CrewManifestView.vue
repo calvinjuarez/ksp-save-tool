@@ -3,10 +3,16 @@ import { computed, ref } from 'vue'
 import { kerbalDisplayName } from '../ksp/kerbal.util.js'
 import { useSaveFileStore } from '../save-file/save-file.store.js'
 import {
-	cycleCrewManifestSortDir,
+	cycleCrewManifestSortDirForColumn,
+	initialCrewManifestSortDirForColumn,
 	sortCrewManifestRows,
 } from './crew-manifest-sort.util.js'
-import { buildCrewManifestRows, formatCrewManifestMarkdown } from './crew-manifest.util.js'
+import {
+	buildCrewManifestRows,
+	formatCrewManifestMarkdown,
+	formatTotalXpDisplay,
+	rankToStars,
+} from './crew-manifest.util.js'
 
 /** @typedef {import('./crew-manifest-sort.util.js').CrewManifestSortColumn} CrewManifestSortColumn */
 
@@ -60,22 +66,22 @@ function onSortHeaderClick(key, event) {
 	if (event.shiftKey) {
 		if (primarySort.value.key === key) return
 		if (secondarySort.value.key === key) {
-			const next = cycleCrewManifestSortDir(secondarySort.value.dir)
+			const next = cycleCrewManifestSortDirForColumn(key, secondarySort.value.dir)
 			if (next === null) secondarySort.value = { key: null, dir: null }
 			else secondarySort.value = { key, dir: next }
 		} else {
-			secondarySort.value = { key, dir: 'asc' }
+			secondarySort.value = { key, dir: initialCrewManifestSortDirForColumn(key) }
 		}
 		return
 	}
 
 	secondarySort.value = { key: null, dir: null }
 	if (primarySort.value.key === key) {
-		const next = cycleCrewManifestSortDir(primarySort.value.dir)
+		const next = cycleCrewManifestSortDirForColumn(key, primarySort.value.dir)
 		if (next === null) primarySort.value = { key: null, dir: null }
 		else primarySort.value = { key, dir: next }
 	} else {
-		primarySort.value = { key, dir: 'asc' }
+		primarySort.value = { key, dir: initialCrewManifestSortDirForColumn(key) }
 	}
 }
 
@@ -120,6 +126,11 @@ function sortIndicator(key, which) {
 							<span class="v-crew-manifest--sort_primary">{{ sortIndicator('role', 'primary') }}</span>
 							<span class="v-crew-manifest--sort_secondary">{{ sortIndicator('role', 'secondary') }}</span>
 						</th>
+						<th class="v-crew-manifest--sort_th" @click="onSortHeaderClick('rank', $event)">
+							Rank
+							<span class="v-crew-manifest--sort_primary">{{ sortIndicator('rank', 'primary') }}</span>
+							<span class="v-crew-manifest--sort_secondary">{{ sortIndicator('rank', 'secondary') }}</span>
+						</th>
 						<th class="v-crew-manifest--sort_th" @click="onSortHeaderClick('vessel', $event)">
 							Vessel
 							<span class="v-crew-manifest--sort_primary">{{ sortIndicator('vessel', 'primary') }}</span>
@@ -163,6 +174,13 @@ function sortIndicator(key, which) {
 							>{{ r.mark.emoji }}</abbr>
 						</td>
 						<td>{{ r.role }}</td>
+						<td class="v-crew-manifest--rank_cell">
+							<abbr
+								class="v-crew-manifest--rank_abbr"
+								:title="`Rank ${r.rank}; XP ${formatTotalXpDisplay(r.totalXp)}`"
+								:aria-label="`Rank ${r.rank}; XP ${formatTotalXpDisplay(r.totalXp)}`"
+							>{{ rankToStars(r.rank) }}</abbr>
+						</td>
 						<td>{{ r.vessel }}</td>
 						<td>{{ r.situation }}</td>
 						<td>{{ r.body }}</td>
@@ -236,5 +254,13 @@ function sortIndicator(key, which) {
 
 .v-crew-manifest--table tbody tr:last-child td {
 	border-bottom: none;
+}
+
+.v-crew-manifest--rank_cell {
+	white-space: nowrap;
+}
+
+.v-crew-manifest--rank_abbr {
+	cursor: help;
 }
 </style>

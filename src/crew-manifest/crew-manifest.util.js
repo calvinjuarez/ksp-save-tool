@@ -1,6 +1,11 @@
 import { bodyNameFromOrbitRef } from '../ksp/body.util.js'
 import { recoverAssetMarkByKerbalName } from '../ksp/contract-rescue.util.js'
-import { kerbalDisplayName, parseBuild } from '../ksp/kerbal.util.js'
+import {
+	kerbalDisplayName,
+	kerbalRankFromKerbal,
+	kerbalTotalXpFromKerbal,
+	parseBuild,
+} from '../ksp/kerbal.util.js'
 import { asArray } from '../save-file/save-file.util.js'
 import { crewManifestMark } from './crew-manifest-mark.const.js'
 
@@ -22,6 +27,8 @@ import { crewManifestMark } from './crew-manifest-mark.const.js'
  * @typedef {Object} CrewManifestRow
  * @property {string} name
  * @property {string} role
+ * @property {number} rank
+ * @property {number} totalXp
  * @property {string} vessel
  * @property {string} situation
  * @property {string} body
@@ -107,6 +114,27 @@ function roleFromKerbal(kerbal) {
 }
 
 /**
+ * @param {number} rank
+ * @returns {string}
+ */
+export function rankToStars(rank) {
+	const r = Math.min(5, Math.max(0, rank))
+	if (r === 0) return '☆'
+	return '★'.repeat(r)
+}
+
+/**
+ * @param {number} totalXp
+ * @returns {string}
+ */
+export function formatTotalXpDisplay(totalXp) {
+	if (!Number.isFinite(totalXp)) return '—'
+	const rounded = Math.round(totalXp * 10) / 10
+	if (Number.isInteger(rounded)) return String(rounded)
+	return rounded.toFixed(1)
+}
+
+/**
  * @param {string} name
  * @param {Record<string, unknown>} kerbal
  * @param {Map<string, 'openRescue'|'rescued'>} rescueMap
@@ -161,9 +189,13 @@ export function buildCrewManifestRows(tree) {
 			parsed !== null ? { abbr: parsed.abbr, title: parsed.title } : null
 		const color = parsed !== null ? parsed.colorVariant : '—'
 		const { mark, markKind } = markFromKerbal(name, kerbal, rescueMap)
+		const rank = kerbalRankFromKerbal(kerbal)
+		const totalXp = kerbalTotalXpFromKerbal(kerbal)
 		rows.push({
 			name,
 			role: roleFromKerbal(kerbal),
+			rank,
+			totalXp,
 			vessel,
 			situation,
 			body,
@@ -210,16 +242,18 @@ export function formatCrewManifestMarkdown(rows) {
 		'',
 		'## Full Crew Table',
 		'',
-		'| Kerbal | Mark | Role | Vessel | Situation | At | Suit | Build | Color |',
-		'| ---    | ---  | ---  | ---    | ---       | -- | ---  | ---   | ---   |',
+		'| Kerbal | Mark | Role | Rank | Vessel | Situation | At | Suit | Build | Color |',
+		'| ---    | ---  | ---  | ---  | ---    | ---       | -- | ---  | ---   | ---   |',
 	]
 	for (const r of rows) {
 		const buildMd = r.build !== null ? r.build.abbr : '—'
 		const markMd = r.mark !== null ? r.mark.emoji : '—'
+		const rankMd = rankToStars(r.rank)
 		const cells = [
 			kerbalDisplayName(r.name),
 			markMd,
 			r.role,
+			rankMd,
 			r.vessel,
 			r.situation,
 			r.body,

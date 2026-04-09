@@ -3,6 +3,8 @@ import {
 	CREW_MANIFEST_MARK_SORT_ORDER,
 	sortCrewManifestRows,
 	cycleCrewManifestSortDir,
+	cycleCrewManifestSortDirForColumn,
+	initialCrewManifestSortDirForColumn,
 	crewManifestSortSpecIsActive,
 } from './crew-manifest-sort.util.js'
 
@@ -11,6 +13,8 @@ function row(partial) {
 	return {
 		name: '—',
 		role: '—',
+		rank: 0,
+		totalXp: 0,
 		vessel: '—',
 		situation: '—',
 		body: '—',
@@ -40,6 +44,26 @@ describe('cycleCrewManifestSortDir', () => {
 		expect(cycleCrewManifestSortDir('asc')).toBe('desc')
 		expect(cycleCrewManifestSortDir('desc')).toBe(null)
 		expect(cycleCrewManifestSortDir(null)).toBe('asc')
+	})
+})
+
+describe('cycleCrewManifestSortDirForColumn', () => {
+	it('keeps default cycle for non-rank columns', () => {
+		expect(cycleCrewManifestSortDirForColumn('name', 'asc')).toBe('desc')
+		expect(cycleCrewManifestSortDirForColumn('name', null)).toBe('asc')
+	})
+
+	it('cycles rank desc -> asc -> null -> desc', () => {
+		expect(cycleCrewManifestSortDirForColumn('rank', 'desc')).toBe('asc')
+		expect(cycleCrewManifestSortDirForColumn('rank', 'asc')).toBe(null)
+		expect(cycleCrewManifestSortDirForColumn('rank', null)).toBe('desc')
+	})
+})
+
+describe('initialCrewManifestSortDirForColumn', () => {
+	it('uses desc for rank and asc for others', () => {
+		expect(initialCrewManifestSortDirForColumn('rank')).toBe('desc')
+		expect(initialCrewManifestSortDirForColumn('name')).toBe('asc')
 	})
 })
 
@@ -119,5 +143,24 @@ describe('sortCrewManifestRows', () => {
 		]
 		const out = sortCrewManifestRows(rows, { key: 'role', dir: 'asc' }, { key: null, dir: null })
 		expect(out.map(r => r.role)).toEqual(['Pilot', '—'])
+	})
+
+	it('sorts rank column by totalXp ascending', () => {
+		const rows = [
+			row({ name: 'high', rank: 5, totalXp: 64 }),
+			row({ name: 'low', rank: 0, totalXp: 0 }),
+			row({ name: 'mid', rank: 2, totalXp: 10 }),
+		]
+		const out = sortCrewManifestRows(rows, { key: 'rank', dir: 'asc' }, { key: null, dir: null })
+		expect(out.map(r => r.name)).toEqual(['low', 'mid', 'high'])
+	})
+
+	it('breaks totalXp ties by name when rank column is selected', () => {
+		const rows = [
+			row({ name: 'B', rank: 2, totalXp: 10 }),
+			row({ name: 'A', rank: 1, totalXp: 10 }),
+		]
+		const out = sortCrewManifestRows(rows, { key: 'rank', dir: 'asc' }, { key: null, dir: null })
+		expect(out.map(r => r.name)).toEqual(['A', 'B'])
 	})
 })
