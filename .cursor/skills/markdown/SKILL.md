@@ -2,10 +2,10 @@
 name: markdown
 description: >-
   Writes repository Markdown that follows common markdownlint rules: fenced code
-  blocks with languages, real headings, aligned pipe tables (MD055/MD060), lists
-  instead of tables for link indexes, and file hygiene. Use when editing docs,
-  READMEs, ADRs, skills, or when the user mentions Markdown, markdownlint, or
-  docs/style-guide--markdown.md.
+  blocks with languages, real headings, aligned pipe tables (MD055/MD060) with no
+  trailing whitespace after the last table cell, lists instead of tables for link
+  indexes, and file hygiene. Use when editing docs, READMEs, ADRs, skills, or
+  when the user mentions Markdown, markdownlint, or docs/style-guide--markdown.md.
 ---
 
 To use this skill in **Cursor** outside this repo, copy the `markdown` folder to `~/.cursor/skills/markdown/` (personal) or another project’s `.cursor/skills/markdown/`.
@@ -26,7 +26,7 @@ Conventions below match typical **markdownlint** configs and work in any editor.
 
 - **Leading `|` only** on each row; **no trailing `|`** at end of line.
 - **Delimiter row:** exactly **three hyphens** per column (`---`), then spaces so the next `|` lines up with the rows above—not a long run of hyphens.
-- **Align pipes** vertically; **trailing spaces** at end of line are OK when padding rows to the same width as the longest line.
+- **Align pipes** vertically between columns; **do not** add trailing whitespace after the last cell on a row (no right-padding of the final column).
 
 Wrong:
 
@@ -50,7 +50,7 @@ From the skill directory, pipe table rows (no delimiter needed; existing delimit
 python .cursor/skills/markdown/scripts/align_table.py < snippet.md
 ```
 
-The script recomputes column widths from the data, inserts a correct delimiter after the first row, and prints **leading-pipe-only** aligned rows. Use it when hand-editing wide tables.
+The script recomputes column widths from the data, inserts a correct delimiter after the first row, and prints **leading-pipe-only** aligned rows with **no trailing spaces** after the last column. Use it when hand-editing wide tables.
 
 Validate with **markdownlint-cli2** when the project has it:
 
@@ -77,5 +77,5 @@ Use **em dash** (`—`) between the link and the description.
 
 1. Code fences have a language.
 2. Headings are real headings, not bold-as-title.
-3. Tables: no trailing `|`; delimiter is `---` + spaces; pipes align.
+3. Tables: no trailing `|`; no trailing whitespace after last cell; delimiter is `---` + spaces; pipes align.
 4. Link indexes use lists, not tables.

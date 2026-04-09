@@ -3,7 +3,8 @@
 Align a GitHub-flavored Markdown pipe table for markdownlint MD055 / MD060.
 
 - Leading | only on each row (no trailing |).
-- Delimiter row uses exactly three hyphens per column, padded with spaces.
+- Delimiter row uses exactly three hyphens per column; pad between columns, not after the last cell.
+- No trailing whitespace at end of line (last column is not right-padded).
 - Column widths are the max width of each column across rows (minimum 3 for the delimiter).
 
 Pass table rows on stdin (header and body lines only; delimiter rows are ignored and recomputed).
@@ -54,15 +55,21 @@ def emit_row(cells: list[str], widths: list[int]) -> str:
 	padded = []
 	for i, w in enumerate(widths):
 		c = cells[i] if i < len(cells) else ''
-		padded.append(c.ljust(w))
+		if i == len(widths) - 1:
+			padded.append(c)
+		else:
+			padded.append(c.ljust(w))
 	return '| ' + ' | '.join(padded)
 
 
 def emit_delimiter(widths: list[int]) -> str:
 	padded = []
-	for w in widths:
+	for i, w in enumerate(widths):
 		inner = '---' + ' ' * max(0, w - 3)
-		padded.append(inner.ljust(w))
+		if i == len(widths) - 1:
+			padded.append(inner.rstrip())
+		else:
+			padded.append(inner.ljust(w))
 	return '| ' + ' | '.join(padded)
 
 

@@ -8,6 +8,8 @@ alwaysApply: false
 
 Follow [docs/style-guide--markdown.md](docs/style-guide--markdown.md). Lint config: [.markdownlint.json](.markdownlint.json).
 
+Pipe tables: leading `|` only (no trailing `|`); **no trailing whitespace** after the last cell on a row.
+
 Cursor helpers: [.cursor/skills/markdown/SKILL.md](.cursor/skills/markdown/SKILL.md), [scripts/align_table.py](.cursor/skills/markdown/scripts/align_table.py).
 
 ADR process: [docs/adr/README.md](docs/adr/README.md).

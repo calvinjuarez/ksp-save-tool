@@ -10,19 +10,19 @@ Use `white` and `black` directly. No custom property needed.
 
 ### Grays
 
-| Token               | Value    
-| ---                 | ---      
+| Token               | Value
+| ---                 | ---
 | `--house--gray-100` | `#f2f2f2`
 | `--house--gray-200` | `#e0e0e0`
 | `--house--gray-300` | `#c9c9c9`
-| `--house--gray-400` | `#999`   
-| `--house--gray-500` | `#666`   
-| `--house--gray-600` | `#333`   
+| `--house--gray-400` | `#999`
+| `--house--gray-500` | `#666`
+| `--house--gray-600` | `#333`
 
 ### Blues
 
-| Token               | Value    
-| ---                 | ---      
+| Token               | Value
+| ---                 | ---
 | `--house--blue-100` | `#f0f7ff`
 | `--house--blue-200` | `#c7dcff`
 | `--house--blue-300` | `#93c5fd`
@@ -32,8 +32,8 @@ Use `white` and `black` directly. No custom property needed.
 
 ### Reds
 
-| Token              | Value    
-| ---                | ---      
+| Token              | Value
+| ---                | ---
 | `--house--red-100` | `#fef2f2`
 | `--house--red-200` | `#fecaca`
 | `--house--red-300` | `#fca5a5`
@@ -45,8 +45,8 @@ Use `white` and `black` directly. No custom property needed.
 
 Balanced pure orange (anchored at `500`), tuned to sit beside grays and reds without reading as danger red. The **Primary** semantic family maps to this scale.
 
-| Token                 | Value    
-| ---                   | ---      
+| Token                 | Value
+| ---                   | ---
 | `--house--orange-100` | `#fff4ed`
 | `--house--orange-200` | `#ffe0cc`
 | `--house--orange-300` | `#ffc090`
@@ -58,37 +58,37 @@ Balanced pure orange (anchored at `500`), tuned to sit beside grays and reds wit
 
 Each family has: base, dark, muted, hint, faint. Token pattern: `--house--color--{family}`, `--house--color--{family}-dark`, `--house--color--{family}-muted`, `--house--color--{family}-hint`, `--house--color--{family}-faint`.
 
-| Family  | Base                      | Dark                           | Muted                           | Hint                           | Faint                          
-| ---     | ---                       | ---                            | ---                             | ---                            | ---                            
-| Ink     | `--house--color--ink`     | `--house--color--ink-dark`     | `--house--color--ink-muted`     | `--house--color--ink-hint`     | `--house--color--ink-faint`    
+| Family  | Base                      | Dark                           | Muted                           | Hint                           | Faint
+| ---     | ---                       | ---                            | ---                             | ---                            | ---
+| Ink     | `--house--color--ink`     | `--house--color--ink-dark`     | `--house--color--ink-muted`     | `--house--color--ink-hint`     | `--house--color--ink-faint`
 | Primary | `--house--color--primary` | `--house--color--primary-dark` | `--house--color--primary-muted` | `--house--color--primary-hint` | `--house--color--primary-faint`
-| Danger  | `--house--color--danger`  | `--house--color--danger-dark`  | `--house--color--danger-muted`  | `--house--color--danger-hint`  | `--house--color--danger-faint` 
+| Danger  | `--house--color--danger`  | `--house--color--danger-dark`  | `--house--color--danger-muted`  | `--house--color--danger-hint`  | `--house--color--danger-faint`
 
 ## Applications
 
 ### Borders
 
-| Token                                     | References | Use                                              
-| ---                                       | ---        | ---                                              
-| `--house--border_color`                   | `gray-100` | Subtle borders (cards, dividers, move slots)     
+| Token                                     | References | Use
+| ---                                       | ---        | ---
+| `--house--border_color`                   | `gray-100` | Subtle borders (cards, dividers, move slots)
 | `--house--border_color-interactive`       | `gray-200` | Default interactive borders, form control borders
-| `--house--border_color-interactive_hover` | `gray-400` | Hover-state borders                              
+| `--house--border_color-interactive_hover` | `gray-400` | Hover-state borders
 
 ### Border radius
 
-| Token                       | Value | Use                        
-| ---                         | ---   | ---                        
-| `--house--border_radius-lg` | `8px` | Cards, wells               
-| `--house--border_radius-md` | `6px` | Buttons, move slots        
+| Token                       | Value | Use
+| ---                         | ---   | ---
+| `--house--border_radius-lg` | `8px` | Cards, wells
+| `--house--border_radius-md` | `6px` | Buttons, move slots
 | `--house--border_radius-sm` | `4px` | Form controls, mode buttons
 
 ### Inputs
 
-| Token                                | References                 | Use                             
-| ---                                  | ---                        | ---                             
-| `--house--input--padding_x`          | `0.5rem`                   | Horizontal padding              
-| `--house--input--padding_y`          | `0.25rem`                  | Vertical padding                
+| Token                                | References                 | Use
+| ---                                  | ---                        | ---
+| `--house--input--padding_x`          | `0.5rem`                   | Horizontal padding
+| `--house--input--padding_y`          | `0.25rem`                  | Vertical padding
 | `--house--input--padding`            | composite                  | Shorthand: `padding_y padding_x`
-| `--house--input--border_radius`      | `border_radius-sm`         | Form control corners            
-| `--house--input--border_color`       | `border_color-interactive` | Default form border             
-| `--house--input-focus--border_color` | `color--primary-muted`     | Focus ring / outline            
+| `--house--input--border_radius`      | `border_radius-sm`         | Form control corners
+| `--house--input--border_color`       | `border_color-interactive` | Default form border
+| `--house--input-focus--border_color` | `color--primary-muted`     | Focus ring / outline

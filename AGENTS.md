@@ -21,6 +21,7 @@ Use tab indentation.
 
 - Fenced code blocks must specify a language (use `text` for plain text).
 - No bold/italic as pseudo-headings; use proper heading levels.
+- Pipe tables: no trailing whitespace after the last cell; see [docs/style-guide--markdown.md](docs/style-guide--markdown.md).
 - Markdown (tables, headings, indexes): [.cursor/skills/markdown/SKILL.md](.cursor/skills/markdown/SKILL.md); table alignment helper: [.cursor/skills/markdown/scripts/align_table.py](.cursor/skills/markdown/scripts/align_table.py).
 
 **Full docs:** [docs/style-guide--markdown.md](docs/style-guide--markdown.md)
