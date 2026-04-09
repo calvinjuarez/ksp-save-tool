@@ -345,6 +345,13 @@ textarea {
 	font-size: var(--house--text--size-small);
 }
 
+/* Full width inside the parent (cf. legacy Bootstrap .btn-block). */
+.btn-block {
+	display: block;
+	width: 100%;
+	text-align: center;
+}
+
 .btn-slot {
 	cursor: default;
 	background-color: var(--house--gray-200);

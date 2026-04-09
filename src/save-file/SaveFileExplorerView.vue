@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { RouterLink, RouterView, useRoute } from 'vue-router'
 import SaveFileUpload from './components/SaveFileUpload.component.vue'
 import { SAVE_EXPLORER_REPORTS } from './save-file.reports.const.js'
@@ -11,6 +11,39 @@ const saveFile = useSaveFileStore()
 const reports = SAVE_EXPLORER_REPORTS
 
 const isSaveExplorerIndex = computed(() => route.name === 'save-explorer')
+
+const jsonExportError = ref('')
+
+function parsedJsonDownloadName() {
+	const name = saveFile.fileName
+	if (!name) return 'ksp_save.parsed.json'
+	const dot = name.lastIndexOf('.')
+	const base = dot > 0 ? name.slice(0, dot) : name
+	return `${base || 'ksp_save'}.parsed.json`
+}
+
+function downloadParsedJson() {
+	const tree = saveFile.tree
+	if (tree == null) return
+	let text
+	try {
+		text = JSON.stringify(tree, null, '\t')
+	} catch {
+		jsonExportError.value = 'Could not serialize save to JSON.'
+		setTimeout(() => {
+			jsonExportError.value = ''
+		}, 4000)
+		return
+	}
+	jsonExportError.value = ''
+	const blob = new Blob([text], { type: 'application/json;charset=utf-8' })
+	const url = URL.createObjectURL(blob)
+	const a = document.createElement('a')
+	a.href = url
+	a.download = parsedJsonDownloadName()
+	a.click()
+	URL.revokeObjectURL(url)
+}
 </script>
 
 <template>
@@ -42,6 +75,10 @@ const isSaveExplorerIndex = computed(() => route.name === 'save-explorer')
 							<dt>Kerbals</dt>
 							<dd>{{ saveFile.crewCount }}</dd>
 						</dl>
+						<div class="v-save_file_explorer--json_export">
+							<button type="button" class="btn btn-sm btn-block" @click="downloadParsedJson">Download JSON</button>
+							<span v-if="jsonExportError" class="form_help" role="alert">{{ jsonExportError }}</span>
+						</div>
 					</section>
 
 					<div class="v-save_file_explorer--replace">
@@ -122,6 +159,14 @@ const isSaveExplorerIndex = computed(() => route.name === 'save-explorer')
 .v-save_file_explorer--summary {
 	min-width: 0;
 	margin-bottom: 1rem;
+}
+
+.v-save_file_explorer--json_export {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 0.35rem;
+	margin-top: 0.75rem;
 }
 
 .v-save_file_explorer--replace {
