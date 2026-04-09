@@ -1,3 +1,5 @@
+import { xpFromCareerLog } from './kerbal-career-xp.util.js'
+
 /**
  * Kerbal / roster helpers: pure parsing of fields that appear on `KERBAL` nodes in saves.
  * Add new kerbal-specific parsers here rather than new `src/ksp/*.util.js` files unless
@@ -5,7 +7,14 @@
  *
  * Suit `comboId` format follows game definitions (see SUITCOMBOS.cfg); color names are
  * not in saves—we expose the raw variant number until mapped.
+ *
+ * Career rank (stars): use cached `experience` + `extraXP` when present; otherwise (or when
+ * lower) derive XP from `CAREER_LOG` using stock per-body achievement values from the wiki
+ * Experience table. Star thresholds match KSP 1 (2 / 8 / 16 / 32 / 64 XP).
  */
+
+/** @type {readonly [number, number, number, number, number]} */
+const KERBAL_STAR_XP_THRESHOLDS = [2, 8, 16, 32, 64]
 
 /**
  * @typedef {Object} ParsedBuild
@@ -44,4 +53,75 @@ export function kerbalDisplayName(fullName) {
 	if (typeof fullName !== 'string' || fullName.length === 0) return '—'
 	const stripped = fullName.replace(/\s+Kerman$/, '')
 	return stripped.length > 0 ? stripped : fullName
+}
+
+/**
+ * Map cumulative experience points to star rank 0–5 (KSP 1).
+ *
+ * @param {number} xpTotal
+ * @returns {number}
+ */
+export function rankFromTotalExperience(xpTotal) {
+	if (!Number.isFinite(xpTotal) || xpTotal < 0) return 0
+	if (xpTotal < KERBAL_STAR_XP_THRESHOLDS[0]) return 0
+	if (xpTotal < KERBAL_STAR_XP_THRESHOLDS[1]) return 1
+	if (xpTotal < KERBAL_STAR_XP_THRESHOLDS[2]) return 2
+	if (xpTotal < KERBAL_STAR_XP_THRESHOLDS[3]) return 3
+	if (xpTotal < KERBAL_STAR_XP_THRESHOLDS[4]) return 4
+	return 5
+}
+
+/**
+ * @param {unknown} raw
+ * @returns {number | null}
+ */
+function parseExperienceLevelField(raw) {
+	if (raw === undefined || raw === null) return null
+	if (typeof raw === 'number' && Number.isFinite(raw)) return Math.trunc(raw)
+	if (typeof raw === 'string' && raw.trim() !== '') {
+		const n = Number.parseInt(raw, 10)
+		if (!Number.isNaN(n)) return n
+	}
+	return null
+}
+
+/**
+ * @param {unknown} raw
+ * @returns {number}
+ */
+function parseXpContribution(raw) {
+	if (raw === undefined || raw === null) return 0
+	const n = typeof raw === 'number' ? raw : Number.parseFloat(String(raw))
+	return Number.isFinite(n) ? n : 0
+}
+
+/**
+ * Total experience points used for rank: `max(experience + extraXP, CAREER_LOG-derived XP)`.
+ *
+ * @param {Record<string, unknown>} kerbal
+ * @returns {number}
+ */
+export function kerbalTotalXpFromKerbal(kerbal) {
+	const xpCached =
+		parseXpContribution(kerbal.experience) + parseXpContribution(kerbal.extraXP)
+	const xpCareer = xpFromCareerLog(kerbal.CAREER_LOG)
+	return Math.max(xpCached, xpCareer)
+}
+
+/**
+ * Star rank (0–5) from a `ROSTER` KERBAL node. Combines cached `experience` + `extraXP` with
+ * XP derived from `CAREER_LOG` (whichever total is higher). If `experienceLevel` is present,
+ * uses the max of that level and the rank from total XP.
+ *
+ * @param {Record<string, unknown>} kerbal
+ * @returns {number}
+ */
+export function kerbalRankFromKerbal(kerbal) {
+	const level = parseExperienceLevelField(kerbal.experienceLevel)
+	const totalXp = kerbalTotalXpFromKerbal(kerbal)
+	const fromXp = rankFromTotalExperience(totalXp)
+	if (level !== null) {
+		return Math.min(5, Math.max(0, Math.max(level, fromXp)))
+	}
+	return fromXp
 }
