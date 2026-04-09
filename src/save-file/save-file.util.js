@@ -10,13 +10,22 @@ export function gameTitleFromTree(data) {
 
 /**
  * @param {unknown} node
+ * @param {string} key
+ * @returns {unknown[]}
+ */
+export function asArray(node, key) {
+	if (!node || typeof node !== 'object') return []
+	const v = /** @type {Record<string, unknown>} */ (node)[key]
+	if (v === undefined || v === null) return []
+	return Array.isArray(v) ? v : [v]
+}
+
+/**
+ * @param {unknown} node
  * @returns {number}
  */
 function countKeyedNodes(node, key) {
-	if (!node || typeof node !== 'object') return 0
-	const v = /** @type {Record<string, unknown>} */ (node)[key]
-	if (v === undefined || v === null) return 0
-	return Array.isArray(v) ? v.length : 1
+	return asArray(node, key).length
 }
 
 /**

@@ -1,7 +1,13 @@
 import { describe, expect, it } from 'vitest'
-import { crewCountFromTree, gameTitleFromTree, vesselCountFromTree } from './save-file.util.js'
+import { asArray, crewCountFromTree, gameTitleFromTree, vesselCountFromTree } from './save-file.util.js'
 
 describe('save-file.util', () => {
+	it('asArray normalizes single or array nodes', () => {
+		expect(asArray({ a: { x: 1 } }, 'a')).toEqual([{ x: 1 }])
+		expect(asArray({ a: [{ x: 1 }, { x: 2 }] }, 'a')).toEqual([{ x: 1 }, { x: 2 }])
+		expect(asArray({}, 'a')).toEqual([])
+	})
+
 	it('reads title, vessel count, crew count (CREW)', () => {
 		const data = {
 			GAME: {
