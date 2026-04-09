@@ -15,6 +15,12 @@ const routes = [
 		meta: { title: 'Settings' },
 	},
 	{
+		path: '/crew-manifest',
+		name: 'crew-manifest',
+		component: () => import('./crew-manifest/CrewManifestView.vue'),
+		meta: { title: 'Crew manifest' },
+	},
+	{
 		path: '/:pathMatch(.*)*',
 		name: 'not-found',
 		component: () => import('./app/NotFoundView.vue'),

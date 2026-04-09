@@ -6,6 +6,7 @@ import { RouterLink, RouterView } from 'vue-router';
 	<div class="app">
 		<nav class="nav">
 			<RouterLink to="/">Home</RouterLink>
+			<RouterLink to="/crew-manifest">Crew manifest</RouterLink>
 			<RouterLink to="/settings">Settings</RouterLink>
 		</nav>
 		<main class="main">
