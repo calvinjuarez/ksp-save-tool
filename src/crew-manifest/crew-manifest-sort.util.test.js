@@ -89,6 +89,19 @@ describe('sortCrewManifestRows', () => {
 		expect(out.map(r => `${r.name}:${r.vessel}`)).toEqual(['A:A', 'A:Z', 'B:Z'])
 	})
 
+	it('breaks ties by name ascending after primary and secondary', () => {
+		const rows = [
+			row({ name: 'Zoe Kerman', body: 'Kerbin', vessel: 'Ship' }),
+			row({ name: 'Amy Kerman', body: 'Kerbin', vessel: 'Ship' }),
+		]
+		const out = sortCrewManifestRows(
+			rows,
+			{ key: 'body', dir: 'asc' },
+			{ key: 'vessel', dir: 'asc' },
+		)
+		expect(out.map(r => r.name)).toEqual(['Amy Kerman', 'Zoe Kerman'])
+	})
+
 	it('sorts body by rank', () => {
 		const rows = [
 			row({ name: 'a', body: 'Eeloo' }),

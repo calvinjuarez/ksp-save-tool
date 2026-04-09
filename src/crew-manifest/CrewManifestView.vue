@@ -18,10 +18,10 @@ const allRows = computed(() => {
 })
 
 /** @type {import('vue').Ref<import('./crew-manifest-sort.util.js').CrewManifestSortSpec>} */
-const primarySort = ref({ key: 'name', dir: 'asc' })
+const primarySort = ref({ key: 'body', dir: 'asc' })
 
 /** @type {import('vue').Ref<import('./crew-manifest-sort.util.js').CrewManifestSortSpec>} */
-const secondarySort = ref({ key: null, dir: null })
+const secondarySort = ref({ key: 'vessel', dir: 'asc' })
 
 const sortedRows = computed(() =>
 	sortCrewManifestRows(allRows.value, primarySort.value, secondarySort.value),

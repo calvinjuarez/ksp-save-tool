@@ -170,7 +170,8 @@ function applyDir(dir, cmp) {
 }
 
 /**
- * Stable sort: primary column dominates; secondary breaks ties.
+ * Stable sort: primary column dominates; secondary breaks ties; kerbal name
+ * ascending is always the final tiebreaker (locale rules, em dash last).
  *
  * @param {CrewManifestRow[]} rows
  * @param {CrewManifestSortSpec} primary
@@ -192,7 +193,7 @@ export function sortCrewManifestRows(rows, primary, secondary) {
 			const c = compareByColumn(secondary.key, a, b)
 			if (c !== 0) return applyDir(/** @type {'asc'|'desc'} */ (secondary.dir), c)
 		}
-		return 0
+		return compareByColumn('name', a, b)
 	})
 	return out
 }
