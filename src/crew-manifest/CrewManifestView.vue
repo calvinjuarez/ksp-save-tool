@@ -1,7 +1,10 @@
 <script setup>
 import { computed, ref } from 'vue'
+import TableFilter from '../shared/components/TableFilter.component.vue'
+import { useTableFilter } from '../shared/table-filter.compose.js'
 import { kerbalDisplayName } from '../ksp/kerbal.util.js'
 import { useSaveFileStore } from '../save-file/save-file.store.js'
+import { CREW_MANIFEST_FILTER_COLUMNS } from './crew-manifest-filter.const.js'
 import {
 	cycleCrewManifestSortDirForColumn,
 	initialCrewManifestSortDirForColumn,
@@ -23,6 +26,10 @@ const allRows = computed(() => {
 	return buildCrewManifestRows(saveFile.tree)
 })
 
+const { filters, applyTo } = useTableFilter(CREW_MANIFEST_FILTER_COLUMNS)
+
+const filteredRows = computed(() => applyTo(allRows.value))
+
 /** @type {import('vue').Ref<import('./crew-manifest-sort.util.js').CrewManifestSortSpec>} */
 const primarySort = ref({ key: 'body', dir: 'asc' })
 
@@ -30,7 +37,7 @@ const primarySort = ref({ key: 'body', dir: 'asc' })
 const secondarySort = ref({ key: 'vessel', dir: 'asc' })
 
 const sortedRows = computed(() =>
-	sortCrewManifestRows(allRows.value, primarySort.value, secondarySort.value),
+	sortCrewManifestRows(filteredRows.value, primarySort.value, secondarySort.value),
 )
 
 const markdown = computed(() => formatCrewManifestMarkdown(sortedRows.value))
@@ -100,13 +107,21 @@ function sortIndicator(key, which) {
 	<div class="v-crew-manifest">
 		<h2>Crew Manifest</h2>
 		<p class="lead">
-			Generated from <strong>{{ saveFile.fileName }}</strong> ({{ sortedRows.length }} kerbals).
+			Generated from <strong>{{ saveFile.fileName }}</strong>
+			(<template v-if="filters.length > 0">{{ sortedRows.length }} of {{ allRows.length }}</template>
+			<template v-else>{{ sortedRows.length }}</template>
+			kerbals).
 		</p>
 		<div class="v-crew-manifest--actions">
 			<button type="button" class="btn" @click="downloadMarkdown">Download .md</button>
 			<button type="button" class="btn" @click="copyMarkdown">Copy Markdown</button>
 			<span v-if="copyMessage" class="form_help" role="status">{{ copyMessage }}</span>
 		</div>
+		<TableFilter
+			v-model:filters="filters"
+			:column-defs="CREW_MANIFEST_FILTER_COLUMNS"
+			:rows="allRows"
+		/>
 		<div class="v-crew-manifest--table_wrap">
 			<table class="v-crew-manifest--table">
 				<thead>
