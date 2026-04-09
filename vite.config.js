@@ -13,7 +13,7 @@ import {
 	APP_SHORT_NAME,
 	APP_START_URL,
 	APP_THEME_COLOR,
-} from './src/app.meta.js'
+} from './src/app/app.const.js'
 
 function appHtmlMetaPlugin(base) {
 	const baseNorm = base.endsWith('/') ? base : `${base}/`

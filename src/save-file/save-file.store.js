@@ -1,7 +1,7 @@
 import { parse } from 'ksp-confignode'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
-import { crewCountFromTree, gameTitleFromTree, vesselCountFromTree } from '../lib/save-summary.js'
+import { crewCountFromTree, gameTitleFromTree, vesselCountFromTree } from './save-file.util.js'
 
 export const useSaveFileStore = defineStore('saveFile', () => {
 	/** @type {import('vue').Ref<Record<string, unknown> | null>} */

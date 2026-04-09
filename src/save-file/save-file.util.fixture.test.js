@@ -3,14 +3,14 @@ import { join } from 'node:path'
 import { gunzipSync } from 'node:zlib'
 import { parse } from 'ksp-confignode'
 import { describe, expect, it } from 'vitest'
-import { crewCountFromTree } from './save-summary.js'
+import { crewCountFromTree } from './save-file.util.js'
 
 const roverGzPath = join(
 	import.meta.dirname,
 	'../../packages/ksp-confignode/fixtures/20260407-4-move-the-rover.sfs.gz',
 )
 
-describe('save-summary (Easy Mode move-the-rover save)', () => {
+describe('save-file.util (Easy Mode move-the-rover save)', () => {
 	it(
 		'crewCountFromTree matches ROSTER KERBAL count',
 		() => {

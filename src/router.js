@@ -1,23 +1,23 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { APP_NAME } from './app.meta.js'
+import { APP_NAME } from './app/app.const.js'
 
 const routes = [
 	{
 		path: '/',
 		name: 'home',
-		component: () => import('./views/HomeView.vue'),
+		component: () => import('./app/HomeView.vue'),
 		meta: { title: 'Home' },
 	},
 	{
 		path: '/settings',
 		name: 'settings',
-		component: () => import('./views/SettingsView.vue'),
+		component: () => import('./settings/SettingsView.vue'),
 		meta: { title: 'Settings' },
 	},
 	{
 		path: '/:pathMatch(.*)*',
 		name: 'not-found',
-		component: () => import('./views/NotFoundView.vue'),
+		component: () => import('./app/NotFoundView.vue'),
 		meta: { title: 'Not Found' },
 	},
 ]

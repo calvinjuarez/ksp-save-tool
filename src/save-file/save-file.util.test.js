@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { crewCountFromTree, gameTitleFromTree, vesselCountFromTree } from './save-summary.js'
+import { crewCountFromTree, gameTitleFromTree, vesselCountFromTree } from './save-file.util.js'
 
-describe('save-summary', () => {
+describe('save-file.util', () => {
 	it('reads title, vessel count, crew count (CREW)', () => {
 		const data = {
 			GAME: {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
-import { useEnvStore } from './env.js'
+import { useEnvStore } from './env.store.js'
 
 describe('useEnvStore', () => {
 	it('exposes appMode', () => {

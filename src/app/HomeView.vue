@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue'
-import { APP_DESCRIPTION, APP_NAME } from '../app.meta.js'
-import { useSaveFileStore } from '../stores/save-file.js'
+import { APP_DESCRIPTION, APP_NAME } from './app.const.js'
+import { useSaveFileStore } from '../save-file/save-file.store.js'
 
 const saveFile = useSaveFileStore()
 const fileInputRef = ref(/** @type {HTMLInputElement | null} */ (null))

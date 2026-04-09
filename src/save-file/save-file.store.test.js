@@ -1,6 +1,6 @@
 import { createPinia, setActivePinia } from 'pinia'
 import { beforeEach, describe, expect, it } from 'vitest'
-import { useSaveFileStore } from './save-file.js'
+import { useSaveFileStore } from './save-file.store.js'
 
 beforeEach(() => {
 	setActivePinia(createPinia())
