@@ -1,0 +1,28 @@
+{
+	"name": "ksp-confignode",
+	"version": "0.0.0",
+	"description": "Parse Kerbal Space Program ConfigNode text (.sfs, .cfg) to plain JavaScript objects",
+	"type": "module",
+	"license": "MIT",
+	"exports": {
+		".": "./parse.js"
+	},
+	"files": [
+		"parse.js",
+		"README.md",
+		"docs"
+	],
+	"keywords": [
+		"ksp",
+		"kerbal-space-program",
+		"confignode",
+		"sfs",
+		"cfg",
+		"parser"
+	],
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/calvinjuarez/ksp-save-tool.git",
+		"directory": "packages/ksp-confignode"
+	}
+}

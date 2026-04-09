@@ -1,0 +1,8 @@
+# util
+tmp
+
+# testing
+fixtures/*.sfs
+
+# development
+node_modules
