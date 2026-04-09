@@ -30,7 +30,7 @@ See [ADR-005](adr/005-module-style-src-layout.md) for rationale and trade-offs.
 
 - **`app/`** – Shell: root `App.vue`, env store, 404 view, `app.const.js` (PWA + copy).
 - **`save-file/`** – Parse upload, Pinia tree, helpers that read `.sfs`/`GAME` trees, and `SaveFileExplorerView.vue` (nested `/save-explorer` routes).
-- **`shared/`** – Cross-feature UI and utilities (e.g. generic `FileUpload.component.vue`).
+- **`shared/`** – Cross-feature UI and utilities (e.g. generic `FileUpload.component.vue`, `TableFilter.component.vue`, `table-filter.*`).
 - **`settings/`** – Settings route and future UI.
 - **`ksp/`** – pure KSP helpers: body names from `ORBIT.REF` (`body.util.js`), kerbal roster parsing (`kerbal.util.js`), and related utilities.
 - **`crew-manifest/`** – crew table and markdown export from a loaded save.
