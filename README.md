@@ -2,7 +2,9 @@
 
 **KSP Save File Explorer** is a web app for reading **Kerbal Space Program** save data locally in the browser. The first goal is to turn an uploaded save (for example `persistent.sfs`) into a **crew manifest** report: each Kerbal’s role, vessel, flight situation, body, suit, and quick status markers (rescues, tourists, and similar). A concise **active contracts** table for passenger runs and related missions is a natural follow-up.
 
-The stack is **Vue 3**, **Vite**, **Pinia**, **Vue Router**, **Bootstrap Reboot** with shared **house** CSS tokens, **PWA** (offline shell), **Vitest**, and optional **GitHub Pages** deploy via Actions. Save **parsing and upload UI are not implemented yet**; this repo is the shell and workflow you extend.
+The stack is **Vue 3**, **Vite**, **Pinia**, **Vue Router**, **Bootstrap Reboot** with shared **house** CSS tokens, **PWA** (offline shell), **Vitest**, and optional **GitHub Pages** deploy via Actions. Uploading an `.sfs` file parses it in the browser and shows a short summary (title, vessel count, crew count); a **crew manifest** report is planned next.
+
+How `src/` is organized (modules and file suffixes): [docs/src-modules.md](docs/src-modules.md). Rationale: [ADR-005](docs/adr/005-module-style-src-layout.md).
 
 ## Requirements
 
@@ -53,7 +55,7 @@ Project sites are served at `https://<user>.github.io/<repo>/`; the app and serv
 	Commit **`package.json`** and **`package-lock.json`**, then use **`npm ci`** for day-to-day installs.
 
 - Set **`VITE_BASE_PATH`** in [`.env.production`](.env.production) to `/<repo-name>/` (with a trailing slash) when the GitHub repo name does not match the checked-in default.
-- User-facing labels and PWA fields are centralized in [`src/app.meta.js`](src/app.meta.js) (used for the generated manifest, [`index.html`](index.html) placeholders, [`src/router.js`](src/router.js), and [`src/views/HomeView.vue`](src/views/HomeView.vue)). The canonical vector icon is [`icon.svg`](icon.svg) at the repo root; after editing it, run [`npm run icons`](package.json) and commit `public/app/` (copied SVG, PNGs, and `icon.svg.sha256`). [`npm run test:run`](package.json) runs [`verify:icons`](package.json) so CI fails if the SVG drifted from the last generated assets.
+- User-facing labels and PWA fields are centralized in [`src/app/app.const.js`](src/app/app.const.js) (used for the generated manifest, [`index.html`](index.html) placeholders, [`src/router.js`](src/router.js), and [`src/app/HomeView.vue`](src/app/HomeView.vue)). The canonical vector icon is [`icon.svg`](icon.svg) at the repo root; after editing it, run [`npm run icons`](package.json) and commit `public/app/` (copied SVG, PNGs, and `icon.svg.sha256`). [`npm run test:run`](package.json) runs [`verify:icons`](package.json) so CI fails if the SVG drifted from the last generated assets.
 
 ## Docs
 

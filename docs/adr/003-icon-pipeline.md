@@ -31,4 +31,4 @@ The app needs raster PNGs (192, 512, Apple 180) derived from the SVG icon for pl
 
 ## Implementation Notes
 
-Key files: [`icon.svg`](../../icon.svg) (repo root), [`scripts/rasterize-app-icon.mjs`](../../scripts/rasterize-app-icon.mjs), [`scripts/verify-app-icon.mjs`](../../scripts/verify-app-icon.mjs), [`public/app/`](../../public/app/) (outputs), [`package.json`](../../package.json) scripts (`icons`, `verify:icons`, `test:run`). Paths are wired through `APP_ICON_PATH`, `APP_APPLE_TOUCH_ICON_PATH`, and `APP_MANIFEST_ICONS` in [`src/app.meta.js`](../../src/app.meta.js).
+Key files: [`icon.svg`](../../icon.svg) (repo root), [`scripts/rasterize-app-icon.mjs`](../../scripts/rasterize-app-icon.mjs), [`scripts/verify-app-icon.mjs`](../../scripts/verify-app-icon.mjs), [`public/app/`](../../public/app/) (outputs), [`package.json`](../../package.json) scripts (`icons`, `verify:icons`, `test:run`). Paths are wired through `APP_ICON_PATH`, `APP_APPLE_TOUCH_ICON_PATH`, and `APP_MANIFEST_ICONS` in [`src/app/app.const.js`](../../src/app/app.const.js).

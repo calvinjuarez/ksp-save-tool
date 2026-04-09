@@ -4,11 +4,6 @@
 
 Accepted
 
-## See also
-
-- [ADR-001](001-service-worker-offline.md) – Offline shell; parsing runs entirely in the browser.
-- [packages/ksp-confignode/docs/roadmap/serializer.md](../../packages/ksp-confignode/docs/roadmap/serializer.md) – Future `serialize()` for round-trip and mod interop.
-
 ## Context
 
 Kerbal Space Program save and config files use Squad’s **ConfigNode** text format (e.g. `.sfs`, `.cfg`). The app needs to turn uploaded save text into a plain JavaScript tree for reports and exploration.

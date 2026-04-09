@@ -10,6 +10,7 @@ Project overview, env files, and GitHub Pages: see the repository [README](../RE
 
 ## Docs
 
+- [src-modules.md](src-modules.md) – `src/` module layout and file suffix conventions
 - [design-system.md](design-system.md) – Design principles and guidelines
 - [design-tokens.md](design-tokens.md) – Token reference for the design system
 - [style-guide--css.md](style-guide--css.md) – CSS naming and conventions

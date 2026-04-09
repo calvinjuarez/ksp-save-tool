@@ -6,7 +6,6 @@ Accepted
 
 ## See also
 
-- [ADR-001](001-service-worker-offline.md) – Service worker precaches the generated manifest and app shell.
 - [ADR-003](003-icon-pipeline.md) – Icon paths and manifest icon entries are wired from the same module.
 
 ## Context
@@ -32,4 +31,4 @@ App identity (name, colors, description, icon paths) was duplicated across `inde
 
 ## Implementation Notes
 
-Key files: [`src/app.meta.js`](../../src/app.meta.js), [`vite.config.js`](../../vite.config.js) (imports + `appHtmlMetaPlugin` + `VitePWA` manifest object), [`index.html`](../../index.html) (tokens), [`src/router.js`](../../src/router.js).
+Key files: [`src/app/app.const.js`](../../src/app/app.const.js) (formerly `src/app.meta.js`; see [ADR-005](005-module-style-src-layout.md)), [`vite.config.js`](../../vite.config.js) (imports + `appHtmlMetaPlugin` + `VitePWA` manifest object), [`index.html`](../../index.html) (tokens), [`src/router.js`](../../src/router.js).

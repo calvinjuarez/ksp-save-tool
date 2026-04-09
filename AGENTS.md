@@ -41,6 +41,7 @@ Use tab indentation.
 ## Documentation
 
 - **Cursor rules:** [.cursor/rules/](.cursor/rules/) – thin wrappers so file-type edits load the right style guide from `docs/`.
+- **`src/` layout:** [docs/src-modules.md](docs/src-modules.md) – module directories and file suffix conventions (`.const.js`, `.util.js`, `.store.js`, `.compose.js`).
 - Write docs for the things we build.
 - For key architecture decisions, write ADR docs to `docs/adr`. When writing an ADR doc, read [docs/adr/README.md](docs/adr/README.md).
 - Keep [README.md](README.md) accurate for this repo: how to install and run, environment setup, testing, etc.
