@@ -74,7 +74,7 @@ export default defineConfig(({ mode }) => {
 			},
 		],
 		test: {
-			include: ['src/**/*.test.js'],
+			include: ['src/**/*.test.js', 'packages/**/*.test.js'],
 			environment: 'happy-dom',
 		},
 		server: {

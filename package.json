@@ -9,6 +9,9 @@
 		"type": "git",
 		"url": "https://github.com/calvinjuarez/ksp-save-tool.git"
 	},
+	"workspaces": [
+		"packages/*"
+	],
 	"scripts": {
 		"dev": "vite",
 		"build": "vite build",
@@ -30,6 +33,7 @@
 		"vitest": "^4.0.18"
 	},
 	"dependencies": {
+		"ksp-confignode": "workspace:*",
 		"bootstrap": "^5.3.8",
 		"pinia": "^3.0.4",
 		"vue": "^3.5.28",
