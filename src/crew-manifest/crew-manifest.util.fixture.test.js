@@ -17,7 +17,7 @@ describe('crew-manifest.util (Easy Mode move-the-rover save)', () => {
 			const buf = readFileSync(roverGzPath)
 			const tree = parse(gunzipSync(buf).toString('utf8'))
 			const rows = buildCrewManifestRows(tree)
-			expect(rows).toHaveLength(126)
+			expect(rows).toHaveLength(118)
 			const jeb = rows.find(r => r.name === 'Jebediah Kerman')
 			expect(jeb).toBeDefined()
 			expect(jeb?.vessel).toBe('Zarathustra Asteroid Station')

@@ -15,6 +15,10 @@ import { crewManifestMark } from './crew-manifest-mark.const.js'
  */
 
 /**
+ * @typedef {import('./crew-manifest-mark.const.js').CrewManifestMarkKind} CrewManifestMarkKind
+ */
+
+/**
  * @typedef {Object} CrewManifestRow
  * @property {string} name
  * @property {string} role
@@ -25,6 +29,7 @@ import { crewManifestMark } from './crew-manifest-mark.const.js'
  * @property {CrewManifestBuild | null} build
  * @property {string} color
  * @property {CrewManifestMark | null} mark
+ * @property {CrewManifestMarkKind | null} markKind
  */
 
 /**
@@ -105,16 +110,20 @@ function roleFromKerbal(kerbal) {
  * @param {string} name
  * @param {Record<string, unknown>} kerbal
  * @param {Map<string, 'openRescue'|'rescued'>} rescueMap
- * @returns {CrewManifestMark | null}
+ * @returns {{ mark: CrewManifestMark | null, markKind: CrewManifestMarkKind | null }}
  */
 function markFromKerbal(name, kerbal, rescueMap) {
 	const rescue = rescueMap.get(name)
-	if (rescue === 'openRescue') return crewManifestMark('openRescue')
-	if (rescue === 'rescued') return crewManifestMark('rescued')
-	if (kerbal.type === 'Tourist' || kerbal.tour === 'True') {
-		return crewManifestMark('tourist')
+	if (rescue === 'openRescue') {
+		return { mark: crewManifestMark('openRescue'), markKind: 'openRescue' }
 	}
-	return null
+	if (rescue === 'rescued') {
+		return { mark: crewManifestMark('rescued'), markKind: 'rescued' }
+	}
+	if (kerbal.type === 'Tourist' || kerbal.tour === 'True') {
+		return { mark: crewManifestMark('tourist'), markKind: 'tourist' }
+	}
+	return { mark: null, markKind: null }
 }
 
 /**
@@ -133,6 +142,8 @@ export function buildCrewManifestRows(tree) {
 	const rows = []
 	for (const k of kerbals) {
 		if (!k || typeof k !== 'object') continue
+		const kerbal = /** @type {Record<string, unknown>} */ (k)
+		if (kerbal.type === 'Applicant') continue
 		const name = typeof k.name === 'string' ? k.name : '—'
 		const assign = assignments.get(name)
 		const vessel = assign ? assign.vesselName : '—'
@@ -140,16 +151,16 @@ export function buildCrewManifestRows(tree) {
 		let body = '—'
 		if (assign?.orbitRef !== undefined) {
 			body = bodyNameFromOrbitRef(assign.orbitRef)
-		} else if (k.state === 'Available') {
+		} else if (kerbal.state === 'Available') {
 			body = 'Home'
 		}
-		const kerbal = /** @type {Record<string, unknown>} */ (k)
 		const suit = typeof kerbal.suit === 'string' && kerbal.suit.length > 0 ? kerbal.suit : '—'
 		const comboId = typeof kerbal.comboId === 'string' ? kerbal.comboId : undefined
 		const parsed = parseBuild(comboId)
 		const build =
 			parsed !== null ? { abbr: parsed.abbr, title: parsed.title } : null
 		const color = parsed !== null ? parsed.colorVariant : '—'
+		const { mark, markKind } = markFromKerbal(name, kerbal, rescueMap)
 		rows.push({
 			name,
 			role: roleFromKerbal(kerbal),
@@ -159,7 +170,8 @@ export function buildCrewManifestRows(tree) {
 			suit,
 			build,
 			color,
-			mark: markFromKerbal(name, kerbal, rescueMap),
+			mark,
+			markKind,
 		})
 	}
 

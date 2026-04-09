@@ -2,16 +2,32 @@
 import { computed, ref } from 'vue'
 import { kerbalDisplayName } from '../ksp/kerbal.util.js'
 import { useSaveFileStore } from '../save-file/save-file.store.js'
+import {
+	cycleCrewManifestSortDir,
+	sortCrewManifestRows,
+} from './crew-manifest-sort.util.js'
 import { buildCrewManifestRows, formatCrewManifestMarkdown } from './crew-manifest.util.js'
+
+/** @typedef {import('./crew-manifest-sort.util.js').CrewManifestSortColumn} CrewManifestSortColumn */
 
 const saveFile = useSaveFileStore()
 
-const rows = computed(() => {
+const allRows = computed(() => {
 	if (!saveFile.tree) return []
 	return buildCrewManifestRows(saveFile.tree)
 })
 
-const markdown = computed(() => formatCrewManifestMarkdown(rows.value))
+/** @type {import('vue').Ref<import('./crew-manifest-sort.util.js').CrewManifestSortSpec>} */
+const primarySort = ref({ key: 'name', dir: 'asc' })
+
+/** @type {import('vue').Ref<import('./crew-manifest-sort.util.js').CrewManifestSortSpec>} */
+const secondarySort = ref({ key: null, dir: null })
+
+const sortedRows = computed(() =>
+	sortCrewManifestRows(allRows.value, primarySort.value, secondarySort.value),
+)
+
+const markdown = computed(() => formatCrewManifestMarkdown(sortedRows.value))
 
 const copyMessage = ref('')
 
@@ -35,13 +51,50 @@ function downloadMarkdown() {
 	a.click()
 	URL.revokeObjectURL(url)
 }
+
+/**
+ * @param {CrewManifestSortColumn} key
+ * @param {MouseEvent} event
+ */
+function onSortHeaderClick(key, event) {
+	if (event.shiftKey) {
+		if (primarySort.value.key === key) return
+		if (secondarySort.value.key === key) {
+			const next = cycleCrewManifestSortDir(secondarySort.value.dir)
+			if (next === null) secondarySort.value = { key: null, dir: null }
+			else secondarySort.value = { key, dir: next }
+		} else {
+			secondarySort.value = { key, dir: 'asc' }
+		}
+		return
+	}
+
+	secondarySort.value = { key: null, dir: null }
+	if (primarySort.value.key === key) {
+		const next = cycleCrewManifestSortDir(primarySort.value.dir)
+		if (next === null) primarySort.value = { key: null, dir: null }
+		else primarySort.value = { key, dir: next }
+	} else {
+		primarySort.value = { key, dir: 'asc' }
+	}
+}
+
+/**
+ * @param {CrewManifestSortColumn} key
+ * @param {'primary'|'secondary'} which
+ */
+function sortIndicator(key, which) {
+	const spec = which === 'primary' ? primarySort.value : secondarySort.value
+	if (spec.key !== key || spec.dir === null) return ''
+	return spec.dir === 'asc' ? '\u2191' : '\u2193'
+}
 </script>
 
 <template>
 	<div class="v-crew-manifest">
 		<h2>Crew Manifest</h2>
 		<p class="lead">
-			Generated from <strong>{{ saveFile.fileName }}</strong> ({{ rows.length }} kerbals).
+			Generated from <strong>{{ saveFile.fileName }}</strong> ({{ sortedRows.length }} kerbals).
 		</p>
 		<div class="v-crew-manifest--actions">
 			<button type="button" class="btn" @click="downloadMarkdown">Download .md</button>
@@ -52,19 +105,55 @@ function downloadMarkdown() {
 			<table class="v-crew-manifest--table">
 				<thead>
 					<tr>
-						<th>Kerbal</th>
-						<th>Mark</th>
-						<th>Role</th>
-						<th>Vessel</th>
-						<th>Situation</th>
-						<th>At</th>
-						<th>Suit</th>
-						<th>Build</th>
-						<th>Color</th>
+						<th class="v-crew-manifest--sort_th" @click="onSortHeaderClick('name', $event)">
+							Kerbal
+							<span class="v-crew-manifest--sort_primary">{{ sortIndicator('name', 'primary') }}</span>
+							<span class="v-crew-manifest--sort_secondary">{{ sortIndicator('name', 'secondary') }}</span>
+						</th>
+						<th class="v-crew-manifest--sort_th" @click="onSortHeaderClick('mark', $event)">
+							Mark
+							<span class="v-crew-manifest--sort_primary">{{ sortIndicator('mark', 'primary') }}</span>
+							<span class="v-crew-manifest--sort_secondary">{{ sortIndicator('mark', 'secondary') }}</span>
+						</th>
+						<th class="v-crew-manifest--sort_th" @click="onSortHeaderClick('role', $event)">
+							Role
+							<span class="v-crew-manifest--sort_primary">{{ sortIndicator('role', 'primary') }}</span>
+							<span class="v-crew-manifest--sort_secondary">{{ sortIndicator('role', 'secondary') }}</span>
+						</th>
+						<th class="v-crew-manifest--sort_th" @click="onSortHeaderClick('vessel', $event)">
+							Vessel
+							<span class="v-crew-manifest--sort_primary">{{ sortIndicator('vessel', 'primary') }}</span>
+							<span class="v-crew-manifest--sort_secondary">{{ sortIndicator('vessel', 'secondary') }}</span>
+						</th>
+						<th class="v-crew-manifest--sort_th" @click="onSortHeaderClick('situation', $event)">
+							Situation
+							<span class="v-crew-manifest--sort_primary">{{ sortIndicator('situation', 'primary') }}</span>
+							<span class="v-crew-manifest--sort_secondary">{{ sortIndicator('situation', 'secondary') }}</span>
+						</th>
+						<th class="v-crew-manifest--sort_th" @click="onSortHeaderClick('body', $event)">
+							At
+							<span class="v-crew-manifest--sort_primary">{{ sortIndicator('body', 'primary') }}</span>
+							<span class="v-crew-manifest--sort_secondary">{{ sortIndicator('body', 'secondary') }}</span>
+						</th>
+						<th class="v-crew-manifest--sort_th" @click="onSortHeaderClick('suit', $event)">
+							Suit
+							<span class="v-crew-manifest--sort_primary">{{ sortIndicator('suit', 'primary') }}</span>
+							<span class="v-crew-manifest--sort_secondary">{{ sortIndicator('suit', 'secondary') }}</span>
+						</th>
+						<th class="v-crew-manifest--sort_th" @click="onSortHeaderClick('build', $event)">
+							Build
+							<span class="v-crew-manifest--sort_primary">{{ sortIndicator('build', 'primary') }}</span>
+							<span class="v-crew-manifest--sort_secondary">{{ sortIndicator('build', 'secondary') }}</span>
+						</th>
+						<th class="v-crew-manifest--sort_th" @click="onSortHeaderClick('color', $event)">
+							Color
+							<span class="v-crew-manifest--sort_primary">{{ sortIndicator('color', 'primary') }}</span>
+							<span class="v-crew-manifest--sort_secondary">{{ sortIndicator('color', 'secondary') }}</span>
+						</th>
 					</tr>
 				</thead>
 				<tbody>
-					<tr v-for="(r, idx) in rows" :key="`${r.name}-${idx}`">
+					<tr v-for="(r, idx) in sortedRows" :key="`${r.name}-${idx}`">
 						<td>{{ kerbalDisplayName(r.name) }}</td>
 						<td>
 							<abbr
@@ -127,6 +216,22 @@ function downloadMarkdown() {
 	font-weight: 600;
 	background: var(--house--color--surface-muted, rgba(0, 0, 0, 0.04));
 	white-space: nowrap;
+}
+
+.v-crew-manifest--sort_th {
+	cursor: pointer;
+	user-select: none;
+}
+
+.v-crew-manifest--sort_primary {
+	margin-left: 0.25rem;
+	font-size: 0.85em;
+}
+
+.v-crew-manifest--sort_secondary {
+	margin-left: 0.15rem;
+	font-size: 0.7em;
+	opacity: 0.65;
 }
 
 .v-crew-manifest--table tbody tr:last-child td {

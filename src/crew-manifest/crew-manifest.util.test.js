@@ -67,6 +67,7 @@ describe('buildCrewManifestRows', () => {
 			build: { abbr: 'F', title: 'Feminine' },
 			color: '2',
 			mark: null,
+			markKind: null,
 		})
 		const bob = rows.find(r => r.name === 'Bob Kerman')
 		expect(bob).toMatchObject({
@@ -77,7 +78,40 @@ describe('buildCrewManifestRows', () => {
 			build: { abbr: 'M', title: 'Masculine' },
 			color: '0',
 			mark: null,
+			markKind: null,
 		})
+	})
+
+	it('excludes applicants from the manifest', () => {
+		const tree = {
+			GAME: {
+				ROSTER: {
+					KERBAL: [
+						{
+							name: 'Hired Kerman',
+							trait: 'Pilot',
+							state: 'Available',
+							type: 'Crew',
+							tour: 'False',
+							suit: 'Default',
+							comboId: 'default_male_0',
+						},
+						{
+							name: 'Applicant Kerman',
+							trait: 'Scientist',
+							state: 'Available',
+							type: 'Applicant',
+							tour: 'False',
+							suit: 'Default',
+							comboId: 'default_male_0',
+						},
+					],
+				},
+			},
+		}
+		const rows = buildCrewManifestRows(tree)
+		expect(rows).toHaveLength(1)
+		expect(rows[0].name).toBe('Hired Kerman')
 	})
 
 	it('marks tourists', () => {
@@ -109,6 +143,7 @@ describe('buildCrewManifestRows', () => {
 			emoji: '🗺️',
 			title: 'Tourist',
 		})
+		expect(rows[0].markKind).toBe('tourist')
 		expect(rows[0].role).toBe('Tourist')
 	})
 })
@@ -126,6 +161,7 @@ describe('formatCrewManifestMarkdown', () => {
 				build: { abbr: 'M', title: 'Masculine' },
 				color: '0',
 				mark: null,
+				markKind: null,
 			},
 		])
 		expect(md).toContain('# KSP Crew Manifest Report')
