@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { parseBuild } from './kerbal.util.js'
+import { kerbalDisplayName, parseBuild } from './kerbal.util.js'
 
 describe('kerbal.util', () => {
 	it('parses slim and default comboIds', () => {
@@ -29,5 +29,13 @@ describe('kerbal.util', () => {
 		expect(parseBuild('')).toBeNull()
 		expect(parseBuild(undefined)).toBeNull()
 		expect(parseBuild('weird')).toBeNull()
+	})
+
+	it('kerbalDisplayName strips Kerman surname', () => {
+		expect(kerbalDisplayName('Jebediah Kerman')).toBe('Jebediah')
+		expect(kerbalDisplayName('Bob Kerman')).toBe('Bob')
+		expect(kerbalDisplayName('Val')).toBe('Val')
+		expect(kerbalDisplayName('Kerman')).toBe('Kerman')
+		expect(kerbalDisplayName('')).toBe('—')
 	})
 })

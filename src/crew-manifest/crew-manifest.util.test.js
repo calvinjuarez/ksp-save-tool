@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import {
-	buildCrewManifestRows,
-	collectCrewNamesFromVessel,
-	formatCrewManifestMarkdown,
+    buildCrewManifestRows,
+    collectCrewNamesFromVessel,
+    formatCrewManifestMarkdown,
 } from './crew-manifest.util.js'
 
 describe('collectCrewNamesFromVessel', () => {
@@ -66,15 +66,17 @@ describe('buildCrewManifestRows', () => {
 			suit: 'Slim',
 			build: { abbr: 'F', title: 'Feminine' },
 			color: '2',
+			mark: null,
 		})
 		const bob = rows.find(r => r.name === 'Bob Kerman')
 		expect(bob).toMatchObject({
 			vessel: '—',
 			situation: '—',
-			body: 'Unassigned',
+			body: 'Home',
 			suit: 'Default',
 			build: { abbr: 'M', title: 'Masculine' },
 			color: '0',
+			mark: null,
 		})
 	})
 
@@ -103,7 +105,10 @@ describe('buildCrewManifestRows', () => {
 			},
 		}
 		const rows = buildCrewManifestRows(tree)
-		expect(rows[0].status).toBe('🎟️')
+		expect(rows[0].mark).toEqual({
+			emoji: '🗺️',
+			title: 'Tourist',
+		})
 		expect(rows[0].role).toBe('Tourist')
 	})
 })
@@ -116,16 +121,18 @@ describe('formatCrewManifestMarkdown', () => {
 				role: 'Pilot',
 				vessel: '—',
 				situation: '—',
-				body: 'Unassigned',
+				body: 'Home',
 				suit: 'Default',
 				build: { abbr: 'M', title: 'Masculine' },
 				color: '0',
-				status: '',
+				mark: null,
 			},
 		])
 		expect(md).toContain('# KSP Crew Manifest Report')
-		expect(md).toContain('| Kerbal | Role | Vessel | Situation | Body | Suit | Build | Color | Status |')
-		expect(md).toContain('| Test Kerman | Pilot |')
+		expect(md).toContain(
+			'| Kerbal | Mark | Role | Vessel | Situation | At | Suit | Build | Color |',
+		)
+		expect(md).toContain('| Test | — | Pilot |')
 		expect(md).toContain('| Default | M | 0 |')
 	})
 })

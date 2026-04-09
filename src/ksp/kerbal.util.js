@@ -32,3 +32,16 @@ export function parseBuild(comboId) {
 	}
 	return null
 }
+
+/**
+ * KSP roster names are typically `Given Kerman`. Strips the ` Kerman` suffix for display;
+ * internal matching still uses the full string from the save.
+ *
+ * @param {string} fullName
+ * @returns {string}
+ */
+export function kerbalDisplayName(fullName) {
+	if (typeof fullName !== 'string' || fullName.length === 0) return '—'
+	const stripped = fullName.replace(/\s+Kerman$/, '')
+	return stripped.length > 0 ? stripped : fullName
+}

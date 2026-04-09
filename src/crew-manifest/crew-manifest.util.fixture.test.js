@@ -29,4 +29,20 @@ describe('crew-manifest.util (Easy Mode move-the-rover save)', () => {
 		},
 		30_000,
 	)
+
+	it('marks Rosrim Kerman with open rescue and a completed-only rescue with life ring', () => {
+		const buf = readFileSync(roverGzPath)
+		const tree = parse(gunzipSync(buf).toString('utf8'))
+		const rows = buildCrewManifestRows(tree)
+		const rosrim = rows.find(r => r.name === 'Rosrim Kerman')
+		expect(rosrim?.mark).toEqual({
+			emoji: '🆘',
+			title: 'Needs Rescue',
+		})
+		const derpont = rows.find(r => r.name === 'Derpont Kerman')
+		expect(derpont?.mark).toEqual({
+			emoji: '🛟',
+			title: 'Rescued',
+		})
+	}, 30_000)
 })

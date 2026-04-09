@@ -1,5 +1,6 @@
 <script setup>
 import { computed, ref } from 'vue'
+import { kerbalDisplayName } from '../ksp/kerbal.util.js'
 import { useSaveFileStore } from '../save-file/save-file.store.js'
 import { buildCrewManifestRows, formatCrewManifestMarkdown } from './crew-manifest.util.js'
 
@@ -52,19 +53,26 @@ function downloadMarkdown() {
 				<thead>
 					<tr>
 						<th>Kerbal</th>
+						<th>Mark</th>
 						<th>Role</th>
 						<th>Vessel</th>
 						<th>Situation</th>
-						<th>Body</th>
+						<th>At</th>
 						<th>Suit</th>
 						<th>Build</th>
 						<th>Color</th>
-						<th>Status</th>
 					</tr>
 				</thead>
 				<tbody>
 					<tr v-for="(r, idx) in rows" :key="`${r.name}-${idx}`">
-						<td>{{ r.name }}</td>
+						<td>{{ kerbalDisplayName(r.name) }}</td>
+						<td>
+							<abbr
+								v-if="r.mark"
+								:title="r.mark.title"
+								:aria-label="r.mark.title"
+							>{{ r.mark.emoji }}</abbr>
+						</td>
 						<td>{{ r.role }}</td>
 						<td>{{ r.vessel }}</td>
 						<td>{{ r.situation }}</td>
@@ -75,7 +83,6 @@ function downloadMarkdown() {
 							<span v-else>—</span>
 						</td>
 						<td>{{ r.color }}</td>
-						<td>{{ r.status }}</td>
 					</tr>
 				</tbody>
 			</table>
