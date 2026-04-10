@@ -16,7 +16,7 @@ import { formatCrewManifestSortSpecForMarkdown } from './crew-manifest-sort.util
 export { rankToStars }
 
 /**
- * @typedef {Object} CrewManifestBuild
+ * @typedef {Object} CrewManifestBodyModel
  * @property {'M'|'F'} abbr
  * @property {'Masculine'|'Feminine'} title
  */
@@ -39,7 +39,7 @@ export { rankToStars }
  * @property {string} situation
  * @property {string} body
  * @property {string} suit
- * @property {CrewManifestBuild | null} build
+ * @property {CrewManifestBodyModel | null} bodyModel
  * @property {string} color
  * @property {CrewManifestMark | null} mark
  * @property {CrewManifestMarkKind | null} markKind
@@ -180,8 +180,7 @@ export function buildCrewManifestRows(tree) {
 		}
 		const suit = typeof kerbal.suit === 'string' && kerbal.suit.length > 0 ? kerbal.suit : '—'
 		const model = parseBodyModel(kerbal)
-		const build =
-			model !== null ? { abbr: model.abbr, title: model.title } : null
+		const bodyModel = model !== null ? { abbr: model.abbr, title: model.title } : null
 		const color = model?.colorVariant ?? '—'
 		const { mark, markKind } = markFromKerbal(name, kerbal, rescueMap)
 		const rank = kerbalRankFromKerbal(kerbal)
@@ -195,7 +194,7 @@ export function buildCrewManifestRows(tree) {
 			situation,
 			body,
 			suit,
-			build,
+			bodyModel,
 			color,
 			mark,
 			markKind,
@@ -275,11 +274,11 @@ export function formatCrewManifestMarkdown(rows, viewState) {
 		'',
 		'## Full Crew Table',
 		'',
-		'| Name | Mark | Role | Rank | Vessel | Situation | At | Suit | Build | Color |',
+		'| Name | Mark | Role | Rank | Vessel | Situation | At | Suit | Model | Color |',
 		'| ---    | ---  | ---  | ---  | ---    | ---       | -- | ---  | ---   | ---   |',
 	)
 	for (const r of rows) {
-		const buildMd = r.build !== null ? r.build.abbr : '—'
+		const modelMd = r.bodyModel !== null ? r.bodyModel.abbr : '—'
 		const markMd = r.mark !== null ? r.mark.emoji : '—'
 		const rankMd = rankToStars(r.rank)
 		const cells = [
@@ -291,7 +290,7 @@ export function formatCrewManifestMarkdown(rows, viewState) {
 			r.situation,
 			r.body,
 			r.suit,
-			buildMd,
+			modelMd,
 			r.color,
 		].map(escapeCell)
 		lines.push(`| ${cells.join(' | ')} |`)

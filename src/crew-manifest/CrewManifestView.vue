@@ -172,10 +172,10 @@ function sortIndicator(key, which) {
 							<span class="v-crew-manifest--sort_primary">{{ sortIndicator('suit', 'primary') }}</span>
 							<span class="v-crew-manifest--sort_secondary">{{ sortIndicator('suit', 'secondary') }}</span>
 						</th>
-						<th class="v-crew-manifest--sort_th" @click="onSortHeaderClick('build', $event)">
-							Build
-							<span class="v-crew-manifest--sort_primary">{{ sortIndicator('build', 'primary') }}</span>
-							<span class="v-crew-manifest--sort_secondary">{{ sortIndicator('build', 'secondary') }}</span>
+						<th class="v-crew-manifest--sort_th" @click="onSortHeaderClick('bodyModel', $event)">
+							Model
+							<span class="v-crew-manifest--sort_primary">{{ sortIndicator('bodyModel', 'primary') }}</span>
+							<span class="v-crew-manifest--sort_secondary">{{ sortIndicator('bodyModel', 'secondary') }}</span>
 						</th>
 						<th class="v-crew-manifest--sort_th" @click="onSortHeaderClick('color', $event)">
 							Color
@@ -207,7 +207,7 @@ function sortIndicator(key, which) {
 						<td>{{ r.body }}</td>
 						<td>{{ r.suit }}</td>
 						<td>
-							<abbr v-if="r.build" :title="r.build.title">{{ r.build.abbr }}</abbr>
+							<abbr v-if="r.bodyModel" :title="r.bodyModel.title">{{ r.bodyModel.abbr }}</abbr>
 							<span v-else>—</span>
 						</td>
 						<td>{{ r.color }}</td>

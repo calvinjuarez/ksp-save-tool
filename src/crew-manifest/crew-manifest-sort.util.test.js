@@ -20,7 +20,7 @@ function row(partial) {
 		situation: '—',
 		body: '—',
 		suit: '—',
-		build: null,
+		bodyModel: null,
 		color: '—',
 		mark: null,
 		markKind: null,

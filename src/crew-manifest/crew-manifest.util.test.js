@@ -71,7 +71,7 @@ describe('buildCrewManifestRows', () => {
 			situation: 'ORBITING',
 			body: 'Kerbin',
 			suit: 'Slim',
-			build: { abbr: 'F', title: 'Feminine' },
+			bodyModel: { abbr: 'F', title: 'Feminine' },
 			color: '2',
 			mark: null,
 			markKind: null,
@@ -84,11 +84,33 @@ describe('buildCrewManifestRows', () => {
 			situation: '—',
 			body: 'Home',
 			suit: 'Default',
-			build: { abbr: 'M', title: 'Masculine' },
+			bodyModel: { abbr: 'M', title: 'Masculine' },
 			color: '0',
 			mark: null,
 			markKind: null,
 		})
+	})
+
+	it('uses roster gender for bodyModel; without gender both model and color are empty', () => {
+		const tree = {
+			GAME: {
+				ROSTER: {
+					KERBAL: {
+						name: 'No Gender Kerman',
+						trait: 'Pilot',
+						state: 'Available',
+						type: 'Crew',
+						tour: 'False',
+						suit: 'Default',
+						comboId: 'default_male_0',
+						experienceLevel: '0',
+					},
+				},
+			},
+		}
+		const rows = buildCrewManifestRows(tree)
+		expect(rows[0].bodyModel).toBeNull()
+		expect(rows[0].color).toBe('—')
 	})
 
 	it('derives rank from cumulative experience when experienceLevel is missing', () => {
@@ -198,7 +220,7 @@ describe('formatCrewManifestMarkdown', () => {
 				situation: '—',
 				body: 'Home',
 				suit: 'Default',
-				build: { abbr: 'M', title: 'Masculine' },
+				bodyModel: { abbr: 'M', title: 'Masculine' },
 				color: '0',
 				mark: null,
 				markKind: null,
@@ -206,7 +228,7 @@ describe('formatCrewManifestMarkdown', () => {
 		])
 		expect(md).toContain('# KSP Crew Manifest Report')
 		expect(md).toContain(
-			'| Name | Mark | Role | Rank | Vessel | Situation | At | Suit | Build | Color |',
+			'| Name | Mark | Role | Rank | Vessel | Situation | At | Suit | Model | Color |',
 		)
 		expect(md).toContain('| Test | — | Pilot | ★★★ |')
 		expect(md).toContain('| Default | M | 0 |')
@@ -224,7 +246,7 @@ describe('formatCrewManifestMarkdown', () => {
 					situation: '—',
 					body: 'Home',
 					suit: 'Default',
-					build: { abbr: 'M', title: 'Masculine' },
+					bodyModel: { abbr: 'M', title: 'Masculine' },
 					color: '0',
 					mark: null,
 					markKind: null,
@@ -254,7 +276,7 @@ describe('formatCrewManifestMarkdown', () => {
 					situation: '—',
 					body: 'Home',
 					suit: 'Default',
-					build: { abbr: 'M', title: 'Masculine' },
+					bodyModel: { abbr: 'M', title: 'Masculine' },
 					color: '0',
 					mark: null,
 					markKind: null,
@@ -285,3 +307,4 @@ describe('formatTotalXpDisplay', () => {
 		expect(formatTotalXpDisplay(0)).toBe('0')
 	})
 })
+

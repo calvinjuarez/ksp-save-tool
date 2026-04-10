@@ -17,7 +17,7 @@
  */
 
 /**
- * @typedef {'name'|'mark'|'role'|'rank'|'vessel'|'situation'|'body'|'suit'|'build'|'color'} CrewManifestSortColumn
+ * @typedef {'name'|'mark'|'role'|'rank'|'vessel'|'situation'|'body'|'suit'|'bodyModel'|'color'} CrewManifestSortColumn
  */
 
 /** @type {readonly CrewManifestSortColumn[]} */
@@ -30,7 +30,7 @@ export const CREW_MANIFEST_SORT_COLUMNS = [
 	'situation',
 	'body',
 	'suit',
-	'build',
+	'bodyModel',
 	'color',
 ]
 
@@ -45,7 +45,7 @@ export const CREW_MANIFEST_SORT_COLUMN_LABELS = Object.freeze({
 	situation: 'Situation',
 	body: 'At',
 	suit: 'Suit',
-	build: 'Build',
+	bodyModel: 'Model',
 	color: 'Color',
 })
 
@@ -110,8 +110,8 @@ function compareLocaleText(a, b) {
  * @param {CrewManifestRow} row
  * @returns {string}
  */
-function buildAbbrForSort(row) {
-	if (row.build !== null) return row.build.abbr
+function bodyModelAbbrForSort(row) {
+	if (row.bodyModel !== null) return row.bodyModel.abbr
 	return '—'
 }
 
@@ -160,8 +160,8 @@ function compareByColumn(key, a, b) {
 			return bodyRank(a) - bodyRank(b) || compareLocaleText(a.body, b.body)
 		case 'suit':
 			return compareLocaleText(a.suit, b.suit)
-		case 'build':
-			return compareLocaleText(buildAbbrForSort(a), buildAbbrForSort(b))
+		case 'bodyModel':
+			return compareLocaleText(bodyModelAbbrForSort(a), bodyModelAbbrForSort(b))
 		case 'color':
 			return compareLocaleText(a.color, b.color)
 		default:

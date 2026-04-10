@@ -26,7 +26,7 @@ describe('crew-manifest.util (Easy Mode move-the-rover save)', () => {
 			expect(jeb?.suit).toBe('Slim')
 			expect(jeb?.rank).toBe(2)
 			expect(jeb?.totalXp).toBeCloseTo(11.25, 5)
-			expect(jeb?.build).toEqual({ abbr: 'M', title: 'Masculine' })
+			expect(jeb?.bodyModel).toEqual({ abbr: 'M', title: 'Masculine' })
 			expect(jeb?.color).toBe('1')
 		},
 		30_000,

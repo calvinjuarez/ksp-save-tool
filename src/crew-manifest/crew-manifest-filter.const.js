@@ -1,3 +1,9 @@
+import { crewManifestMarkEnumOptionLabel } from './crew-manifest-mark.const.js'
+import {
+	CREW_MANIFEST_RANK_ENUM_VALUES,
+	crewManifestRankEnumOptionLabel,
+} from './crew-manifest-rank.util.js'
+
 /**
  * Column definitions for the crew manifest table filter UI.
  *
@@ -14,6 +20,7 @@ export const CREW_MANIFEST_FILTER_COLUMNS = Object.freeze([
 		key: 'mark',
 		label: 'Mark',
 		type: 'enum',
+		enumOptionLabel: crewManifestMarkEnumOptionLabel,
 		accessor: (row) => {
 			const r = /** @type {import('./crew-manifest.util.js').CrewManifestRow} */ (row)
 			return r.markKind ?? '—'
@@ -28,8 +35,20 @@ export const CREW_MANIFEST_FILTER_COLUMNS = Object.freeze([
 	{
 		key: 'rank',
 		label: 'Rank',
+		type: 'enum',
+		enumValueUniverse: CREW_MANIFEST_RANK_ENUM_VALUES,
+		enumOptionLabel: crewManifestRankEnumOptionLabel,
+		accessor: (row) => {
+			const r = /** @type {import('./crew-manifest.util.js').CrewManifestRow} */ (row).rank
+			return Number.isFinite(r) ? String(Math.trunc(r)) : '0'
+		},
+	},
+	{
+		key: 'xp',
+		label: 'XP',
 		type: 'number',
-		accessor: (row) => /** @type {import('./crew-manifest.util.js').CrewManifestRow} */ (row).rank,
+		numberStep: '0.1',
+		accessor: (row) => /** @type {import('./crew-manifest.util.js').CrewManifestRow} */ (row).totalXp,
 	},
 	{
 		key: 'vessel',
@@ -57,12 +76,12 @@ export const CREW_MANIFEST_FILTER_COLUMNS = Object.freeze([
 		accessor: (row) => /** @type {import('./crew-manifest.util.js').CrewManifestRow} */ (row).suit,
 	},
 	{
-		key: 'build',
-		label: 'Build',
+		key: 'bodyModel',
+		label: 'Model',
 		type: 'enum',
 		accessor: (row) => {
 			const r = /** @type {import('./crew-manifest.util.js').CrewManifestRow} */ (row)
-			return r.build !== null ? r.build.abbr : '—'
+			return r.bodyModel !== null ? r.bodyModel.abbr : '—'
 		},
 	},
 	{
