@@ -81,7 +81,7 @@ export const CREW_MANIFEST_FILTER_COLUMNS = Object.freeze([
 		type: 'enum',
 		accessor: (row) => {
 			const r = /** @type {import('./crew-manifest.util.js').CrewManifestRow} */ (row)
-			return r.bodyModel !== null ? r.bodyModel.abbr : '—'
+			return r.bodyModel !== null ? r.bodyModel.title : '—'
 		},
 	},
 	{
