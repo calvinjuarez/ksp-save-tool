@@ -4,7 +4,6 @@ import {
 	collectCrewNamesFromVessel,
 	formatCrewManifestMarkdown,
 	formatTotalXpDisplay,
-	rankToStars,
 } from './crew-manifest.util.js'
 
 describe('collectCrewNamesFromVessel', () => {
@@ -34,6 +33,7 @@ describe('buildCrewManifestRows', () => {
 							type: 'Crew',
 							tour: 'False',
 							suit: 'Slim',
+							gender: 'Female',
 							comboId: 'slim_female_2',
 							experienceLevel: '3',
 						},
@@ -44,6 +44,7 @@ describe('buildCrewManifestRows', () => {
 							type: 'Crew',
 							tour: 'False',
 							suit: 'Default',
+							gender: 'Male',
 							comboId: 'default_male_0',
 							experienceLevel: 2,
 						},
@@ -101,6 +102,7 @@ describe('buildCrewManifestRows', () => {
 						type: 'Crew',
 						tour: 'False',
 						suit: 'Default',
+						gender: 'Male',
 						comboId: 'default_male_0',
 						experience: '50',
 					},
@@ -125,6 +127,7 @@ describe('buildCrewManifestRows', () => {
 							type: 'Crew',
 							tour: 'False',
 							suit: 'Default',
+							gender: 'Male',
 							comboId: 'default_male_0',
 							experienceLevel: '0',
 						},
@@ -135,6 +138,7 @@ describe('buildCrewManifestRows', () => {
 							type: 'Applicant',
 							tour: 'False',
 							suit: 'Default',
+							gender: 'Male',
 							comboId: 'default_male_0',
 						},
 					],
@@ -157,6 +161,7 @@ describe('buildCrewManifestRows', () => {
 						type: 'Tourist',
 						tour: 'True',
 						suit: 'Default',
+						gender: 'Male',
 						comboId: 'default_male_0',
 						experienceLevel: '1',
 					},
@@ -278,19 +283,5 @@ describe('formatTotalXpDisplay', () => {
 		expect(formatTotalXpDisplay(11.25)).toBe('11.3')
 		expect(formatTotalXpDisplay(64)).toBe('64')
 		expect(formatTotalXpDisplay(0)).toBe('0')
-	})
-})
-
-describe('rankToStars', () => {
-	it('returns empty star for rank 0 and filled stars for 1–5', () => {
-		expect(rankToStars(0)).toBe('☆')
-		expect(rankToStars(1)).toBe('★')
-		expect(rankToStars(3)).toBe('★★★')
-		expect(rankToStars(5)).toBe('★★★★★')
-	})
-
-	it('clamps out-of-range values', () => {
-		expect(rankToStars(-1)).toBe('☆')
-		expect(rankToStars(99)).toBe('★★★★★')
 	})
 })

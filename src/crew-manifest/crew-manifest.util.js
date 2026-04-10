@@ -4,13 +4,16 @@ import {
 	kerbalDisplayName,
 	kerbalRankFromKerbal,
 	kerbalTotalXpFromKerbal,
-	parseBuild,
+	parseBodyModel,
 } from '../ksp/kerbal.util.js'
 import { formatTableFilterSummary } from '../shared/table-filter.util.js'
 import { asArray } from '../save-file/save-file.util.js'
 import { CREW_MANIFEST_FILTER_COLUMNS } from './crew-manifest-filter.const.js'
 import { crewManifestMark } from './crew-manifest-mark.const.js'
+import { rankToStars } from './crew-manifest-rank.util.js'
 import { formatCrewManifestSortSpecForMarkdown } from './crew-manifest-sort.util.js'
+
+export { rankToStars }
 
 /**
  * @typedef {Object} CrewManifestBuild
@@ -117,16 +120,6 @@ function roleFromKerbal(kerbal) {
 }
 
 /**
- * @param {number} rank
- * @returns {string}
- */
-export function rankToStars(rank) {
-	const r = Math.min(5, Math.max(0, rank))
-	if (r === 0) return '☆'
-	return '★'.repeat(r)
-}
-
-/**
  * @param {number} totalXp
  * @returns {string}
  */
@@ -186,11 +179,10 @@ export function buildCrewManifestRows(tree) {
 			body = 'Home'
 		}
 		const suit = typeof kerbal.suit === 'string' && kerbal.suit.length > 0 ? kerbal.suit : '—'
-		const comboId = typeof kerbal.comboId === 'string' ? kerbal.comboId : undefined
-		const parsed = parseBuild(comboId)
+		const model = parseBodyModel(kerbal)
 		const build =
-			parsed !== null ? { abbr: parsed.abbr, title: parsed.title } : null
-		const color = parsed !== null ? parsed.colorVariant : '—'
+			model !== null ? { abbr: model.abbr, title: model.title } : null
+		const color = model?.colorVariant ?? '—'
 		const { mark, markKind } = markFromKerbal(name, kerbal, rescueMap)
 		const rank = kerbalRankFromKerbal(kerbal)
 		const totalXp = kerbalTotalXpFromKerbal(kerbal)
