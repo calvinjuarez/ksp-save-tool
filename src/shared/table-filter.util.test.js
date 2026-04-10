@@ -51,6 +51,26 @@ describe('tableFilterEnumOptions', () => {
 		const none = opts.find((o) => o.value === TABLE_FILTER_NONE_VALUE)
 		expect(none?.label).toBe('(none)')
 	})
+
+	it('uses enumOptionLabel when provided', () => {
+		const rows = [{ tag: 'A' }]
+		const opts = tableFilterEnumOptions(
+			rows,
+			(r) => /** @type {{ tag: string }} */ (r).tag,
+			(v) => `Label ${v}`,
+		)
+		expect(opts.find((o) => o.value === 'A')?.label).toBe('Label A')
+	})
+
+	it('uses enumValueUniverse when provided (not row-derived only)', () => {
+		const rows = [{ tag: 'onlyA' }]
+		const opts = tableFilterEnumOptions(rows, (r) => /** @type {{ tag: string }} */ (r).tag, {
+			enumValueUniverse: ['2', '1'],
+			enumOptionLabel: (v) => `L${v}`,
+		})
+		expect(opts.map((o) => o.value)).toEqual(['1', '2'])
+		expect(opts.map((o) => o.label)).toEqual(['L1', 'L2'])
+	})
 })
 
 describe('matchesTableFilter — string', () => {
@@ -260,6 +280,24 @@ describe('formatTableFilterSummary', () => {
 				testColumns,
 			),
 		).toContain('(none)')
+	})
+
+	it('uses enumOptionLabel in enum summaries when set on the column', () => {
+		const columns = /** @type {import('./table-filter.const.js').TableFilterColumnDef[]} */ ([
+			{
+				key: 'tag',
+				label: 'Tag',
+				type: 'enum',
+				accessor: (row) => /** @type {{ tag: string }} */ (row).tag,
+				enumOptionLabel: (v) => (v === 'a' ? 'Alpha' : v),
+			},
+		])
+		expect(
+			formatTableFilterSummary(
+				{ id: '1', columnKey: 'tag', operator: TABLE_FILTER_ENUM_OP, value: ['a'] },
+				columns,
+			),
+		).toBe('Tag: Alpha')
 	})
 })
 

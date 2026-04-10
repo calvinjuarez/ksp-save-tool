@@ -8,6 +8,12 @@
  * @property {string} label
  * @property {TableFilterColumnType} type
  * @property {(row: unknown) => unknown} accessor
+ * @property {(storedValue: string) => string} [enumOptionLabel]
+ *   For `type: 'enum'`, maps stored accessor values to checkbox / summary labels (e.g. emoji + title).
+ * @property {readonly string[]} [enumValueUniverse]
+ *   When set, enum options are exactly these values (plus labels), not only values present in rows.
+ * @property {string} [numberStep]
+ *   For `type: 'number'`, HTML `step` on value inputs (e.g. `0.1` for decimal XP).
  */
 
 /**

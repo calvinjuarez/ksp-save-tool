@@ -85,11 +85,49 @@ export function parseCommaSeparatedList(s) {
 }
 
 /**
+ * @param {{
+ *   enumOptionLabel?: (storedValue: string) => string
+ *   enumValueUniverse?: readonly string[]
+ * }} [options]
+ */
+function normalizeEnumOptionsArg(options) {
+	if (typeof options === 'function') return { enumOptionLabel: options }
+	return options ?? {}
+}
+
+/**
  * @param {unknown[]} rows
  * @param {(row: unknown) => unknown} accessor
+ * @param {((storedValue: string) => string) | {
+ *   enumOptionLabel?: (storedValue: string) => string
+ *   enumValueUniverse?: readonly string[]
+ * }} [optionsOrLabel]
  * @returns {{ value: string, label: string }[]}
  */
-export function tableFilterEnumOptions(rows, accessor) {
+export function tableFilterEnumOptions(rows, accessor, optionsOrLabel) {
+	const { enumOptionLabel, enumValueUniverse } = normalizeEnumOptionsArg(optionsOrLabel)
+
+	if (enumValueUniverse !== undefined && enumValueUniverse.length > 0) {
+		const arr = [...enumValueUniverse]
+		arr.sort((a, b) => {
+			const na = Number.parseFloat(a)
+			const nb = Number.parseFloat(b)
+			if (Number.isFinite(na) && Number.isFinite(nb) && String(na) === a && String(nb) === b) {
+				return na - nb
+			}
+			return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' })
+		})
+		return arr.map((value) => ({
+			value,
+			label:
+				value === TABLE_FILTER_NONE_VALUE
+					? TABLE_FILTER_NONE_LABEL
+					: enumOptionLabel
+						? enumOptionLabel(value)
+						: value,
+		}))
+	}
+
 	/** @type {Set<string>} */
 	const set = new Set()
 	for (const row of rows) {
@@ -106,7 +144,12 @@ export function tableFilterEnumOptions(rows, accessor) {
 	})
 	return arr.map((value) => ({
 		value,
-		label: value === TABLE_FILTER_NONE_VALUE ? TABLE_FILTER_NONE_LABEL : value,
+		label:
+			value === TABLE_FILTER_NONE_VALUE
+				? TABLE_FILTER_NONE_LABEL
+				: enumOptionLabel
+					? enumOptionLabel(value)
+					: value,
 	}))
 }
 
@@ -237,9 +280,12 @@ export function formatTableFilterSummary(filter, columnDefs) {
 	if (!def || def.type === 'enum') {
 		const selected = /** @type {unknown} */ (filter.value)
 		if (!Array.isArray(selected) || selected.length === 0) return `${label}: …`
-		const parts = selected.map((v) =>
-			String(v) === TABLE_FILTER_NONE_VALUE ? TABLE_FILTER_NONE_LABEL : String(v),
-		)
+		const parts = selected.map((v) => {
+			const s = String(v)
+			if (s === TABLE_FILTER_NONE_VALUE) return TABLE_FILTER_NONE_LABEL
+			if (def?.type === 'enum' && def.enumOptionLabel) return def.enumOptionLabel(s)
+			return s
+		})
 		return `${label}: ${parts.join(', ')}`
 	}
 

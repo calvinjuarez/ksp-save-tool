@@ -106,7 +106,10 @@ const operatorsForColumn = computed(() => {
 const enumOptions = computed(() => {
 	const d = selectedColumnDef.value
 	if (!d || d.type !== 'enum') return []
-	return tableFilterEnumOptions(props.rows, d.accessor)
+	return tableFilterEnumOptions(props.rows, d.accessor, {
+		enumOptionLabel: d.enumOptionLabel,
+		enumValueUniverse: d.enumValueUniverse,
+	})
 })
 
 /**
@@ -540,12 +543,18 @@ function summaryText(f) {
 										ref="valueFocusRef"
 										v-model="draftNumLo"
 										type="number"
+										:step="selectedColumnDef.numberStep"
 										class="c-table-filter--input"
 									/>
 								</label>
 								<label class="c-table-filter--field">
 									<span class="c-table-filter--label">Max</span>
-									<input v-model="draftNumHi" type="number" class="c-table-filter--input" />
+									<input
+										v-model="draftNumHi"
+										type="number"
+										:step="selectedColumnDef.numberStep"
+										class="c-table-filter--input"
+									/>
 								</label>
 							</template>
 							<template v-else-if="draftOperator === 'eqAny'">
@@ -559,8 +568,9 @@ function summaryText(f) {
 										<input
 											:ref="(el) => setValueFocusRefFirstRow(el, i)"
 											v-model="draftNumAnyRows[i]"
-											type="text"
+											type="number"
 											inputmode="decimal"
+											:step="selectedColumnDef.numberStep"
 											class="c-table-filter--input  c-table-filter--any_input"
 										/>
 										<button
@@ -582,6 +592,8 @@ function summaryText(f) {
 										ref="valueFocusRef"
 										v-model="draftNumSingle"
 										type="number"
+										inputmode="decimal"
+										:step="selectedColumnDef.numberStep"
 										class="c-table-filter--input"
 									/>
 								</label>
