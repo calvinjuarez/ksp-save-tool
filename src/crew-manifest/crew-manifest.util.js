@@ -6,8 +6,11 @@ import {
 	kerbalTotalXpFromKerbal,
 	parseBuild,
 } from '../ksp/kerbal.util.js'
+import { formatTableFilterSummary } from '../shared/table-filter.util.js'
 import { asArray } from '../save-file/save-file.util.js'
+import { CREW_MANIFEST_FILTER_COLUMNS } from './crew-manifest-filter.const.js'
 import { crewManifestMark } from './crew-manifest-mark.const.js'
+import { formatCrewManifestSortSpecForMarkdown } from './crew-manifest-sort.util.js'
 
 /**
  * @typedef {Object} CrewManifestBuild
@@ -226,13 +229,51 @@ function sortKeyVessel(vessel) {
 }
 
 /**
+ * @param {import('./crew-manifest-sort.util.js').CrewManifestSortSpec} primary
+ * @param {import('./crew-manifest-sort.util.js').CrewManifestSortSpec} secondary
+ * @param {import('../shared/table-filter.util.js').TableFilter[]} filters
+ * @returns {string[]}
+ */
+function crewManifestMarkdownViewStateLines(primary, secondary, filters) {
+	const lines = [
+		'## View state',
+		'',
+		`- **Sort:** Primary: ${formatCrewManifestSortSpecForMarkdown(primary)}; Secondary: ${formatCrewManifestSortSpecForMarkdown(secondary)}`,
+	]
+	if (filters.length === 0) {
+		lines.push('- **Filters:** None')
+	} else {
+		lines.push('- **Filters:**')
+		for (const f of filters) {
+			lines.push(`  - ${formatTableFilterSummary(f, CREW_MANIFEST_FILTER_COLUMNS)}`)
+		}
+	}
+	return lines
+}
+
+/**
  * @param {CrewManifestRow[]} rows
+ * @param {{
+ *   primary: import('./crew-manifest-sort.util.js').CrewManifestSortSpec
+ *   secondary: import('./crew-manifest-sort.util.js').CrewManifestSortSpec
+ *   filters: import('../shared/table-filter.util.js').TableFilter[]
+ * }} [viewState]
  * @returns {string}
  */
-export function formatCrewManifestMarkdown(rows) {
+export function formatCrewManifestMarkdown(rows, viewState) {
 	const lines = [
 		'# KSP Crew Manifest Report',
 		'',
+	]
+	if (viewState) {
+		lines.push(...crewManifestMarkdownViewStateLines(
+			viewState.primary,
+			viewState.secondary,
+			viewState.filters,
+		))
+		lines.push('')
+	}
+	lines.push(
 		'Legend:',
 		'',
 		'- 🆘 = Needs Rescue',
@@ -242,9 +283,9 @@ export function formatCrewManifestMarkdown(rows) {
 		'',
 		'## Full Crew Table',
 		'',
-		'| Kerbal | Mark | Role | Rank | Vessel | Situation | At | Suit | Build | Color |',
+		'| Name | Mark | Role | Rank | Vessel | Situation | At | Suit | Build | Color |',
 		'| ---    | ---  | ---  | ---  | ---    | ---       | -- | ---  | ---   | ---   |',
-	]
+	)
 	for (const r of rows) {
 		const buildMd = r.build !== null ? r.build.abbr : '—'
 		const markMd = r.mark !== null ? r.mark.emoji : '—'

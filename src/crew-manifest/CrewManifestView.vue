@@ -40,7 +40,13 @@ const sortedRows = computed(() =>
 	sortCrewManifestRows(filteredRows.value, primarySort.value, secondarySort.value),
 )
 
-const markdown = computed(() => formatCrewManifestMarkdown(sortedRows.value))
+const markdown = computed(() =>
+	formatCrewManifestMarkdown(sortedRows.value, {
+		primary: primarySort.value,
+		secondary: secondarySort.value,
+		filters: filters.value,
+	}),
+)
 
 const copyMessage = ref('')
 
@@ -127,7 +133,7 @@ function sortIndicator(key, which) {
 				<thead>
 					<tr>
 						<th class="v-crew-manifest--sort_th" @click="onSortHeaderClick('name', $event)">
-							Kerbal
+							Name
 							<span class="v-crew-manifest--sort_primary">{{ sortIndicator('name', 'primary') }}</span>
 							<span class="v-crew-manifest--sort_secondary">{{ sortIndicator('name', 'secondary') }}</span>
 						</th>

@@ -201,10 +201,75 @@ describe('formatCrewManifestMarkdown', () => {
 		])
 		expect(md).toContain('# KSP Crew Manifest Report')
 		expect(md).toContain(
-			'| Kerbal | Mark | Role | Rank | Vessel | Situation | At | Suit | Build | Color |',
+			'| Name | Mark | Role | Rank | Vessel | Situation | At | Suit | Build | Color |',
 		)
 		expect(md).toContain('| Test | — | Pilot | ★★★ |')
 		expect(md).toContain('| Default | M | 0 |')
+	})
+
+	it('includes view state when provided', () => {
+		const md = formatCrewManifestMarkdown(
+			[
+				{
+					name: 'Test Kerman',
+					role: 'Pilot',
+					rank: 3,
+					totalXp: 11.25,
+					vessel: '—',
+					situation: '—',
+					body: 'Home',
+					suit: 'Default',
+					build: { abbr: 'M', title: 'Masculine' },
+					color: '0',
+					mark: null,
+					markKind: null,
+				},
+			],
+			{
+				primary: { key: 'body', dir: 'asc' },
+				secondary: { key: null, dir: null },
+				filters: [],
+			},
+		)
+		expect(md).toContain('## View state')
+		expect(md).toContain('Primary: At (ascending)')
+		expect(md).toContain('Secondary: —')
+		expect(md).toContain('- **Filters:** None')
+	})
+
+	it('lists filters in view state when provided', () => {
+		const md = formatCrewManifestMarkdown(
+			[
+				{
+					name: 'Test Kerman',
+					role: 'Pilot',
+					rank: 3,
+					totalXp: 11.25,
+					vessel: '—',
+					situation: '—',
+					body: 'Home',
+					suit: 'Default',
+					build: { abbr: 'M', title: 'Masculine' },
+					color: '0',
+					mark: null,
+					markKind: null,
+				},
+			],
+			{
+				primary: { key: 'name', dir: 'asc' },
+				secondary: { key: 'vessel', dir: 'asc' },
+				filters: [
+					{
+						id: 'tf-test',
+						columnKey: 'role',
+						operator: 'enumSet',
+						value: ['Pilot'],
+					},
+				],
+			},
+		)
+		expect(md).toContain('- **Filters:**')
+		expect(md).toContain('Role: Pilot')
 	})
 })
 

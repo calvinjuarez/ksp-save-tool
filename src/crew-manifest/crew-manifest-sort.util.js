@@ -34,6 +34,21 @@ export const CREW_MANIFEST_SORT_COLUMNS = [
 	'color',
 ]
 
+/** Display labels aligned with the crew manifest table headers / filter column names. */
+/** @type {Readonly<Record<CrewManifestSortColumn, string>>} */
+export const CREW_MANIFEST_SORT_COLUMN_LABELS = Object.freeze({
+	name: 'Name',
+	mark: 'Mark',
+	role: 'Role',
+	rank: 'Rank',
+	vessel: 'Vessel',
+	situation: 'Situation',
+	body: 'At',
+	suit: 'Suit',
+	build: 'Build',
+	color: 'Color',
+})
+
 /** Distance-from-Kerbin / solar order; unknown and em dash sort after Home. */
 export const CREW_MANIFEST_BODY_RANK = [
 	'Kerbin',
@@ -160,6 +175,19 @@ function compareByColumn(key, a, b) {
  */
 export function crewManifestSortSpecIsActive(spec) {
 	return spec.key !== null && spec.dir !== null
+}
+
+/**
+ * Human-readable sort spec for markdown exports (inactive sorts show as "—").
+ *
+ * @param {CrewManifestSortSpec} spec
+ * @returns {string}
+ */
+export function formatCrewManifestSortSpecForMarkdown(spec) {
+	if (!crewManifestSortSpecIsActive(spec) || spec.key === null) return '—'
+	const label = CREW_MANIFEST_SORT_COLUMN_LABELS[spec.key]
+	const dirWord = spec.dir === 'asc' ? 'ascending' : 'descending'
+	return `${label} (${dirWord})`
 }
 
 /**

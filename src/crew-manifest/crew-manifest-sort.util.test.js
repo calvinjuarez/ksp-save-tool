@@ -4,6 +4,7 @@ import {
 	sortCrewManifestRows,
 	cycleCrewManifestSortDir,
 	cycleCrewManifestSortDirForColumn,
+	formatCrewManifestSortSpecForMarkdown,
 	initialCrewManifestSortDirForColumn,
 	crewManifestSortSpecIsActive,
 } from './crew-manifest-sort.util.js'
@@ -26,6 +27,21 @@ function row(partial) {
 		...partial,
 	}
 }
+
+describe('formatCrewManifestSortSpecForMarkdown', () => {
+	it('returns em dash when inactive', () => {
+		expect(formatCrewManifestSortSpecForMarkdown({ key: null, dir: null })).toBe('—')
+	})
+
+	it('returns label and direction when active', () => {
+		expect(formatCrewManifestSortSpecForMarkdown({ key: 'body', dir: 'asc' })).toBe(
+			'At (ascending)',
+		)
+		expect(formatCrewManifestSortSpecForMarkdown({ key: 'rank', dir: 'desc' })).toBe(
+			'Rank (descending)',
+		)
+	})
+})
 
 describe('crewManifestSortSpecIsActive', () => {
 	it('is false when key or dir is null', () => {

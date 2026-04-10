@@ -6,7 +6,7 @@
 export const CREW_MANIFEST_FILTER_COLUMNS = Object.freeze([
 	{
 		key: 'name',
-		label: 'Kerbal',
+		label: 'Name',
 		type: 'string',
 		accessor: (row) => /** @type {import('./crew-manifest.util.js').CrewManifestRow} */ (row).name,
 	},
