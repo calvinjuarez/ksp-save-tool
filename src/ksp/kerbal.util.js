@@ -8,6 +8,9 @@ import { xpFromCareerLog } from './kerbal-career-xp.util.js'
  * Suit `comboId` format follows game definitions (see SUITCOMBOS.cfg); color names are
  * not in saves—we expose the raw variant number until mapped.
  *
+ * Body model (M/F, Masculine/Feminine) comes from the roster `gender` field (`Male` / `Female`);
+ * `comboId` is used only for the color variant (trailing `_<digits>` segment).
+ *
  * Career rank (stars): use cached `experience` + `extraXP` when present; otherwise (or when
  * lower) derive XP from `CAREER_LOG` using stock per-body achievement values from the wiki
  * Experience table. Star thresholds match KSP 1 (2 / 8 / 16 / 32 / 64 XP).
@@ -17,29 +20,48 @@ import { xpFromCareerLog } from './kerbal-career-xp.util.js'
 const KERBAL_STAR_XP_THRESHOLDS = [2, 8, 16, 32, 64]
 
 /**
- * @typedef {Object} ParsedBuild
+ * @typedef {Object} KerbalBodyModel
  * @property {'M'|'F'} abbr
  * @property {'Masculine'|'Feminine'} title
- * @property {string} colorVariant
+ * @property {string | null} colorVariant
  */
 
 /**
  * @param {string | undefined} comboId
- * @returns {ParsedBuild | null}
+ * @returns {string | null}
  */
-export function parseBuild(comboId) {
+function colorVariantFromComboId(comboId) {
 	if (typeof comboId !== 'string' || comboId.length === 0) return null
-	const m = /^(\w+)_(male|female)_(\d+)$/.exec(comboId)
-	if (!m) return null
-	const gender = m[2]
-	const colorVariant = m[3]
-	if (gender === 'male') {
-		return { abbr: 'M', title: 'Masculine', colorVariant }
+	const m = /_(\d+)$/.exec(comboId)
+	return m ? m[1] : null
+}
+
+/**
+ * Roster kerbal: `gender` for body model, `comboId` for color variant only.
+ *
+ * @param {Record<string, unknown>} kerbal
+ * @returns {KerbalBodyModel | null}
+ */
+export function parseBodyModel(kerbal) {
+	const g = kerbal.gender
+	if (typeof g !== 'string' || g.trim().length === 0) return null
+	const lower = g.trim().toLowerCase()
+	/** @type {'M'|'F'} */
+	let abbr
+	/** @type {'Masculine'|'Feminine'} */
+	let title
+	if (lower === 'male') {
+		abbr = 'M'
+		title = 'Masculine'
+	} else if (lower === 'female') {
+		abbr = 'F'
+		title = 'Feminine'
+	} else {
+		return null
 	}
-	if (gender === 'female') {
-		return { abbr: 'F', title: 'Feminine', colorVariant }
-	}
-	return null
+	const comboId = typeof kerbal.comboId === 'string' ? kerbal.comboId : undefined
+	const colorVariant = colorVariantFromComboId(comboId)
+	return { abbr, title, colorVariant }
 }
 
 /**

@@ -3,38 +3,49 @@ import {
 	kerbalDisplayName,
 	kerbalRankFromKerbal,
 	kerbalTotalXpFromKerbal,
-	parseBuild,
+	parseBodyModel,
 	rankFromTotalExperience,
 } from './kerbal.util.js'
 
 describe('kerbal.util', () => {
-	it('parses slim and default comboIds', () => {
-		expect(parseBuild('slim_male_3')).toEqual({
+	it('parseBodyModel reads gender and comboId color segment', () => {
+		expect(
+			parseBodyModel({ gender: 'Male', comboId: 'default_male_0' }),
+		).toEqual({
 			abbr: 'M',
 			title: 'Masculine',
-			colorVariant: '3',
+			colorVariant: '0',
 		})
-		expect(parseBuild('slim_female_2')).toEqual({
+		expect(
+			parseBodyModel({ gender: 'Female', comboId: 'slim_female_2' }),
+		).toEqual({
 			abbr: 'F',
 			title: 'Feminine',
 			colorVariant: '2',
 		})
-		expect(parseBuild('default_male_0')).toEqual({
+		expect(parseBodyModel({ gender: 'Male', comboId: 'slim_male_3' })).toEqual({
 			abbr: 'M',
 			title: 'Masculine',
-			colorVariant: '0',
-		})
-		expect(parseBuild('default_female_0')).toEqual({
-			abbr: 'F',
-			title: 'Feminine',
-			colorVariant: '0',
+			colorVariant: '3',
 		})
 	})
 
-	it('returns null for unparseable comboId', () => {
-		expect(parseBuild('')).toBeNull()
-		expect(parseBuild(undefined)).toBeNull()
-		expect(parseBuild('weird')).toBeNull()
+	it('parseBodyModel returns null when gender missing or unknown', () => {
+		expect(parseBodyModel({ comboId: 'default_male_0' })).toBeNull()
+		expect(parseBodyModel({ gender: 'alien', comboId: 'x' })).toBeNull()
+	})
+
+	it('parseBodyModel uses null colorVariant when comboId missing or unparseable', () => {
+		expect(parseBodyModel({ gender: 'Male' })).toEqual({
+			abbr: 'M',
+			title: 'Masculine',
+			colorVariant: null,
+		})
+		expect(parseBodyModel({ gender: 'Female', comboId: 'weird' })).toEqual({
+			abbr: 'F',
+			title: 'Feminine',
+			colorVariant: null,
+		})
 	})
 
 	it('kerbalDisplayName strips Kerman surname', () => {
