@@ -312,7 +312,7 @@ export function groupScienceReportRows(rows, groupBy) {
 			return {
 				key: body,
 				title: body,
-				caption: parent ? `moon of ${parent}` : undefined,
+				caption: parent ? `Moon of ${parent}` : undefined,
 				isMoon: Boolean(parent),
 				rows: groupRows,
 			}

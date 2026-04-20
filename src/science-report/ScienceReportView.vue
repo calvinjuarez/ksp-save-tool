@@ -99,19 +99,22 @@ function groupSummaryLine(g) {
 				:key="g.key"
 				class="v-science-report--section"
 			>
-				<h3
-					class="v-science-report--heading"
-					:class="{ 'v-science-report--heading_moon': g.isMoon }"
-				>
-					{{ g.title }}
-				</h3>
-				<p v-if="g.caption" class="v-science-report--caption">{{ g.caption }}</p>
-				<p v-if="groupSummaryLine(g)" class="v-science-report--summary">{{ groupSummaryLine(g) }}</p>
-				<ScienceReportTable
-					:rows="g.rows"
-					:hide-body="groupBy === 'location'"
-					:hide-experiment="groupBy === 'experiment'"
-				/>
+				<details open>
+					<summary class="v-science-report--summary_row">
+						<div class="v-science-report--summary_main">
+							<hgroup class="v-science-report--heading_group">
+								<h3 class="v-science-report--heading">{{ g.title }}</h3>
+								<p v-if="g.caption" class="v-science-report--heading_sub">{{ g.caption }}</p>
+							</hgroup>
+							<p v-if="groupSummaryLine(g)" class="v-science-report--summary">{{ groupSummaryLine(g) }}</p>
+						</div>
+					</summary>
+					<ScienceReportTable
+						:rows="g.rows"
+						:hide-body="groupBy === 'location'"
+						:hide-experiment="groupBy === 'experiment'"
+					/>
+				</details>
 			</section>
 		</template>
 	</div>
@@ -137,26 +140,49 @@ function groupSummaryLine(g) {
 	margin-bottom: 2rem;
 }
 
+.v-science-report--section details > :not(summary) {
+	margin-top: 0.75rem;
+}
+
+.v-science-report--summary_row {
+	/* Keep default `display: list-item` so the disclosure marker stays visible. */
+	user-select: none;
+}
+
+.v-science-report--summary_main {
+	display: flex;
+	flex-direction: column;
+	gap: 0.35rem;
+}
+
+.v-science-report--heading_group {
+	display: flex;
+	align-items: baseline;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	margin: 0;
+}
+
 .v-science-report--heading {
-	margin: 0 0 0.25rem;
+	margin: 0;
 	font-size: 1.15rem;
 	font-weight: 600;
 }
 
-.v-science-report--heading_moon {
-	padding-left: 1rem;
-	border-left: 3px solid var(--house--gray-300, #c9c9c9);
-}
-
-.v-science-report--caption {
-	margin: 0 0 0.5rem;
+.v-science-report--heading_sub {
+	margin: 0;
 	font-size: 0.85rem;
+	font-weight: 400;
 	color: var(--house--color--ink-muted);
 }
 
 .v-science-report--summary {
-	margin: 0 0 0.75rem;
+	margin: 0;
 	font-size: 0.9rem;
 	color: var(--house--color--ink-muted);
+}
+
+.v-science-report--summary_row .v-science-report--summary {
+	padding-inline-start: 0.75rem;
 }
 </style>
