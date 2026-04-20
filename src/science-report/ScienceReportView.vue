@@ -30,10 +30,17 @@ const filteredRows = computed(() => applyTo(allRows.value))
 
 const groups = computed(() => groupScienceReportRows(filteredRows.value, groupBy.value))
 
+const groupsWithSummary = computed(() =>
+	groups.value.map(g => ({
+		...g,
+		summaryLine: scienceReportGroupSummaryLine(g),
+	})),
+)
+
 /**
  * @param {import('./science-report.util.js').ScienceReportGroup} g
  */
-function groupSummaryLine(g) {
+function scienceReportGroupSummaryLine(g) {
 	if (groupBy.value === 'ungrouped') return ''
 	const sum = summarizeScienceReportGroup(g.rows)
 	const isLocation = groupBy.value === 'location'
@@ -52,7 +59,7 @@ function groupSummaryLine(g) {
 
 <template>
 	<div class="v-science-report">
-		<h2>Science Report</h2>
+		<h2 class="v-science-report--title">Science Report</h2>
 		<p class="lead">
 			Generated from <strong>{{ saveFile.fileName }}</strong>
 			(<template v-if="filters.length > 0">{{ filteredRows.length }} of {{ allRows.length }}</template>
@@ -60,26 +67,27 @@ function groupSummaryLine(g) {
 			subjects).
 		</p>
 
-		<div class="v-science-report--controls">
+		<div class="v-science-report--toolbar">
 			<div class="v-science-report--group_by">
-				<label for="science-report-group-by" class="form_label">Group by</label>
+				<label for="science-report-group-by" class="form_label  v-science-report--group_label">Group by</label>
 				<select
 					id="science-report-group-by"
 					v-model="groupBy"
-					class="form_control"
+					class="form_control  v-science-report--group_select"
 				>
 					<option value="ungrouped">Ungrouped</option>
 					<option value="location">Location</option>
 					<option value="experiment">Experiment</option>
 				</select>
 			</div>
+			<div class="v-science-report--filters">
+				<TableFilter
+					v-model:filters="filters"
+					:column-defs="SCIENCE_REPORT_FILTER_COLUMNS"
+					:rows="allRows"
+				/>
+			</div>
 		</div>
-
-		<TableFilter
-			v-model:filters="filters"
-			:column-defs="SCIENCE_REPORT_FILTER_COLUMNS"
-			:rows="allRows"
-		/>
 
 		<div v-if="filteredRows.length === 0" class="form_help">No subjects match the current filters.</div>
 
@@ -95,8 +103,8 @@ function groupSummaryLine(g) {
 
 		<template v-else>
 			<section
-				v-for="g in groups"
-				:key="g.key"
+				v-for="(g, idx) in groupsWithSummary"
+				:key="`${groupBy}:${g.key}:${idx}`"
 				class="v-science-report--section"
 			>
 				<details open>
@@ -106,7 +114,7 @@ function groupSummaryLine(g) {
 								<h3 class="v-science-report--heading">{{ g.title }}</h3>
 								<p v-if="g.caption" class="v-science-report--heading_sub">{{ g.caption }}</p>
 							</hgroup>
-							<p v-if="groupSummaryLine(g)" class="v-science-report--summary">{{ groupSummaryLine(g) }}</p>
+							<p v-if="g.summaryLine" class="v-science-report--summary">{{ g.summaryLine }}</p>
 						</div>
 					</summary>
 					<ScienceReportTable
@@ -125,15 +133,50 @@ function groupSummaryLine(g) {
 	max-width: 100%;
 }
 
-.v-science-report--controls {
+.v-science-report--title {
+	margin: 0 0 0.35rem;
+}
+
+.v-science-report--toolbar {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-start;
+	gap: 0.5rem 0.75rem;
 	margin-bottom: 1rem;
 }
 
 .v-science-report--group_by {
 	display: flex;
-	flex-direction: column;
-	gap: 0.35rem;
-	max-width: 16rem;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.35rem 0.5rem;
+	flex: 0 0 auto;
+}
+
+.v-science-report--group_label {
+	margin: 0;
+	font-size: var(--house--text--size-small, 0.85rem);
+	font-weight: 500;
+	white-space: nowrap;
+}
+
+.v-science-report--group_select {
+	width: auto;
+	min-width: 7.5rem;
+	max-width: 11rem;
+	padding-block: 0.2rem;
+	font-size: var(--house--text--size-small, 0.85rem);
+}
+
+.v-science-report--filters {
+	flex: 1 1 0;
+	min-width: 0;
+}
+
+.v-science-report--filters :deep(.c-table-filter) {
+	margin-bottom: 0;
+	width: 100%;
+	min-width: 0;
 }
 
 .v-science-report--section {
