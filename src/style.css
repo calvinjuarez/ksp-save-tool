@@ -146,6 +146,16 @@ small {
 	margin-bottom: 1.5rem;
 }
 
+/* Secondary inline copy: --house--text--size-small + --house--color--ink-muted */
+.text-small-muted {
+	font-size: var(--house--text--size-small);
+	color: var(--house--color--ink-muted);
+}
+
+.text-nowrap {
+	white-space: nowrap;
+}
+
 .card {
 	border-radius: var(--house--border_radius-lg);
 	border: 1px solid var(--house--border_color);
