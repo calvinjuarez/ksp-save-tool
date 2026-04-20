@@ -460,33 +460,15 @@ function summaryText(f) {
 <template>
 	<div class="c-table-filter">
 		<div class="c-table-filter--bar">
-			<div class="c-table-filter--pills">
-				<span
-					v-for="f in filters"
-					:key="f.id"
-					class="c-table-filter--pill"
+			<!-- Source order: Add first, then each filter oldest → newest; pills row lays out oldest → newest LTR (newest next to Add). -->
+			<div class="c-table-filter--add">
+				<Popover
+					ref="popoverRef"
+					v-model:open="builderOpen"
+					placement="bottom-end"
+					:get-position-anchor-el="getPopoverPositionAnchorEl"
+					ignore-outside-close-selector=".c-table-filter--pill"
 				>
-					<button
-						type="button"
-						class="hitbox  c-table-filter--pill_edit"
-						:aria-label="`Edit filter ${summaryText(f)}`"
-						@click="editFilter(f, $event)"
-					>{{ summaryText(f) }}</button>
-					<button
-						type="button"
-						class="hitbox  c-table-filter--pill_dismiss"
-						:aria-label="`Remove filter ${summaryText(f)}`"
-						@click.stop="removeFilter(f.id)"
-					>&times;</button>
-				</span>
-			</div>
-			<Popover
-				ref="popoverRef"
-				v-model:open="builderOpen"
-				placement="bottom-end"
-				:get-position-anchor-el="getPopoverPositionAnchorEl"
-				ignore-outside-close-selector=".c-table-filter--pill"
-			>
 				<button
 					type="button"
 					class="btn btn-sm btn-nowrap"
@@ -672,7 +654,28 @@ function summaryText(f) {
 						</div>
 					</div>
 				</template>
-			</Popover>
+				</Popover>
+			</div>
+			<div class="c-table-filter--pills">
+				<span
+					v-for="f in filters"
+					:key="f.id"
+					class="c-table-filter--pill"
+				>
+					<button
+						type="button"
+						class="hitbox  c-table-filter--pill_edit"
+						:aria-label="`Edit filter ${summaryText(f)}`"
+						@click="editFilter(f, $event)"
+					>{{ summaryText(f) }}</button>
+					<button
+						type="button"
+						class="hitbox  c-table-filter--pill_dismiss"
+						:aria-label="`Remove filter ${summaryText(f)}`"
+						@click.stop="removeFilter(f.id)"
+					>&times;</button>
+				</span>
+			</div>
 		</div>
 	</div>
 </template>
@@ -686,16 +689,23 @@ function summaryText(f) {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: flex-start;
-	justify-content: space-between;
-	gap: 0.75rem 1rem;
+	/* Pack chips + Add as one cluster on the end (Add stays right; pills sit flush to its left). */
+	justify-content: flex-end;
+	gap: 0.5rem 0.75rem;
+	width: 100%;
+	min-width: 0;
+}
+
+.c-table-filter--add {
+	/* After pills in DOM; flex order places Add on the far right of the cluster. */
+	order: 1;
 }
 
 .c-table-filter--pills {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
-	gap: 0.5rem;
-	flex: 1 1 auto;
+	gap: 0.5rem 0.75rem;
 	min-width: 0;
 }
 
