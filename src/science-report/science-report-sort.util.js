@@ -28,8 +28,8 @@ export const SCIENCE_REPORT_SORT_COLUMN_LABELS = Object.freeze({
 	body: 'Body',
 	situation: 'Situation',
 	biome: 'Biome',
-	science: 'Science',
-	onboard: 'Onboard',
+	science: 'Science collected',
+	onboard: 'Onboard data (mits)',
 })
 
 const DASH_LAST = '\uffff'

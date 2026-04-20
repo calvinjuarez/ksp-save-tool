@@ -35,7 +35,7 @@ export const SCIENCE_REPORT_FILTER_COLUMNS = Object.freeze([
 	},
 	{
 		key: 'scienceCollected',
-		label: 'Science Collected',
+		label: 'Science collected',
 		type: 'number',
 		numberStep: '0.1',
 		accessor: (row) =>
@@ -43,7 +43,7 @@ export const SCIENCE_REPORT_FILTER_COLUMNS = Object.freeze([
 	},
 	{
 		key: 'scienceUncollected',
-		label: 'Science Uncollected',
+		label: 'Science uncollected',
 		type: 'number',
 		numberStep: '0.1',
 		accessor: (row) =>
@@ -61,7 +61,7 @@ export const SCIENCE_REPORT_FILTER_COLUMNS = Object.freeze([
 	},
 	{
 		key: 'onboardData',
-		label: 'Onboard',
+		label: 'Onboard data (mits)',
 		type: 'number',
 		numberStep: '0.1',
 		accessor: (row) =>
