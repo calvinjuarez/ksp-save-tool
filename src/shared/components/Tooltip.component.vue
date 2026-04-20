@@ -8,14 +8,17 @@ const HOVER_OPEN_MS = 450
 const HOVER_CLOSE_GRACE_MS = 220
 
 defineProps({
-	/** Hint text; shown in the panel and exposed to assistive tech on the trigger. */
+	/**
+	 * Full hint string: panel copy and sole screen-reader name for the control.
+	 * Visible slot content is aria-hidden so AT does not read emoji/symbols/abbrev letters.
+	 */
 	label: {
 		type: String,
 		required: true,
 	},
 	/**
 	 * Trigger element / semantics.
-	 * - `abbr` — real &lt;abbr&gt; (expansion in aria-label; no title to avoid native tooltips).
+	 * - `abbr` — real &lt;abbr&gt; (no title; meaning only via aria-label).
 	 * - `abbr-like` — dotted underline on inline/cell triggers (e.g. non-abbr hints).
 	 * - `text` — activatable content (e.g. stars); aria-label carries meaning; dotted hint line.
 	 * - `cell` — block wrapper with underline (tables, progress bar).
@@ -128,9 +131,8 @@ function toggleOpen() {
 			class="c-tooltip--trigger c-tooltip--trigger__button"
 			:aria-label="label"
 			:aria-expanded="open"
-			:aria-describedby="open ? tipId : undefined"
 		>
-			<slot />
+			<span class="c-tooltip--visual" aria-hidden="true"><slot /></span>
 		</button>
 		<abbr
 			v-else-if="as === 'abbr'"
@@ -138,11 +140,10 @@ function toggleOpen() {
 			tabindex="0"
 			:aria-label="label"
 			:aria-expanded="open"
-			:aria-describedby="open ? tipId : undefined"
 			@keydown.enter.prevent="toggleOpen"
 			@keydown.space.prevent="toggleOpen"
 		>
-			<slot />
+			<span class="c-tooltip--visual" aria-hidden="true"><slot /></span>
 		</abbr>
 		<span
 			v-else-if="as === 'text'"
@@ -151,11 +152,10 @@ function toggleOpen() {
 			tabindex="0"
 			:aria-label="label"
 			:aria-expanded="open"
-			:aria-describedby="open ? tipId : undefined"
 			@keydown.enter.prevent="toggleOpen"
 			@keydown.space.prevent="toggleOpen"
 		>
-			<slot />
+			<span class="c-tooltip--visual" aria-hidden="true"><slot /></span>
 		</span>
 		<span
 			v-else
@@ -167,11 +167,10 @@ function toggleOpen() {
 			tabindex="0"
 			:aria-label="label"
 			:aria-expanded="open"
-			:aria-describedby="open ? tipId : undefined"
 			@keydown.enter.prevent="toggleOpen"
 			@keydown.space.prevent="toggleOpen"
 		>
-			<slot />
+			<span class="c-tooltip--visual" aria-hidden="true"><slot /></span>
 		</span>
 		<template #panel>
 			<span :id="tipId" role="tooltip" class="c-tooltip--body">{{ label }}</span>
@@ -195,6 +194,20 @@ function toggleOpen() {
 .c-tooltip--trigger:focus-visible {
 	outline: 2px solid var(--house--color--interactive, var(--house--gray-500));
 	outline-offset: 2px;
+}
+
+.c-tooltip--visual {
+	display: inline;
+}
+
+.c-tooltip--trigger__button > .c-tooltip--visual {
+	display: inline-block;
+	max-width: 100%;
+}
+
+.c-tooltip--trigger__cell > .c-tooltip--visual {
+	display: block;
+	width: 100%;
 }
 
 /* Border draws reliably under emoji / symbols; text-decoration often skips them. */
