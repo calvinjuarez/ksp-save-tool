@@ -14,7 +14,14 @@ const props = defineProps({
 		/** @param {unknown} v */
 		validator: (v) =>
 			typeof v === 'string' &&
-			['bottom-start', 'bottom-end', 'top-start', 'top-end'].includes(v),
+			[
+				'bottom-start',
+				'bottom-end',
+				'bottom-center',
+				'top-start',
+				'top-end',
+				'top-center',
+			].includes(v),
 	},
 	/**
 	 * When set, panel positions relative to this element instead of the default trigger
@@ -38,6 +45,11 @@ const props = defineProps({
 	 * Still capped by max-width so long copy wraps within the viewport.
 	 */
 	panelHugContent: {
+		type: Boolean,
+		default: false,
+	},
+	/** Tighter panel padding (e.g. tooltips). */
+	panelCompact: {
 		type: Boolean,
 		default: false,
 	},
@@ -80,12 +92,19 @@ function computePosition(tr, pr) {
 	} else if (props.placement === 'bottom-end') {
 		top = tr.bottom + off
 		left = tr.right - pr.width
+	} else if (props.placement === 'bottom-center') {
+		top = tr.bottom + off
+		left = tr.left + (tr.width - pr.width) / 2
 	} else if (props.placement === 'top-start') {
 		top = tr.top - pr.height - off
 		left = tr.left
-	} else {
+	} else if (props.placement === 'top-end') {
 		top = tr.top - pr.height - off
 		left = tr.right - pr.width
+	} else {
+		/* top-center */
+		top = tr.top - pr.height - off
+		left = tr.left + (tr.width - pr.width) / 2
 	}
 
 	left = Math.max(margin, Math.min(left, vw - pr.width - margin))
@@ -202,7 +221,10 @@ defineExpose({ toggle, updatePosition })
 				v-show="open"
 				ref="panelRef"
 				class="c-popover--panel"
-				:class="{ 'c-popover--panel__hug': panelHugContent }"
+				:class="{
+					'c-popover--panel__hug': panelHugContent,
+					'c-popover--panel__compact': panelCompact,
+				}"
 				role="dialog"
 				aria-modal="false"
 				@pointerenter="emit('panelPointerEnter', $event)"
@@ -253,6 +275,10 @@ defineExpose({ toggle, updatePosition })
 		min-width: 0;
 		width: max-content;
 		max-width: min(28rem, calc(100vw - 2rem));
+	}
+
+	&.c-popover--panel__compact {
+		padding: 0.35rem 0.5rem;
 	}
 }
 </style>

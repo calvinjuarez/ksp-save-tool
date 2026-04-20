@@ -107,9 +107,10 @@ function toggleOpen() {
 <template>
 	<Popover
 		v-model:open="open"
-		placement="top-start"
+		placement="top-center"
 		:offset="6"
 		panel-hug-content
+		panel-compact
 		@trigger-pointer-enter="onTriggerPointerEnter"
 		@trigger-pointer-leave="onTriggerPointerLeave"
 		@panel-pointer-enter="onPanelPointerEnter"
@@ -185,5 +186,9 @@ function toggleOpen() {
 
 .c-tooltip--body {
 	display: block;
+	font-size: 0.8rem;
+	line-height: 1.35;
+	text-align: center;
+	text-wrap: balance;
 }
 </style>
