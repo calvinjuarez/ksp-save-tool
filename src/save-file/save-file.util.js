@@ -46,3 +46,44 @@ export function crewCountFromTree(data) {
 	if (kerbals > 0) return kerbals
 	return countKeyedNodes(roster, 'CREW')
 }
+
+/**
+ * @param {Record<string, unknown> | null | undefined} data
+ * @param {string} scenarioName
+ * @param {string} fieldKey
+ * @returns {number | null}
+ */
+function scenarioFieldNumber(data, scenarioName, fieldKey) {
+	const scenarios = asArray(data?.GAME, 'SCENARIO')
+	for (const s of scenarios) {
+		if (!s || typeof s !== 'object') continue
+		const rec = /** @type {Record<string, unknown>} */ (s)
+		if (rec.name !== scenarioName) continue
+		const v = rec[fieldKey]
+		if (v === undefined || v === null || v === '') return null
+		const n = Number.parseFloat(String(v))
+		return Number.isFinite(n) ? n : null
+	}
+	return null
+}
+
+/**
+ * @param {Record<string, unknown> | null | undefined} data
+ */
+export function scienceFromTree(data) {
+	return scenarioFieldNumber(data, 'ResearchAndDevelopment', 'sci')
+}
+
+/**
+ * @param {Record<string, unknown> | null | undefined} data
+ */
+export function reputationFromTree(data) {
+	return scenarioFieldNumber(data, 'Reputation', 'rep')
+}
+
+/**
+ * @param {Record<string, unknown> | null | undefined} data
+ */
+export function fundsFromTree(data) {
+	return scenarioFieldNumber(data, 'Funding', 'funds')
+}

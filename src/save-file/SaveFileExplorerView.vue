@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue'
 import { RouterLink, RouterView, useRoute } from 'vue-router'
 import SaveFileUpload from './components/SaveFileUpload.component.vue'
+import { formatSciDisplay } from '../science-report/science-report.util.js'
 import { SAVE_EXPLORER_REPORTS } from './save-file.reports.const.js'
 import { useSaveFileStore } from './save-file.store.js'
 
@@ -44,6 +45,22 @@ function downloadParsedJson() {
 	a.click()
 	URL.revokeObjectURL(url)
 }
+
+/**
+ * @param {number | null} n
+ */
+function formatFundsDisplay(n) {
+	if (n === null) return ''
+	return Math.round(n).toLocaleString()
+}
+
+/**
+ * @param {number | null} n
+ */
+function formatRepDisplay(n) {
+	if (n === null) return ''
+	return n.toFixed(1)
+}
 </script>
 
 <template>
@@ -70,10 +87,22 @@ function downloadParsedJson() {
 							<dd>{{ saveFile.gameTitle }}</dd>
 							<dt>File</dt>
 							<dd>{{ saveFile.fileName }}</dd>
-							<dt>Vessels</dt>
-							<dd>{{ saveFile.vesselCount }}</dd>
 							<dt>Kerbals</dt>
 							<dd>{{ saveFile.crewCount }}</dd>
+							<dt>Vessels</dt>
+							<dd>{{ saveFile.vesselCount }}</dd>
+							<template v-if="saveFile.science !== null">
+								<dt>Science</dt>
+								<dd>{{ formatSciDisplay(saveFile.science) }}</dd>
+							</template>
+							<template v-if="saveFile.funds !== null">
+								<dt>Funds</dt>
+								<dd>{{ formatFundsDisplay(saveFile.funds) }}</dd>
+							</template>
+							<template v-if="saveFile.reputation !== null">
+								<dt>Reputation</dt>
+								<dd>{{ formatRepDisplay(saveFile.reputation) }}</dd>
+							</template>
 						</dl>
 						<div class="v-save_file_explorer--json_export">
 							<button type="button" class="btn btn-sm btn-block" @click="downloadParsedJson">Download JSON</button>
