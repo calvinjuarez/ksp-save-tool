@@ -70,6 +70,7 @@ export function formatTotalXpDisplay(totalXp) {
 
 /**
  * Natural-language label for career rank + XP (tooltip and aria-label).
+ * Omits a "Rank" prefix when the table column already supplies that heading.
  * Star count matches {@link rankToStars} tiers (0–5).
  *
  * @param {number} rank
@@ -81,12 +82,12 @@ export function formatCrewManifestRankTooltipLabel(rank, totalXp) {
 	const r = Number.isFinite(n) ? Math.min(5, Math.max(0, Math.trunc(n))) : 0
 	const xpStr = formatTotalXpDisplay(totalXp)
 	if (r === 0) {
-		return `Rank: no stars (${xpStr} XP)`
+		return `No stars (${xpStr} XP)`
 	}
 	if (r === 1) {
-		return `Rank: 1 star (${xpStr} XP)`
+		return `1 star (${xpStr} XP)`
 	}
-	return `Rank: ${r} stars (${xpStr} XP)`
+	return `${r} stars (${xpStr} XP)`
 }
 
 /**

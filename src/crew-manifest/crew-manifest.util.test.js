@@ -296,15 +296,15 @@ describe('formatTotalXpDisplay', () => {
 
 describe('formatCrewManifestRankTooltipLabel', () => {
 	it('uses natural phrasing for star count and XP', () => {
-		expect(formatCrewManifestRankTooltipLabel(0, 0)).toBe('Rank: no stars (0 XP)')
-		expect(formatCrewManifestRankTooltipLabel(1, 7)).toBe('Rank: 1 star (7 XP)')
-		expect(formatCrewManifestRankTooltipLabel(3, 64)).toBe('Rank: 3 stars (64 XP)')
-		expect(formatCrewManifestRankTooltipLabel(5, 11.25)).toBe('Rank: 5 stars (11.3 XP)')
+		expect(formatCrewManifestRankTooltipLabel(0, 0)).toBe('No stars (0 XP)')
+		expect(formatCrewManifestRankTooltipLabel(1, 7)).toBe('1 star (7 XP)')
+		expect(formatCrewManifestRankTooltipLabel(3, 64)).toBe('3 stars (64 XP)')
+		expect(formatCrewManifestRankTooltipLabel(5, 11.25)).toBe('5 stars (11.3 XP)')
 	})
 
 	it('clamps rank like star display', () => {
-		expect(formatCrewManifestRankTooltipLabel(99, 100)).toBe('Rank: 5 stars (100 XP)')
-		expect(formatCrewManifestRankTooltipLabel(-3, 0)).toBe('Rank: no stars (0 XP)')
+		expect(formatCrewManifestRankTooltipLabel(99, 100)).toBe('5 stars (100 XP)')
+		expect(formatCrewManifestRankTooltipLabel(-3, 0)).toBe('No stars (0 XP)')
 	})
 })
 
