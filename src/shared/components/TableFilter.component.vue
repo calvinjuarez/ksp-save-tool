@@ -497,7 +497,7 @@ function summaryText(f) {
 					<div class="c-table-filter--builder">
 						<div class="c-table-filter--row">
 							<label class="c-table-filter--field">
-								<span class="c-table-filter--label  text-small-muted">Field</span>
+								<span class="c-table-filter--label  text-small text-muted">Field</span>
 								<select
 									v-model="draftColumnKey"
 									class="c-table-filter--select"
@@ -515,7 +515,7 @@ function summaryText(f) {
 								v-if="selectedColumnDef && selectedColumnDef.type !== 'enum'"
 								class="c-table-filter--field"
 							>
-								<span class="c-table-filter--label  text-small-muted">Operator</span>
+								<span class="c-table-filter--label  text-small text-muted">Operator</span>
 								<select v-model="draftOperator" class="c-table-filter--select">
 									<option
 										v-for="o in operatorsForColumn"
@@ -529,7 +529,7 @@ function summaryText(f) {
 						<div v-if="selectedColumnDef?.type === 'string'" class="c-table-filter--row">
 							<template v-if="draftOperator === 'is' || draftOperator === 'contains'">
 								<label class="c-table-filter--field  c-table-filter--field_grow">
-									<span class="c-table-filter--label  text-small-muted">Value</span>
+									<span class="c-table-filter--label  text-small text-muted">Value</span>
 									<input
 										ref="valueFocusRef"
 										v-model="draftStringSingle"
@@ -540,7 +540,7 @@ function summaryText(f) {
 							</template>
 							<template v-else>
 								<div class="c-table-filter--field  c-table-filter--field_grow  c-table-filter--any_block">
-									<span class="c-table-filter--label  text-small-muted">Values</span>
+									<span class="c-table-filter--label  text-small text-muted">Values</span>
 									<div
 										v-for="(_row, i) in draftStringAnyRows"
 										:key="`s-${i}`"
@@ -569,7 +569,7 @@ function summaryText(f) {
 						<div v-if="selectedColumnDef?.type === 'number'" class="c-table-filter--row">
 							<template v-if="draftOperator === 'between'">
 								<div class="c-table-filter--field">
-									<span class="c-table-filter--label  text-small-muted">Min</span>
+									<span class="c-table-filter--label  text-small text-muted">Min</span>
 									<input
 										ref="valueFocusRef"
 										v-model="draftNumLo"
@@ -583,7 +583,7 @@ function summaryText(f) {
 									</label>
 								</div>
 								<div class="c-table-filter--field">
-									<span class="c-table-filter--label  text-small-muted">Max</span>
+									<span class="c-table-filter--label  text-small text-muted">Max</span>
 									<input
 										v-model="draftNumHi"
 										type="number"
@@ -598,7 +598,7 @@ function summaryText(f) {
 							</template>
 							<template v-else-if="draftOperator === 'eqAny'">
 								<div class="c-table-filter--field  c-table-filter--field_grow  c-table-filter--any_block">
-									<span class="c-table-filter--label  text-small-muted">Values</span>
+									<span class="c-table-filter--label  text-small text-muted">Values</span>
 									<div
 										v-for="(_row, i) in draftNumAnyRows"
 										:key="`n-${i}`"
@@ -626,7 +626,7 @@ function summaryText(f) {
 							</template>
 							<template v-else>
 								<label class="c-table-filter--field  c-table-filter--field_grow">
-									<span class="c-table-filter--label  text-small-muted">Value</span>
+									<span class="c-table-filter--label  text-small text-muted">Value</span>
 									<input
 										ref="valueFocusRef"
 										v-model="draftNumSingle"
@@ -640,7 +640,7 @@ function summaryText(f) {
 						</div>
 
 						<div v-if="selectedColumnDef?.type === 'enum'" class="c-table-filter--enum">
-							<span class="c-table-filter--label  text-small-muted">Values</span>
+							<span class="c-table-filter--label  text-small text-muted">Values</span>
 							<div class="c-table-filter--enum_grid">
 								<label
 									v-for="(opt, ei) in enumOptions"
