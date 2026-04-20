@@ -1,5 +1,6 @@
 <script setup>
 import { computed, ref } from 'vue'
+import Tooltip from '../shared/components/Tooltip.component.vue'
 import {
 	cycleScienceReportSortDirForColumn,
 	initialScienceReportSortDirForColumn,
@@ -11,7 +12,6 @@ import {
 	isFullyStudiedNumerically,
 	TRACE_UNCOLLECTED_THRESHOLD,
 } from './science-report.util.js'
-import Tooltip from '../shared/components/Tooltip.component.vue'
 
 /** @typedef {import('./science-report-sort.util.js').ScienceReportSortColumn} ScienceReportSortColumn */
 
@@ -41,66 +41,59 @@ const sortedRows = computed(() =>
 )
 
 /**
+ * Earned/cap fraction on the line under the progress bar (Science column).
+ *
  * @param {import('./science-report.util.js').ScienceReportRow} r
  */
-function scienceProgressPct(r) {
-	if (r.cap <= 0) return 0
-	if (isFullyStudiedNumerically(r)) return 100
-	return Math.min(100, Math.max(0, r.completionRatio * 100))
-}
-
-/**
- * @param {import('./science-report.util.js').ScienceReportRow} r
- */
-function scienceCaption(r) {
-	if (r.cap > 0 && isFullyStudiedNumerically(r)) return 'Fully studied'
+function scienceEarnedCapRatio(r) {
 	if (r.cap <= 0 && r.earned <= 0) return '—'
+	if (r.cap <= 0) return formatSciDisplay(r.earned)
+	return `${formatSciDisplay(r.earned)}/${formatSciDisplay(r.cap)}`
+}
+
+/**
+ * Status line under the ratio row (muted): only when there is no R&D cap (“earned” only).
+ *
+ * @param {import('./science-report.util.js').ScienceReportRow} r
+ * @returns {string}
+ */
+function scienceStatusLine(r) {
+	if (r.cap <= 0 && r.earned <= 0) return ''
+	if (r.cap <= 0) return 'earned'
+	return ''
+}
+
+/**
+ * Muted text on the same line as X/Y: uncollected sci, or “Fully studied” when uncollected ≤ 0 (cap known).
+ *
+ * @param {import('./science-report.util.js').ScienceReportRow} r
+ * @returns {string}
+ */
+function scienceRatioMutedSuffix(r) {
+	if (r.cap <= 0) return ''
+	if (isFullyStudiedNumerically(r)) return 'Fully studied'
+	if (r.remaining <= 0) return ''
 	if (r.remaining > 0 && r.remaining < TRACE_UNCOLLECTED_THRESHOLD) {
-		return `< ${TRACE_UNCOLLECTED_THRESHOLD} sci uncollected`
+		return `< ${TRACE_UNCOLLECTED_THRESHOLD} uncollected`
 	}
-	return `${formatSciDisplay(r.remaining)} sci uncollected`
+	return `${formatSciDisplay(r.remaining)} uncollected`
 }
 
 /**
- * @param {import('./science-report.util.js').ScienceReportRow} r
+ * Vessel name for table display: parenthetical segments removed, whitespace collapsed.
+ *
+ * @param {string} name
  */
-function scienceTooltip(r) {
-	if (r.cap <= 0) {
-		return 'R&D has not logged a science cap for this subject in this save.'
-	}
-	if (isFullyStudiedNumerically(r)) {
-		return `R&D has awarded the full ${formatSciDisplay(r.cap)} sci for this subject.`
-	}
-	return `R&D has awarded ${formatSciDisplay(r.earned)} of ${formatSciDisplay(r.cap)} sci. ${formatSciDisplay(r.remaining)} sci uncollected.`
+function vesselNameWithoutParentheticals(name) {
+	const stripped = name.replace(/\s*\([^)]*\)/g, '').replace(/\s+/g, ' ').trim()
+	return stripped.length > 0 ? stripped : name
 }
 
 /**
- * @param {import('./science-report.util.js').ScienceReportRow} r
+ * @param {string} name
  */
-function onboardDisplay(r) {
-	if (r.onboardData <= 0) return '—'
-	const trans = formatSciDisplay(r.onboardDataTransmissible)
-	return `${formatSciDisplay(r.onboardData)} mits (${trans} transmissible)`
-}
-
-/**
- * @param {import('./science-report.util.js').ScienceReportRow} r
- */
-function onboardTooltip(r) {
-	if (r.vessels.length === 0) return ''
-	const lines = r.vessels.map(
-		(v) =>
-			`${v.vesselName}: ${formatSciDisplay(v.data)} mits · ${Math.round(v.xmit * 100)}% transmissible`,
-	)
-	return lines.join('\n')
-}
-
-/**
- * @param {import('./science-report.util.js').ScienceReportRow} r
- */
-function vesselsDisplay(r) {
-	if (r.vessels.length === 0) return '—'
-	return r.vessels.map((v) => v.vesselName).join(', ')
+function vesselNameHasStrippableParenthetical(name) {
+	return vesselNameWithoutParentheticals(name) !== name
 }
 
 /**
@@ -206,23 +199,61 @@ function sortIndicator(key, which) {
 					<td>{{ r.situationLabel }}</td>
 					<td>{{ r.biomeLabel }}</td>
 					<td class="c-science_report_table--science">
-						<Tooltip as="cell" :label="scienceTooltip(r)">
-							<div class="c-science_report_table--bar_track">
-								<div
-									class="c-science_report_table--bar_fill"
-									:style="{ width: `${scienceProgressPct(r)}%` }"
-								/>
-							</div>
-						</Tooltip>
-						<p class="c-science_report_table--science_caption">{{ scienceCaption(r) }}</p>
-						<p class="c-science_report_table--science_sub">
-							{{ r.cap > 0 ? `${formatSciDisplay(r.earned)} / ${formatSciDisplay(r.cap)} sci` : '' }}
+						<div class="c-science_report_table--science_bar_host">
+							<progress
+								class="c-science_report_table--bar_progress"
+								:value="r.cap > 0 ? r.earned : 0"
+								:max="r.cap > 0 ? r.cap : 1"
+							/>
+						</div>
+						<p class="c-science_report_table--science_ratio_row">
+							<span class="c-science_report_table--science_ratio">{{ scienceEarnedCapRatio(r) }}</span>
+							<span
+								v-if="scienceRatioMutedSuffix(r)"
+								:class="[
+									'c-science_report_table--science_ratio_muted',
+									'text-small-muted',
+									isFullyStudiedNumerically(r) && 'c-science_report_table--science_fully_studied',
+								]"
+							>{{ scienceRatioMutedSuffix(r) }}</span>
+						</p>
+						<p
+							v-if="scienceStatusLine(r)"
+							class="c-science_report_table--science_note  text-small-muted"
+						>
+							{{ scienceStatusLine(r) }}
 						</p>
 					</td>
 					<td>
-						<Tooltip as="cell" :label="onboardTooltip(r)">{{ onboardDisplay(r) }}</Tooltip>
+						<template v-if="r.onboardData <= 0">—</template>
+						<template v-else>
+							{{ formatSciDisplay(r.onboardData) }} mits
+							<span class="text-small-muted  text-nowrap">
+								{{ formatSciDisplay(r.onboardDataTransmissible) }} transmissible
+							</span>
+						</template>
 					</td>
-					<td>{{ vesselsDisplay(r) }}</td>
+					<td>
+						<dl
+							v-if="r.vessels.length > 0"
+							class="c-science_report_table--vessels_dl"
+						>
+							<template v-for="v in r.vessels" :key="v.vesselName">
+								<dt>
+									<Tooltip
+										v-if="vesselNameHasStrippableParenthetical(v.vesselName)"
+										as="abbr"
+										:label="v.vesselName"
+									>
+										{{ vesselNameWithoutParentheticals(v.vesselName) }}
+									</Tooltip>
+									<template v-else>{{ v.vesselName }}</template>
+								</dt>
+								<dd class="text-small-muted">{{ formatSciDisplay(v.data) }} mits</dd>
+							</template>
+						</dl>
+						<template v-else>—</template>
+					</td>
 				</tr>
 			</tbody>
 		</table>
@@ -276,33 +307,91 @@ function sortIndicator(key, which) {
 	border-bottom: none;
 }
 
-.c-science_report_table--bar_track {
-	height: 0.5rem;
-	border-radius: 999px;
-	background: var(--house--gray-200);
-	overflow: hidden;
-	min-width: 6rem;
-}
-
-.c-science_report_table--bar_fill {
-	height: 100%;
-	border-radius: 999px;
-	background: var(--house--color--success);
+.c-science_report_table--science_bar_host {
+	width: 100%;
 	min-width: 0;
 }
 
-.c-science_report_table--science_caption {
+.c-science_report_table--science_ratio_row {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	gap: 0.5rem;
 	margin: 0.35rem 0 0;
-	font-size: 0.85rem;
+	line-height: 1.35;
 }
 
-.c-science_report_table--science_sub {
-	margin: 0.15rem 0 0;
-	font-size: 0.75rem;
-	color: var(--house--color--ink-muted);
+.c-science_report_table--science_ratio {
+	font: inherit;
+	color: inherit;
+	font-variant-numeric: tabular-nums;
+	white-space: nowrap;
+}
+
+.c-science_report_table--science_ratio_muted {
+	white-space: nowrap;
+}
+
+.c-science_report_table--science_fully_studied {
+	font-style: italic;
+}
+
+.c-science_report_table--bar_progress {
+	display: block;
+	width: 100%;
+	height: 0.5rem;
+	min-width: 6rem;
+	border: none;
+	border-radius: 999px;
+	overflow: hidden;
+	appearance: none;
+	accent-color: var(--house--color--success);
+	background: var(--house--gray-200);
+}
+
+.c-science_report_table--bar_progress::-webkit-progress-bar {
+	background: var(--house--gray-200);
+	border-radius: 999px;
+}
+
+.c-science_report_table--bar_progress::-webkit-progress-value {
+	background: var(--house--color--success);
+	border-radius: 999px;
+}
+
+.c-science_report_table--bar_progress::-moz-progress-bar {
+	background: var(--house--color--success);
+	border-radius: 999px;
+}
+
+.c-science_report_table--science_note {
+	margin: 0.35rem 0 0;
+	line-height: 1.35;
+}
+
+.c-science_report_table--science_note + .c-science_report_table--science_note {
+	margin-top: 0.15rem;
 }
 
 .c-science_report_table--science {
-	min-width: 10rem;
+	min-width: 14rem;
+}
+
+.c-science_report_table--vessels_dl {
+	margin: 0;
+}
+
+.c-science_report_table--vessels_dl dt {
+	margin: 0.35rem 0 0;
+	font-weight: inherit;
+}
+
+.c-science_report_table--vessels_dl dt:first-child {
+	margin-top: 0;
+}
+
+.c-science_report_table--vessels_dl dd {
+	margin: 0;
+	font-variant-numeric: tabular-nums;
 }
 </style>

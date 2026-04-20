@@ -28,7 +28,7 @@ export const SCIENCE_REPORT_SORT_COLUMN_LABELS = Object.freeze({
 	body: 'Body',
 	situation: 'Situation',
 	biome: 'Biome',
-	science: 'Science collected',
+	science: 'Science',
 	onboard: 'Onboard data (mits)',
 })
 
