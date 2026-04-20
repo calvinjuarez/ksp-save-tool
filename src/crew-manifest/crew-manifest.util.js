@@ -236,8 +236,8 @@ export function formatCrewManifestMarkdown(rows, viewState) {
 		'',
 		'## Full Crew Table',
 		'',
-		'| Name | Mark | Role | Rank | Vessel | Situation | At | Suit | Model | Color |',
-		'| ---    | ---  | ---  | ---  | ---    | ---       | -- | ---  | ---   | ---   |',
+		'| Name | Mark | Role | Rank | Vessel | Situation | Location | Suit | Model | Color |',
+		'| ---    | ---  | ---  | ---  | ---    | ---       | -------- | ---  | ---   | ---   |',
 	)
 	for (const r of rows) {
 		const modelMd = r.bodyModel !== null ? r.bodyModel.abbr : '—'

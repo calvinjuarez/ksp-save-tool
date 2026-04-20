@@ -35,7 +35,7 @@ describe('formatCrewManifestSortSpecForMarkdown', () => {
 
 	it('returns label and direction when active', () => {
 		expect(formatCrewManifestSortSpecForMarkdown({ key: 'body', dir: 'asc' })).toBe(
-			'At (ascending)',
+			'Location (ascending)',
 		)
 		expect(formatCrewManifestSortSpecForMarkdown({ key: 'rank', dir: 'desc' })).toBe(
 			'Rank (descending)',

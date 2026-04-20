@@ -2,7 +2,8 @@
  * Parse KSP science subject IDs and build science report rows from a ConfigNode save tree.
  */
 
-import { CREW_MANIFEST_BODY_RANK, MOON_PARENT_BODY } from '../ksp/body-rank.const.js'
+import { MOON_PARENT_BODY, STOCK_BODY_ORDER } from '../ksp/body-rank.const.js'
+import { bodySortKey } from '../ksp/body-rank.util.js'
 import {
 	humanizeBiome,
 	humanizeExperimentId,
@@ -28,7 +29,7 @@ const SCIENCE_SITUATION_TOKENS = Object.freeze(
 
 /** Stock + common body names for prefix matching (longest first). */
 const BODY_PREFIXES = Object.freeze(
-	[...CREW_MANIFEST_BODY_RANK.filter((b) => b !== 'Home')]
+	[...STOCK_BODY_ORDER.filter((b) => b !== 'Home')]
 		.slice()
 		.sort((a, b) => b.length - a.length),
 )
@@ -254,16 +255,6 @@ export function buildScienceReportRows(tree, derived) {
 }
 
 /**
- * @param {string} body
- * @returns {number}
- */
-function bodySortKey(body) {
-	if (body === '—' || body === '') return Number.POSITIVE_INFINITY
-	const idx = CREW_MANIFEST_BODY_RANK.indexOf(/** @type {never} */ (body))
-	return idx >= 0 ? idx : Number.POSITIVE_INFINITY - 1
-}
-
-/**
  * @typedef {'ungrouped' | 'location' | 'experiment'} ScienceReportGroupBy
  */
 
@@ -298,7 +289,7 @@ export function groupScienceReportRows(rows, groupBy) {
 
 		/** @type {string[]} */
 		const order = []
-		for (const name of CREW_MANIFEST_BODY_RANK) {
+		for (const name of STOCK_BODY_ORDER) {
 			if (byBody.has(name)) order.push(name)
 		}
 		for (const k of byBody.keys()) {

@@ -1,8 +1,8 @@
 /**
  * Distance-from-Kerbin / solar order for stock KSP bodies; unknown and em dash sort after Home.
- * Used by Crew Manifest and Science Report grouping.
+ * Consumed by Crew Manifest, Science Report, and body-typed table filters.
  */
-export const CREW_MANIFEST_BODY_RANK = Object.freeze([
+export const STOCK_BODY_ORDER = Object.freeze([
 	'Kerbin',
 	'Mun',
 	'Minmus',

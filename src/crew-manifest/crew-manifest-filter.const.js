@@ -1,3 +1,4 @@
+import { compareBodyNames } from '../ksp/body-rank.util.js'
 import { crewManifestMarkEnumOptionLabel } from './crew-manifest-mark.const.js'
 import {
 	CREW_MANIFEST_RANK_ENUM_VALUES,
@@ -65,8 +66,9 @@ export const CREW_MANIFEST_FILTER_COLUMNS = Object.freeze([
 	},
 	{
 		key: 'body',
-		label: 'At',
+		label: 'Location',
 		type: 'enum',
+		enumOptionCompare: compareBodyNames,
 		accessor: (row) => /** @type {import('./crew-manifest.util.js').CrewManifestRow} */ (row).body,
 	},
 	{

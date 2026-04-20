@@ -1,3 +1,5 @@
+import { bodySortKey } from '../ksp/body-rank.util.js'
+
 /**
  * @typedef {'asc' | 'desc' | null} ScienceReportSortDir
  */
@@ -25,11 +27,11 @@ export const SCIENCE_REPORT_SORT_COLUMNS = [
 /** @type {Readonly<Record<ScienceReportSortColumn, string>>} */
 export const SCIENCE_REPORT_SORT_COLUMN_LABELS = Object.freeze({
 	experiment: 'Experiment',
-	body: 'Body',
+	body: 'Location',
 	situation: 'Situation',
 	biome: 'Biome',
 	science: 'Science',
-	onboard: 'Onboard data (mits)',
+	onboard: 'Onboard Data',
 })
 
 const DASH_LAST = '\uffff'
@@ -65,7 +67,7 @@ function compareByColumn(key, a, b) {
 		case 'experiment':
 			return compareLocaleText(a.experimentLabel, b.experimentLabel)
 		case 'body':
-			return compareLocaleText(a.body, b.body)
+			return bodySortKey(a.body) - bodySortKey(b.body) || compareLocaleText(a.body, b.body)
 		case 'situation':
 			return compareLocaleText(a.situationLabel, b.situationLabel)
 		case 'biome':

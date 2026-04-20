@@ -1,4 +1,4 @@
-import { CREW_MANIFEST_BODY_RANK } from '../ksp/body-rank.const.js'
+import { bodySortKey } from '../ksp/body-rank.util.js'
 
 /**
  * @typedef {'asc' | 'desc' | null} CrewManifestSortDir
@@ -45,16 +45,11 @@ export const CREW_MANIFEST_SORT_COLUMN_LABELS = Object.freeze({
 	rank: 'Rank',
 	vessel: 'Vessel',
 	situation: 'Situation',
-	body: 'At',
+	body: 'Location',
 	suit: 'Suit',
 	bodyModel: 'Model',
 	color: 'Color',
 })
-
-/** @type {Record<string, number>} */
-const bodyRankByName = Object.fromEntries(
-	CREW_MANIFEST_BODY_RANK.map((name, i) => [name, i]),
-)
 
 /** @type {readonly (import('./crew-manifest-mark.const.js').CrewManifestMarkKind | null)[]} */
 export const CREW_MANIFEST_MARK_SORT_ORDER = ['openRescue', 'tourist', 'rescued', null]
@@ -99,17 +94,6 @@ function bodyModelAbbrForSort(row) {
  * @param {CrewManifestRow} row
  * @returns {number}
  */
-function bodyRank(row) {
-	const b = row.body
-	if (b === '—' || b === '') return Number.POSITIVE_INFINITY
-	const idx = bodyRankByName[b]
-	return idx !== undefined ? idx : Number.POSITIVE_INFINITY
-}
-
-/**
- * @param {CrewManifestRow} row
- * @returns {number}
- */
 function markSortRank(row) {
 	const k = row.markKind
 	const idx = markSortIndex.get(k)
@@ -137,7 +121,7 @@ function compareByColumn(key, a, b) {
 		case 'situation':
 			return compareLocaleText(a.situation, b.situation)
 		case 'body':
-			return bodyRank(a) - bodyRank(b) || compareLocaleText(a.body, b.body)
+			return bodySortKey(a.body) - bodySortKey(b.body) || compareLocaleText(a.body, b.body)
 		case 'suit':
 			return compareLocaleText(a.suit, b.suit)
 		case 'bodyModel':

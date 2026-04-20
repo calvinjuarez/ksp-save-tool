@@ -165,7 +165,7 @@ function sortIndicator(key, which) {
 							<span class="v-crew-manifest--sort_secondary">{{ sortIndicator('situation', 'secondary') }}</span>
 						</th>
 						<th class="v-crew-manifest--sort_th" @click="onSortHeaderClick('body', $event)">
-							At
+							Location
 							<span class="v-crew-manifest--sort_primary">{{ sortIndicator('body', 'primary') }}</span>
 							<span class="v-crew-manifest--sort_secondary">{{ sortIndicator('body', 'secondary') }}</span>
 						</th>

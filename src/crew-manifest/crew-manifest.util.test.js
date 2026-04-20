@@ -214,7 +214,7 @@ describe('formatCrewManifestMarkdown', () => {
 		])
 		expect(md).toContain('# KSP Krew Manifest Report')
 		expect(md).toContain(
-			'| Name | Mark | Role | Rank | Vessel | Situation | At | Suit | Model | Color |',
+			'| Name | Mark | Role | Rank | Vessel | Situation | Location | Suit | Model | Color |',
 		)
 		expect(md).toContain('| Test | — | Pilot | ★★★ |')
 		expect(md).toContain('| Default | M | 0 |')
@@ -245,7 +245,7 @@ describe('formatCrewManifestMarkdown', () => {
 			},
 		)
 		expect(md).toContain('## View state')
-		expect(md).toContain('Primary: At (ascending)')
+		expect(md).toContain('Primary: Location (ascending)')
 		expect(md).toContain('Secondary: —')
 		expect(md).toContain('- **Filters:** None')
 	})
