@@ -97,6 +97,15 @@ function vesselNameHasStrippableParenthetical(name) {
 }
 
 /**
+ * Per-vessel transmissible mits.
+ *
+ * @param {import('./science-report.util.js').ScienceReportVesselRow} v
+ */
+function vesselTransmissible(v) {
+	return v.data * v.xmit
+}
+
+/**
  * @param {ScienceReportSortColumn} key
  * @param {MouseEvent} event
  */
@@ -189,7 +198,6 @@ function sortIndicator(key, which) {
 						<span class="c-science_report_table--sort_primary">{{ sortIndicator('onboard', 'primary') }}</span>
 						<span class="c-science_report_table--sort_secondary">{{ sortIndicator('onboard', 'secondary') }}</span>
 					</th>
-					<th>Vessels</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -225,19 +233,17 @@ function sortIndicator(key, which) {
 						</p>
 					</td>
 					<td>
-						<template v-if="r.onboardData <= 0">—</template>
-						<template v-else>
-							<span class="c-science_report_table--onboard_line">{{ formatSciDisplay(r.onboardData) }} mits</span>
-							<span
-								class="c-science_report_table--onboard_line  text-small text-muted  text-nowrap"
-							>{{ formatSciDisplay(r.onboardDataTransmissible) }} transmissible</span>
-						</template>
-					</td>
-					<td>
-						<dl
-							v-if="r.vessels.length > 0"
-							class="c-science_report_table--vessels_dl"
-						>
+						<template v-if="r.onboardData <= 0 && r.vessels.length === 0">—</template>
+						<dl v-else class="c-science_report_table--vessels_dl">
+							<template v-if="r.vessels.length >= 2 || (r.vessels.length === 0 && r.onboardData > 0)">
+								<dt>Total</dt>
+								<dd>
+									<span class="c-science_report_table--onboard_dd_line">{{ formatSciDisplay(r.onboardData) }} mits</span>
+									<span
+										class="c-science_report_table--onboard_dd_line  text-small text-muted  text-nowrap"
+									>{{ formatSciDisplay(r.onboardDataTransmissible) }} transmissible</span>
+								</dd>
+							</template>
 							<template v-for="v in r.vessels" :key="v.vesselName">
 								<dt>
 									<Tooltip
@@ -249,10 +255,14 @@ function sortIndicator(key, which) {
 									</Tooltip>
 									<template v-else>{{ v.vesselName }}</template>
 								</dt>
-								<dd class="text-small text-muted">{{ formatSciDisplay(v.data) }} mits</dd>
+								<dd>
+									<span class="c-science_report_table--onboard_dd_line">{{ formatSciDisplay(v.data) }} mits</span>
+									<span
+										class="c-science_report_table--onboard_dd_line  text-small text-muted  text-nowrap"
+									>{{ formatSciDisplay(vesselTransmissible(v)) }} transmissible</span>
+								</dd>
 							</template>
 						</dl>
-						<template v-else>—</template>
 					</td>
 				</tr>
 			</tbody>
@@ -377,21 +387,13 @@ function sortIndicator(key, which) {
 	min-width: 14rem;
 }
 
-.c-science_report_table--onboard_line {
-	display: block;
-}
-
-.c-science_report_table--onboard_line + .c-science_report_table--onboard_line {
-	margin-top: 0.15rem;
-}
-
 .c-science_report_table--vessels_dl {
 	margin: 0;
 }
 
 .c-science_report_table--vessels_dl dt {
 	margin: 0.35rem 0 0;
-	font-weight: inherit;
+	font-weight: 500;
 }
 
 .c-science_report_table--vessels_dl dt:first-child {
@@ -401,5 +403,13 @@ function sortIndicator(key, which) {
 .c-science_report_table--vessels_dl dd {
 	margin: 0;
 	font-variant-numeric: tabular-nums;
+}
+
+.c-science_report_table--onboard_dd_line {
+	display: block;
+}
+
+.c-science_report_table--onboard_dd_line + .c-science_report_table--onboard_dd_line {
+	margin-top: 0.15rem;
 }
 </style>
