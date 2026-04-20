@@ -212,14 +212,14 @@ function sortIndicator(key, which) {
 								v-if="scienceRatioMutedSuffix(r)"
 								:class="[
 									'c-science_report_table--science_ratio_muted',
-									'text-small-muted',
+									'text-muted',
 									isFullyStudiedNumerically(r) && 'c-science_report_table--science_fully_studied',
 								]"
 							>{{ scienceRatioMutedSuffix(r) }}</span>
 						</p>
 						<p
 							v-if="scienceStatusLine(r)"
-							class="c-science_report_table--science_note  text-small-muted"
+							class="c-science_report_table--science_note  text-small text-muted"
 						>
 							{{ scienceStatusLine(r) }}
 						</p>
@@ -227,10 +227,10 @@ function sortIndicator(key, which) {
 					<td>
 						<template v-if="r.onboardData <= 0">—</template>
 						<template v-else>
-							{{ formatSciDisplay(r.onboardData) }} mits
-							<span class="text-small-muted  text-nowrap">
-								{{ formatSciDisplay(r.onboardDataTransmissible) }} transmissible
-							</span>
+							<span class="c-science_report_table--onboard_line">{{ formatSciDisplay(r.onboardData) }} mits</span>
+							<span
+								class="c-science_report_table--onboard_line  text-small text-muted  text-nowrap"
+							>{{ formatSciDisplay(r.onboardDataTransmissible) }} transmissible</span>
 						</template>
 					</td>
 					<td>
@@ -249,7 +249,7 @@ function sortIndicator(key, which) {
 									</Tooltip>
 									<template v-else>{{ v.vesselName }}</template>
 								</dt>
-								<dd class="text-small-muted">{{ formatSciDisplay(v.data) }} mits</dd>
+								<dd class="text-small text-muted">{{ formatSciDisplay(v.data) }} mits</dd>
 							</template>
 						</dl>
 						<template v-else>—</template>
@@ -375,6 +375,14 @@ function sortIndicator(key, which) {
 
 .c-science_report_table--science {
 	min-width: 14rem;
+}
+
+.c-science_report_table--onboard_line {
+	display: block;
+}
+
+.c-science_report_table--onboard_line + .c-science_report_table--onboard_line {
+	margin-top: 0.15rem;
 }
 
 .c-science_report_table--vessels_dl {
