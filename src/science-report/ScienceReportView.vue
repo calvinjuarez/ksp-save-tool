@@ -20,8 +20,8 @@ const saveFile = useSaveFileStore()
 const groupBy = ref(/** @type {ScienceReportGroupBy} */ ('location'))
 
 const allRows = computed(() => {
-	if (!saveFile.tree) return []
-	return buildScienceReportRows(saveFile.tree)
+	if (!saveFile.tree || !saveFile.saveDerived) return []
+	return buildScienceReportRows(saveFile.tree, saveFile.saveDerived)
 })
 
 const { filters, applyTo } = useTableFilter(SCIENCE_REPORT_FILTER_COLUMNS)

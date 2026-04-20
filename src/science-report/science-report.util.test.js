@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { buildSaveDerived } from '../save-file/save-derived.util.js'
 import {
 	buildScienceReportRows,
 	formatSciDisplay,
@@ -6,6 +7,7 @@ import {
 	groupScienceReportRows,
 	isFullyStudiedNumerically,
 	parseScienceSubjectId,
+	resolveBiomeLabel,
 	summarizeScienceReportGroup,
 	TRACE_UNCOLLECTED_THRESHOLD,
 } from './science-report.util.js'
@@ -24,6 +26,31 @@ describe('parseScienceSubjectId', () => {
 	it('returns null for invalid ids', () => {
 		expect(parseScienceSubjectId('')).toBeNull()
 		expect(parseScienceSubjectId('nope')).toBeNull()
+	})
+})
+
+describe('resolveBiomeLabel', () => {
+	const empty = new Map()
+
+	it('uses humanizeBiome for stock biomes', () => {
+		expect(resolveBiomeLabel('Midlands', empty)).toBe('Midlands')
+	})
+
+	it('uses asteroid name from LUT when uid matches', () => {
+		const m = new Map([['42', { kind: /** @type {const} */ ('asteroid'), name: "Kraken's Grace" }]])
+		expect(resolveBiomeLabel('_PotatoRoid42', m)).toBe("Kraken's Grace")
+	})
+
+	it('uses Unknown asteroid when PotatoRoid uid not in LUT', () => {
+		expect(resolveBiomeLabel('_PotatoRoid999999', empty)).toBe('Unknown asteroid')
+	})
+
+	it('uses Unknown comet for PotatoComet without LUT entry', () => {
+		expect(resolveBiomeLabel('_PotatoComet1', empty)).toBe('Unknown comet')
+	})
+
+	it('uses unknownProceduralObjectLabel for unrecognized underscore tokens', () => {
+		expect(resolveBiomeLabel('_FooBar123', empty)).toBe('Unknown object (_FooBar123)')
 	})
 })
 
@@ -100,6 +127,58 @@ describe('buildScienceReportRows', () => {
 		expect(rows[0].earned).toBe(0)
 		expect(rows[0].cap).toBe(0)
 		expect(rows[0].onboardData).toBe(3)
+	})
+
+	it('resolves asteroid biome from vessel PotatoRoid ModuleAsteroid', () => {
+		const tree = {
+			GAME: {
+				SCENARIO: {
+					name: 'ResearchAndDevelopment',
+					Science: {
+						id: 'asteroidSample@KerbinInSpaceLow_PotatoRoid42',
+						title: 'Sample',
+						sci: '0',
+						cap: '1',
+					},
+				},
+				FLIGHTSTATE: {
+					VESSEL: {
+						name: 'Grabber',
+						PART: {
+							name: 'PotatoRoid',
+							uid: '42',
+							MODULE: {
+								name: 'ModuleAsteroid',
+								AsteroidName: 'My Named Rock',
+							},
+						},
+					},
+				},
+			},
+		}
+		const derived = buildSaveDerived(tree)
+		const rows = buildScienceReportRows(tree, derived)
+		expect(rows).toHaveLength(1)
+		expect(rows[0].biome).toBe('_PotatoRoid42')
+		expect(rows[0].biomeLabel).toBe('My Named Rock')
+	})
+
+	it('uses Unknown asteroid when PotatoRoid uid not in save', () => {
+		const tree = {
+			GAME: {
+				SCENARIO: {
+					name: 'ResearchAndDevelopment',
+					Science: {
+						id: 'asteroidSample@KerbinInSpaceLow_PotatoRoid999',
+						title: 'Sample',
+						sci: '0',
+						cap: '1',
+					},
+				},
+			},
+		}
+		const rows = buildScienceReportRows(tree)
+		expect(rows[0].biomeLabel).toBe('Unknown asteroid')
 	})
 })
 

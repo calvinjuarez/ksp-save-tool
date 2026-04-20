@@ -3,7 +3,13 @@
  */
 
 import { CREW_MANIFEST_BODY_RANK, MOON_PARENT_BODY } from '../ksp/body-rank.const.js'
-import { humanizeBiome, humanizeExperimentId, humanizeSituation } from '../ksp/science-taxonomy.util.js'
+import {
+	humanizeBiome,
+	humanizeExperimentId,
+	humanizeSituation,
+	unknownProceduralObjectLabel,
+} from '../ksp/science-taxonomy.util.js'
+import { buildSaveDerived } from '../save-file/save-derived.util.js'
 import { asArray } from '../save-file/save-file.util.js'
 
 /** Longest-first so SrfLanded wins over Landed. */
@@ -91,25 +97,28 @@ function num(v) {
 }
 
 /**
- * @param {unknown} node
+ * @param {string} biome raw biome token from subject id (may be `—`)
+ * @param {Map<string, { kind: 'asteroid' | 'comet', name?: string }>} asteroidNameByUid
+ * @returns {string}
  */
-function walkForScienceData(node, visitor) {
-	if (node === undefined || node === null) return
-	if (typeof node === 'string' || typeof node === 'number' || typeof node === 'boolean') return
-	if (Array.isArray(node)) {
-		for (const item of node) walkForScienceData(item, visitor)
-		return
+export function resolveBiomeLabel(biome, asteroidNameByUid) {
+	if (typeof biome !== 'string' || biome.length === 0 || biome === '—') {
+		return humanizeBiome('')
 	}
-	if (typeof node !== 'object') return
-	const rec = /** @type {Record<string, unknown>} */ (node)
-	if ('ScienceData' in rec) {
-		for (const sd of asArray(rec, 'ScienceData')) {
-			if (sd && typeof sd === 'object') visitor(/** @type {Record<string, unknown>} */ (sd))
-		}
+	const m = /^_(PotatoRoid|PotatoComet)(\d+)$/.exec(biome)
+	if (m) {
+		const prefix = m[1]
+		const uid = m[2]
+		const kindFromSubject = prefix === 'PotatoComet' ? 'comet' : 'asteroid'
+		const entry = asteroidNameByUid.get(uid)
+		if (entry?.name) return entry.name
+		const kind = entry?.kind ?? kindFromSubject
+		return kind === 'comet' ? 'Unknown comet' : 'Unknown asteroid'
 	}
-	for (const v of Object.values(rec)) {
-		walkForScienceData(v, visitor)
+	if (biome.startsWith('_')) {
+		return unknownProceduralObjectLabel(biome)
 	}
+	return humanizeBiome(biome)
 }
 
 /**
@@ -145,9 +154,10 @@ function walkForScienceData(node, visitor) {
 
 /**
  * @param {Record<string, unknown> | null | undefined} tree
+ * @param {import('../save-file/save-derived.util.js').SaveDerived | null | undefined} [derived] from {@link buildSaveDerived}; omit to run a local walk (tests)
  * @returns {ScienceReportRow[]}
  */
-export function buildScienceReportRows(tree) {
+export function buildScienceReportRows(tree, derived) {
 	/** @type {Map<string, { title: string, earned: number, cap: number }>} */
 	const rnd = new Map()
 
@@ -168,35 +178,9 @@ export function buildScienceReportRows(tree) {
 		}
 	}
 
-	/** @type {Map<string, { data: number, trans: number, title: string, vessels: Map<string, { data: number, xmit: number }> }>} */
-	const vesselAgg = new Map()
-
-	const vessels = asArray(tree?.GAME?.FLIGHTSTATE, 'VESSEL')
-	for (const vessel of vessels) {
-		if (!vessel || typeof vessel !== 'object') continue
-		const vName =
-			typeof /** @type {Record<string, unknown>} */ (vessel).name === 'string'
-				? /** @type {Record<string, unknown>} */ (vessel).name
-				: '—'
-		walkForScienceData(vessel, (sd) => {
-			const sid = typeof sd.subjectID === 'string' ? sd.subjectID : ''
-			if (!sid) return
-			const d = num(sd.data)
-			const xmit = num(sd.xmit)
-			const x = Math.min(Math.max(xmit, 0), 1)
-			const sdTitle = typeof sd.title === 'string' && sd.title.length > 0 ? sd.title : ''
-			let agg = vesselAgg.get(sid)
-			if (!agg) {
-				agg = { data: 0, trans: 0, title: '', vessels: new Map() }
-				vesselAgg.set(sid, agg)
-			}
-			agg.data += d
-			agg.trans += d * x
-			if (!agg.title && sdTitle) agg.title = sdTitle
-			const prev = agg.vessels.get(vName) ?? { data: 0, xmit: x }
-			agg.vessels.set(vName, { data: prev.data + d, xmit: x })
-		})
-	}
+	const d = derived ?? buildSaveDerived(tree)
+	const vesselAgg = d.scienceDataBySubjectId
+	const asteroidNameByUid = d.asteroidNameByUid
 
 	/** @type {Set<string>} */
 	const allIds = new Set([...rnd.keys(), ...vesselAgg.keys()])
@@ -219,7 +203,7 @@ export function buildScienceReportRows(tree) {
 
 		const experimentLabel = humanizeExperimentId(experiment === '—' ? '' : experiment)
 		const situationLabel = humanizeSituation(situation)
-		const biomeLabel = humanizeBiome(biome === '—' ? '' : biome)
+		const biomeLabel = resolveBiomeLabel(biome, asteroidNameByUid)
 
 		let experimentTitle = r?.title ?? v?.title ?? experiment
 
