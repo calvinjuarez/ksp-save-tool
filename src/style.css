@@ -39,6 +39,13 @@
 	--house--orange-400: #ff994d;
 	--house--orange-500: #fd7e14;
 	--house--orange-600: #dc6505;
+	/* #### Greens (Kerbal) */
+	--house--green-100: #f3faeb;
+	--house--green-200: #d9edb5;
+	--house--green-300: #c0e084;
+	--house--green-400: #a2d55c;
+	--house--green-500: #8bc34a;
+	--house--green-600: #689f38;
 	/* #### Semantic families – 4 faintness levels each */
 	/* ##### Ink (gray) */
 	--house--color--ink: var(--house--gray-600);
@@ -58,6 +65,12 @@
 	--house--color--danger-muted: var(--house--red-400);
 	--house--color--danger-hint: var(--house--red-200);
 	--house--color--danger-faint: var(--house--red-100);
+	/* ##### Success (green) */
+	--house--color--success: var(--house--green-500);
+	--house--color--success-dark: var(--house--green-600);
+	--house--color--success-muted: var(--house--green-400);
+	--house--color--success-hint: var(--house--green-200);
+	--house--color--success-faint: var(--house--green-100);
 
 	/* ## APPLICATIONS */
 

@@ -30,6 +30,19 @@ Use `white` and `black` directly. No custom property needed.
 | `--house--blue-500` | `#0d6efd`
 | `--house--blue-600` | `#0a5dd9`
 
+### Greens
+
+Kerbal-flavored green (anchored at `500`). Powers the **Success** semantic family.
+
+| Token                | Value
+| ---                  | ---
+| `--house--green-100` | `#f3faeb`
+| `--house--green-200` | `#d9edb5`
+| `--house--green-300` | `#c0e084`
+| `--house--green-400` | `#a2d55c`
+| `--house--green-500` | `#8bc34a`
+| `--house--green-600` | `#689f38`
+
 ### Reds
 
 | Token              | Value
@@ -58,11 +71,12 @@ Balanced pure orange (anchored at `500`), tuned to sit beside grays and reds wit
 
 Each family has: base, dark, muted, hint, faint. Token pattern: `--house--color--{family}`, `--house--color--{family}-dark`, `--house--color--{family}-muted`, `--house--color--{family}-hint`, `--house--color--{family}-faint`.
 
-| Family  | Base                      | Dark                           | Muted                           | Hint                           | Faint
-| ---     | ---                       | ---                            | ---                             | ---                            | ---
-| Ink     | `--house--color--ink`     | `--house--color--ink-dark`     | `--house--color--ink-muted`     | `--house--color--ink-hint`     | `--house--color--ink-faint`
-| Primary | `--house--color--primary` | `--house--color--primary-dark` | `--house--color--primary-muted` | `--house--color--primary-hint` | `--house--color--primary-faint`
-| Danger  | `--house--color--danger`  | `--house--color--danger-dark`  | `--house--color--danger-muted`  | `--house--color--danger-hint`  | `--house--color--danger-faint`
+| Family  | Base                       | Dark                            | Muted                            | Hint                            | Faint
+| ---     | ---                        | ---                             | ---                              | ---                             | ---
+| Ink     | `--house--color--ink`      | `--house--color--ink-dark`      | `--house--color--ink-muted`      | `--house--color--ink-hint`      | `--house--color--ink-faint`
+| Primary | `--house--color--primary`  | `--house--color--primary-dark`  | `--house--color--primary-muted`  | `--house--color--primary-hint`  | `--house--color--primary-faint`
+| Danger  | `--house--color--danger`   | `--house--color--danger-dark`   | `--house--color--danger-muted`   | `--house--color--danger-hint`   | `--house--color--danger-faint`
+| Success | `--house--color--success`  | `--house--color--success-dark`  | `--house--color--success-muted`  | `--house--color--success-hint`  | `--house--color--success-faint`
 
 ## Applications
 

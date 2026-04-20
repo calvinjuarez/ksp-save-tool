@@ -277,7 +277,7 @@ function sortIndicator(key, which) {
 .c-science_report_table--bar_track {
 	height: 0.5rem;
 	border-radius: 999px;
-	background: var(--house--gray-200, #e0e0e0);
+	background: var(--house--gray-200);
 	overflow: hidden;
 	min-width: 6rem;
 }
@@ -285,7 +285,7 @@ function sortIndicator(key, which) {
 .c-science_report_table--bar_fill {
 	height: 100%;
 	border-radius: 999px;
-	background: #0f766e;
+	background: var(--house--color--success);
 	min-width: 0;
 }
 
