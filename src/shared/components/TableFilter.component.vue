@@ -117,6 +117,7 @@ const enumOptions = computed(() => {
 	return tableFilterEnumOptions(props.rows, d.accessor, {
 		enumOptionLabel: d.enumOptionLabel,
 		enumValueUniverse: d.enumValueUniverse,
+		enumOptionCompare: d.enumOptionCompare,
 	})
 })
 

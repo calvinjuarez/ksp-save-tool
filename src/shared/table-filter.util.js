@@ -126,6 +126,7 @@ export function parseCommaSeparatedList(s) {
  * @param {{
  *   enumOptionLabel?: (storedValue: string) => string
  *   enumValueUniverse?: readonly string[]
+ *   enumOptionCompare?: (a: string, b: string) => number
  * }} [options]
  */
 function normalizeEnumOptionsArg(options) {
@@ -139,22 +140,17 @@ function normalizeEnumOptionsArg(options) {
  * @param {((storedValue: string) => string) | {
  *   enumOptionLabel?: (storedValue: string) => string
  *   enumValueUniverse?: readonly string[]
+ *   enumOptionCompare?: (a: string, b: string) => number
  * }} [optionsOrLabel]
  * @returns {{ value: string, label: string }[]}
  */
 export function tableFilterEnumOptions(rows, accessor, optionsOrLabel) {
-	const { enumOptionLabel, enumValueUniverse } = normalizeEnumOptionsArg(optionsOrLabel)
+	const { enumOptionLabel, enumValueUniverse, enumOptionCompare } =
+		normalizeEnumOptionsArg(optionsOrLabel)
 
 	if (enumValueUniverse !== undefined && enumValueUniverse.length > 0) {
 		const arr = [...enumValueUniverse]
-		arr.sort((a, b) => {
-			const na = Number.parseFloat(a)
-			const nb = Number.parseFloat(b)
-			if (Number.isFinite(na) && Number.isFinite(nb) && String(na) === a && String(nb) === b) {
-				return na - nb
-			}
-			return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' })
-		})
+		arr.sort(enumOptionCompare ?? defaultEnumOptionCompare)
 		return arr.map((value) => ({
 			value,
 			label:
@@ -174,12 +170,7 @@ export function tableFilterEnumOptions(rows, accessor, optionsOrLabel) {
 		set.add(s)
 	}
 	const arr = [...set]
-	arr.sort((a, b) => {
-		const da = a === TABLE_FILTER_NONE_VALUE ? 1 : 0
-		const db = b === TABLE_FILTER_NONE_VALUE ? 1 : 0
-		if (da !== db) return da - db
-		return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' })
-	})
+	arr.sort(enumOptionCompare ?? defaultEnumOptionCompare)
 	return arr.map((value) => ({
 		value,
 		label:
@@ -189,6 +180,25 @@ export function tableFilterEnumOptions(rows, accessor, optionsOrLabel) {
 					? enumOptionLabel(value)
 					: value,
 	}))
+}
+
+/**
+ * Default enum builder ordering: em-dash / "none" last, then numeric-first alphabetical.
+ *
+ * @param {string} a
+ * @param {string} b
+ * @returns {number}
+ */
+function defaultEnumOptionCompare(a, b) {
+	const da = a === TABLE_FILTER_NONE_VALUE ? 1 : 0
+	const db = b === TABLE_FILTER_NONE_VALUE ? 1 : 0
+	if (da !== db) return da - db
+	const na = Number.parseFloat(a)
+	const nb = Number.parseFloat(b)
+	if (Number.isFinite(na) && Number.isFinite(nb) && String(na) === a && String(nb) === b) {
+		return na - nb
+	}
+	return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' })
 }
 
 /**

@@ -12,6 +12,8 @@
  *   For `type: 'enum'`, maps stored accessor values to checkbox / summary labels (e.g. emoji + title).
  * @property {readonly string[]} [enumValueUniverse]
  *   When set, enum options are exactly these values (plus labels), not only values present in rows.
+ * @property {(a: string, b: string) => number} [enumOptionCompare]
+ *   For `type: 'enum'`, overrides the default alphabetical sort used to order checkbox options.
  * @property {string} [numberStep]
  *   For `type: 'number'`, HTML `step` on value inputs (e.g. `0.1` for decimal XP).
  */

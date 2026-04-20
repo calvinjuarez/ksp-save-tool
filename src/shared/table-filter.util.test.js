@@ -71,6 +71,24 @@ describe('tableFilterEnumOptions', () => {
 		expect(opts.map((o) => o.value)).toEqual(['1', '2'])
 		expect(opts.map((o) => o.label)).toEqual(['L1', 'L2'])
 	})
+
+	it('respects enumOptionCompare for ordering (row-derived)', () => {
+		const rows = [{ tag: 'c' }, { tag: 'a' }, { tag: 'b' }]
+		const opts = tableFilterEnumOptions(
+			rows,
+			(r) => /** @type {{ tag: string }} */ (r).tag,
+			{ enumOptionCompare: (a, b) => b.localeCompare(a) },
+		)
+		expect(opts.map((o) => o.value)).toEqual(['c', 'b', 'a'])
+	})
+
+	it('respects enumOptionCompare for ordering (universe)', () => {
+		const opts = tableFilterEnumOptions([], () => '', {
+			enumValueUniverse: ['a', 'c', 'b'],
+			enumOptionCompare: (a, b) => b.localeCompare(a),
+		})
+		expect(opts.map((o) => o.value)).toEqual(['c', 'b', 'a'])
+	})
 })
 
 describe('matchesTableFilter — string', () => {
