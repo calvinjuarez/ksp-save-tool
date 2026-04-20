@@ -1,5 +1,5 @@
 <script setup>
-import { onBeforeUnmount, useId } from 'vue'
+import { computed, onBeforeUnmount, useId } from 'vue'
 import Popover from './Popover.component.vue'
 
 /** Delay before opening on hover (fine pointer + hover-capable UA), similar to native `title`. */
@@ -7,9 +7,10 @@ const HOVER_OPEN_MS = 450
 /** Time to move from trigger to teleported panel without closing. */
 const HOVER_CLOSE_GRACE_MS = 220
 
-defineProps({
+const props = defineProps({
 	/**
-	 * Full hint string: panel copy and sole screen-reader name for the control.
+	 * Panel copy (sighted users). When `accessibleLabel` is set, that string is used for
+	 * `aria-label` instead so the trigger name can differ from the popup (e.g. presentation-only detail).
 	 * Visible slot content is aria-hidden so AT does not read emoji/symbols/abbrev letters.
 	 */
 	label: {
@@ -17,22 +18,41 @@ defineProps({
 		required: true,
 	},
 	/**
+	 * Optional override for the trigger’s `aria-label`. Defaults to `label`.
+	 * @type {string | undefined}
+	 */
+	accessibleLabel: {
+		type: String,
+		default: undefined,
+	},
+	/**
+	 * Optional `aria-describedby` id(s) for supplemental AT text (e.g. sr-only copy elsewhere).
+	 * @type {string | undefined}
+	 */
+	ariaDescribedBy: {
+		type: String,
+		default: undefined,
+	},
+	/**
 	 * Trigger element / semantics.
 	 * - `abbr` — real &lt;abbr&gt; (no title; meaning only via aria-label).
-	 * - `abbr-like` — dotted underline on inline/cell triggers (e.g. non-abbr hints).
-	 * - `text` — activatable content (e.g. stars); aria-label carries meaning; dotted hint line.
-	 * - `cell` — block wrapper with underline (tables, progress bar).
+	 * - `abbr-like` — dotted underline on a non-abbr hint.
+	 * - `text` — activatable inline content (e.g. stars); dotted hint line.
 	 * - `button` — native button.
-	 * @type {'abbr' | 'abbr-like' | 'text' | 'cell' | 'button'}
+	 * @type {'abbr' | 'abbr-like' | 'text' | 'button'}
 	 */
 	as: {
 		type: String,
 		default: 'abbr-like',
 		/** @param {unknown} v */
 		validator: (v) =>
-			typeof v === 'string' && ['abbr', 'abbr-like', 'text', 'cell', 'button'].includes(v),
+			typeof v === 'string' && ['abbr', 'abbr-like', 'text', 'button'].includes(v),
 	},
 })
+
+const ariaLabelForTrigger = computed(() =>
+	props.accessibleLabel !== undefined ? props.accessibleLabel : props.label,
+)
 
 const open = defineModel('open', {
 	type: Boolean,
@@ -129,7 +149,8 @@ function toggleOpen() {
 			v-if="as === 'button'"
 			type="button"
 			class="c-tooltip--trigger c-tooltip--trigger__button"
-			:aria-label="label"
+			:aria-label="ariaLabelForTrigger"
+			:aria-describedby="ariaDescribedBy || undefined"
 			:aria-expanded="open"
 		>
 			<span class="c-tooltip--visual" aria-hidden="true"><slot /></span>
@@ -138,7 +159,8 @@ function toggleOpen() {
 			v-else-if="as === 'abbr'"
 			class="c-tooltip--trigger c-tooltip--trigger__abbr"
 			tabindex="0"
-			:aria-label="label"
+			:aria-label="ariaLabelForTrigger"
+			:aria-describedby="ariaDescribedBy || undefined"
 			:aria-expanded="open"
 			@keydown.enter.prevent="toggleOpen"
 			@keydown.space.prevent="toggleOpen"
@@ -150,7 +172,8 @@ function toggleOpen() {
 			class="c-tooltip--trigger c-tooltip--trigger__text"
 			role="button"
 			tabindex="0"
-			:aria-label="label"
+			:aria-label="ariaLabelForTrigger"
+			:aria-describedby="ariaDescribedBy || undefined"
 			:aria-expanded="open"
 			@keydown.enter.prevent="toggleOpen"
 			@keydown.space.prevent="toggleOpen"
@@ -159,13 +182,11 @@ function toggleOpen() {
 		</span>
 		<span
 			v-else
-			:class="[
-				'c-tooltip--trigger',
-				as === 'cell' ? 'c-tooltip--trigger__cell' : 'c-tooltip--trigger__abbr-like',
-			]"
+			class="c-tooltip--trigger c-tooltip--trigger__abbr-like"
 			role="button"
 			tabindex="0"
-			:aria-label="label"
+			:aria-label="ariaLabelForTrigger"
+			:aria-describedby="ariaDescribedBy || undefined"
 			:aria-expanded="open"
 			@keydown.enter.prevent="toggleOpen"
 			@keydown.space.prevent="toggleOpen"
@@ -205,11 +226,6 @@ function toggleOpen() {
 	max-width: 100%;
 }
 
-.c-tooltip--trigger__cell > .c-tooltip--visual {
-	display: block;
-	width: 100%;
-}
-
 /* Border draws reliably under emoji / symbols; text-decoration often skips them. */
 .c-tooltip--trigger__abbr,
 .c-tooltip--trigger__abbr-like {
@@ -227,17 +243,6 @@ function toggleOpen() {
 
 .c-tooltip--trigger__text {
 	display: inline;
-	border-bottom: 1px dotted currentColor;
-	text-decoration: none;
-	padding-bottom: 0.08em;
-	cursor: help;
-}
-
-.c-tooltip--trigger__cell {
-	display: block;
-	width: fit-content;
-	max-width: 100%;
-	box-sizing: border-box;
 	border-bottom: 1px dotted currentColor;
 	text-decoration: none;
 	padding-bottom: 0.08em;
