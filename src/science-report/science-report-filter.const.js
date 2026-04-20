@@ -1,3 +1,5 @@
+import { humanizeSituation } from '../ksp/science-taxonomy.util.js'
+
 /**
  * Column definitions for the science report table filter UI.
  *
@@ -15,12 +17,13 @@ export const SCIENCE_REPORT_FILTER_COLUMNS = Object.freeze([
 		label: 'Experiment',
 		type: 'enum',
 		accessor: (row) =>
-			/** @type {import('./science-report.util.js').ScienceReportRow} */ (row).experimentTitle,
+			/** @type {import('./science-report.util.js').ScienceReportRow} */ (row).experimentLabel,
 	},
 	{
 		key: 'situation',
 		label: 'Situation',
 		type: 'enum',
+		enumOptionLabel: humanizeSituation,
 		accessor: (row) =>
 			/** @type {import('./science-report.util.js').ScienceReportRow} */ (row).situation,
 	},
@@ -28,7 +31,7 @@ export const SCIENCE_REPORT_FILTER_COLUMNS = Object.freeze([
 		key: 'biome',
 		label: 'Biome',
 		type: 'string',
-		accessor: (row) => /** @type {import('./science-report.util.js').ScienceReportRow} */ (row).biome,
+		accessor: (row) => /** @type {import('./science-report.util.js').ScienceReportRow} */ (row).biomeLabel,
 	},
 	{
 		key: 'scienceCollected',

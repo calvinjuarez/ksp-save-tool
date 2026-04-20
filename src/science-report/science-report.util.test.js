@@ -74,6 +74,9 @@ describe('buildScienceReportRows', () => {
 		expect(r.onboardDataReturnOnly).toBe(0.5)
 		expect(r.vessels).toEqual([{ vesselName: 'Lander', data: 1, xmit: 0.5 }])
 		expect(r.completionRatio).toBe(2 / 8)
+		expect(r.experimentLabel).toBe('Foo')
+		expect(r.situationLabel).toBe('Landed')
+		expect(r.biomeLabel).toBe('Midlands')
 	})
 
 	it('creates row from vessel-only subject when no RnD node', () => {
@@ -130,6 +133,8 @@ describe('groupScienceReportRows', () => {
 	it('groups by experiment', () => {
 		const g = groupScienceReportRows(rows, 'experiment')
 		expect(g.length).toBe(2)
+		const titles = g.map((x) => x.title).sort()
+		expect(titles).toEqual(['A', 'B'])
 	})
 })
 
@@ -205,9 +210,12 @@ describe('isFullyStudiedNumerically', () => {
 			subjectId: 'x',
 			experiment: 'e',
 			experimentTitle: 'E',
+			experimentLabel: 'E',
 			body: 'Kerbin',
 			situation: 'SrfLanded',
+			situationLabel: 'Landed',
 			biome: 't',
+			biomeLabel: 't',
 			earned,
 			cap,
 			remaining,

@@ -63,13 +63,13 @@ function compareLocaleText(a, b) {
 function compareByColumn(key, a, b) {
 	switch (key) {
 		case 'experiment':
-			return compareLocaleText(a.experimentTitle, b.experimentTitle)
+			return compareLocaleText(a.experimentLabel, b.experimentLabel)
 		case 'body':
 			return compareLocaleText(a.body, b.body)
 		case 'situation':
-			return compareLocaleText(a.situation, b.situation)
+			return compareLocaleText(a.situationLabel, b.situationLabel)
 		case 'biome':
-			return compareLocaleText(a.biome, b.biome)
+			return compareLocaleText(a.biomeLabel, b.biomeLabel)
 		case 'science':
 			return a.earned - b.earned
 		case 'onboard':

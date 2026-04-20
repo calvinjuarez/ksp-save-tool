@@ -200,10 +200,10 @@ function sortIndicator(key, which) {
 			</thead>
 			<tbody>
 				<tr v-for="(r, idx) in sortedRows" :key="`${r.subjectId}-${idx}`">
-					<td v-if="!hideExperiment">{{ r.experimentTitle }}</td>
+					<td v-if="!hideExperiment">{{ r.experimentLabel }}</td>
 					<td v-if="!hideBody">{{ r.body }}</td>
-					<td>{{ r.situation }}</td>
-					<td>{{ r.biome || '—' }}</td>
+					<td>{{ r.situationLabel }}</td>
+					<td>{{ r.biomeLabel }}</td>
 					<td class="c-science_report_table--science">
 						<div
 							class="c-science_report_table--bar_track"

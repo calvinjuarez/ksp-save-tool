@@ -3,6 +3,7 @@
  */
 
 import { CREW_MANIFEST_BODY_RANK, MOON_PARENT_BODY } from '../ksp/body-rank.const.js'
+import { humanizeBiome, humanizeExperimentId, humanizeSituation } from '../ksp/science-taxonomy.util.js'
 import { asArray } from '../save-file/save-file.util.js'
 
 /** Longest-first so SrfLanded wins over Landed. */
@@ -125,10 +126,13 @@ function walkForScienceData(node, visitor) {
  * @typedef {Object} ScienceReportRow
  * @property {string} subjectId
  * @property {string} experiment
- * @property {string} experimentTitle
+ * @property {string} experimentLabel short display name from experiment id
+ * @property {string} experimentTitle long KSP title from save (metadata)
  * @property {string} body
- * @property {string} situation
- * @property {string} biome
+ * @property {string} situation raw situation token from subject id
+ * @property {string} situationLabel
+ * @property {string} biome raw biome token from subject id
+ * @property {string} biomeLabel
  * @property {number} earned
  * @property {number} cap
  * @property {number} remaining
@@ -213,6 +217,10 @@ export function buildScienceReportRows(tree) {
 		const situation = parsed?.situation ?? '—'
 		const biome = parsed?.biome ?? '—'
 
+		const experimentLabel = humanizeExperimentId(experiment === '—' ? '' : experiment)
+		const situationLabel = humanizeSituation(situation)
+		const biomeLabel = humanizeBiome(biome === '—' ? '' : biome)
+
 		let experimentTitle = r?.title ?? v?.title ?? experiment
 
 		const onboardData = v?.data ?? 0
@@ -231,10 +239,13 @@ export function buildScienceReportRows(tree) {
 		rows.push({
 			subjectId,
 			experiment,
+			experimentLabel,
 			experimentTitle,
 			body,
 			situation,
+			situationLabel,
 			biome,
+			biomeLabel,
 			earned,
 			cap,
 			remaining,
@@ -250,7 +261,7 @@ export function buildScienceReportRows(tree) {
 		const ba = bodySortKey(a.body)
 		const bb = bodySortKey(b.body)
 		if (ba !== bb) return ba - bb
-		const ea = a.experimentTitle.localeCompare(b.experimentTitle)
+		const ea = a.experimentLabel.localeCompare(b.experimentLabel)
 		if (ea !== 0) return ea
 		return a.subjectId.localeCompare(b.subjectId)
 	})
@@ -335,14 +346,14 @@ export function groupScienceReportRows(rows, groupBy) {
 	}
 
 	const keys = [...byExp.keys()].sort((a, b) => {
-		const ta = byExp.get(a)?.[0]?.experimentTitle ?? a
-		const tb = byExp.get(b)?.[0]?.experimentTitle ?? b
+		const ta = byExp.get(a)?.[0]?.experimentLabel ?? a
+		const tb = byExp.get(b)?.[0]?.experimentLabel ?? b
 		return ta.localeCompare(tb, undefined, { sensitivity: 'base' }) || a.localeCompare(b)
 	})
 
 	return keys.map((experiment) => ({
 		key: experiment,
-		title: byExp.get(experiment)?.[0]?.experimentTitle ?? experiment,
+		title: byExp.get(experiment)?.[0]?.experimentLabel ?? experiment,
 		rows: byExp.get(experiment) ?? [],
 	}))
 }
