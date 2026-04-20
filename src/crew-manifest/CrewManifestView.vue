@@ -22,8 +22,8 @@ import {
 const saveFile = useSaveFileStore()
 
 const allRows = computed(() => {
-	if (!saveFile.tree) return []
-	return buildCrewManifestRows(saveFile.tree)
+	if (!saveFile.tree || !saveFile.saveDerived) return []
+	return buildCrewManifestRows(saveFile.tree, saveFile.saveDerived)
 })
 
 const { filters, applyTo } = useTableFilter(CREW_MANIFEST_FILTER_COLUMNS)

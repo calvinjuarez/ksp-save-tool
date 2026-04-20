@@ -1,24 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import {
 	buildCrewManifestRows,
-	collectCrewNamesFromVessel,
 	formatCrewManifestMarkdown,
 	formatTotalXpDisplay,
 } from './crew-manifest.util.js'
-
-describe('collectCrewNamesFromVessel', () => {
-	it('collects string crew and array crew', () => {
-		const vessel = {
-			name: 'Test Ship',
-			PART: [
-				{ crew: 'Alice Kerman' },
-				{ crew: ['Bob Kerman', 'Carol Kerman'] },
-			],
-		}
-		const names = collectCrewNamesFromVessel(vessel).sort()
-		expect(names).toEqual(['Alice Kerman', 'Bob Kerman', 'Carol Kerman'])
-	})
-})
 
 describe('buildCrewManifestRows', () => {
 	it('builds rows from roster and vessel crew', () => {

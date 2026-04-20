@@ -7,6 +7,7 @@ import {
 	parseBodyModel,
 } from '../ksp/kerbal.util.js'
 import { formatTableFilterSummary } from '../shared/table-filter.util.js'
+import { buildSaveDerived } from '../save-file/save-derived.util.js'
 import { asArray } from '../save-file/save-file.util.js'
 import { CREW_MANIFEST_FILTER_COLUMNS } from './crew-manifest-filter.const.js'
 import { crewManifestMark } from './crew-manifest-mark.const.js'
@@ -44,69 +45,6 @@ export { rankToStars }
  * @property {CrewManifestMark | null} mark
  * @property {CrewManifestMarkKind | null} markKind
  */
-
-/**
- * Collect kerbal full names assigned to a vessel (walks PART trees; `crew` may be string or string[]).
- *
- * @param {unknown} vessel
- * @returns {string[]}
- */
-export function collectCrewNamesFromVessel(vessel) {
-	/** @type {Set<string>} */
-	const names = new Set()
-	/**
-	 * @param {unknown} node
-	 */
-	function walk(node) {
-		if (node === undefined || node === null) return
-		if (typeof node === 'string' || typeof node === 'number' || typeof node === 'boolean') return
-		if (Array.isArray(node)) {
-			for (const item of node) walk(item)
-			return
-		}
-		if (typeof node !== 'object') return
-		for (const [k, v] of Object.entries(node)) {
-			if (k === 'crew') {
-				if (typeof v === 'string' && v.trim()) names.add(v.trim())
-				else if (Array.isArray(v)) {
-					for (const item of v) {
-						if (typeof item === 'string' && item.trim()) names.add(item.trim())
-					}
-				}
-			} else {
-				walk(v)
-			}
-		}
-	}
-	walk(vessel)
-	return [...names]
-}
-
-/**
- * @param {Record<string, unknown> | null | undefined} tree
- * @returns {Map<string, { vesselName: string, sit: string, orbitRef: string | undefined }>}
- */
-function kerbalAssignmentsFromVessels(tree) {
-	/** @type {Map<string, { vesselName: string, sit: string, orbitRef: string | undefined }>} */
-	const map = new Map()
-	const vessels = asArray(tree?.GAME?.FLIGHTSTATE, 'VESSEL')
-	for (const vessel of vessels) {
-		if (!vessel || typeof vessel !== 'object') continue
-		const vesselName = typeof vessel.name === 'string' ? vessel.name : '—'
-		const sit = typeof vessel.sit === 'string' ? vessel.sit : '—'
-		const orbit = vessel.ORBIT
-		const orbitRef =
-			orbit && typeof orbit === 'object' && orbit.REF !== undefined && orbit.REF !== null
-				? String(orbit.REF)
-				: undefined
-		for (const name of collectCrewNamesFromVessel(vessel)) {
-			if (!map.has(name)) {
-				map.set(name, { vesselName, sit, orbitRef })
-			}
-		}
-	}
-	return map
-}
 
 /**
  * @param {Record<string, unknown>} kerbal
@@ -152,14 +90,16 @@ function markFromKerbal(name, kerbal, rescueMap) {
 
 /**
  * @param {Record<string, unknown> | null | undefined} tree
+ * @param {import('../save-file/save-derived.util.js').SaveDerived | null | undefined} [derived] from {@link buildSaveDerived}; omit to run a local walk (tests)
  * @returns {CrewManifestRow[]}
  */
-export function buildCrewManifestRows(tree) {
+export function buildCrewManifestRows(tree, derived) {
 	const roster = tree?.GAME?.ROSTER
 	let kerbals = asArray(roster, 'KERBAL')
 	if (kerbals.length === 0) kerbals = asArray(roster, 'CREW')
 
-	const assignments = kerbalAssignmentsFromVessels(tree)
+	const d = derived ?? buildSaveDerived(tree)
+	const assignments = d.kerbalAssignmentsByName
 	const rescueMap = recoverAssetMarkByKerbalName(tree)
 
 	/** @type {CrewManifestRow[]} */
