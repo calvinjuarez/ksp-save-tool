@@ -1,3 +1,5 @@
+import { CREW_MANIFEST_BODY_RANK } from '../ksp/body-rank.const.js'
+
 /**
  * @typedef {'asc' | 'desc' | null} CrewManifestSortDir
  */
@@ -48,28 +50,6 @@ export const CREW_MANIFEST_SORT_COLUMN_LABELS = Object.freeze({
 	bodyModel: 'Model',
 	color: 'Color',
 })
-
-/** Distance-from-Kerbin / solar order; unknown and em dash sort after Home. */
-export const CREW_MANIFEST_BODY_RANK = [
-	'Kerbin',
-	'Mun',
-	'Minmus',
-	'Sun',
-	'Moho',
-	'Eve',
-	'Gilly',
-	'Duna',
-	'Ike',
-	'Dres',
-	'Jool',
-	'Laythe',
-	'Vall',
-	'Tylo',
-	'Bop',
-	'Pol',
-	'Eeloo',
-	'Home',
-]
 
 /** @type {Record<string, number>} */
 const bodyRankByName = Object.fromEntries(
