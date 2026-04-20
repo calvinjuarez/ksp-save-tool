@@ -18,6 +18,12 @@ const routes = [
 				component: () => import('./crew-manifest/CrewManifestView.vue'),
 				meta: { title: 'Krew Manifest' },
 			},
+			{
+				path: 'science-report',
+				name: 'science-report',
+				component: () => import('./science-report/ScienceReportView.vue'),
+				meta: { title: 'Science Report' },
+			},
 		],
 	},
 	{

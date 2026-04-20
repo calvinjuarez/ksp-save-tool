@@ -2,7 +2,7 @@
 
 **KSP Save File Explorer** is a web app for reading **Kerbal Space Program** save data locally in the browser. The first goal is to turn an uploaded save (for example `persistent.sfs`) into a **crew manifest** report: each Kerbal’s role, vessel, flight situation, body, suit, and quick status markers (rescues, tourists, and similar). A concise **active contracts** table for passenger runs and related missions is a natural follow-up.
 
-The stack is **Vue 3**, **Vite**, **Pinia**, **Vue Router**, **Bootstrap Reboot** with shared **house** CSS tokens, **PWA** (offline shell), **Vitest**, and optional **GitHub Pages** deploy via Actions. Uploading an `.sfs` file parses it in the browser and shows a short summary on Home; open **Krew manifest** for a full table and markdown export (rescue and tourist marks from `ContractSystem` and roster).
+The stack is **Vue 3**, **Vite**, **Pinia**, **Vue Router**, **Bootstrap Reboot** with shared **house** CSS tokens, **PWA** (offline shell), **Vitest**, and optional **GitHub Pages** deploy via Actions. Uploading an `.sfs` file parses it in the browser and shows a short summary on Home; open **Krew manifest** for a full table and markdown export (rescue and tourist marks from `ContractSystem` and roster), or **Science report** for per-subject R&D science vs onboard experiment data.
 
 How `src/` is organized (modules and file suffixes): [docs/src-modules.md](docs/src-modules.md). Rationale: [ADR-005](docs/adr/005-module-style-src-layout.md).
 
