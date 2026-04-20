@@ -170,7 +170,7 @@ describe('matchesTableFilter — number', () => {
 		).toBe(false)
 	})
 
-	it('between', () => {
+	it('between (legacy array, inclusive both ends)', () => {
 		expect(
 			matchesTableFilter(
 				row,
@@ -185,6 +185,98 @@ describe('matchesTableFilter — number', () => {
 				testColumns,
 			),
 		).toBe(true)
+	})
+
+	it('between [lo, hi] object — all four bracket combinations', () => {
+		const f = (value) =>
+			matchesTableFilter(row, { id: '1', columnKey: 'n', operator: 'between', value }, testColumns)
+		// [1, 5]
+		expect(f({ lo: 1, hi: 5, loInclusive: true, hiInclusive: true })).toBe(true)
+		expect(
+			matchesTableFilter({ n: 1 }, { id: '1', columnKey: 'n', operator: 'between', value: { lo: 1, hi: 5, loInclusive: true, hiInclusive: true } }, testColumns),
+		).toBe(true)
+		expect(
+			matchesTableFilter({ n: 5 }, { id: '1', columnKey: 'n', operator: 'between', value: { lo: 1, hi: 5, loInclusive: true, hiInclusive: true } }, testColumns),
+		).toBe(true)
+		// (1, 5)
+		expect(
+			matchesTableFilter({ n: 1 }, { id: '1', columnKey: 'n', operator: 'between', value: { lo: 1, hi: 5, loInclusive: false, hiInclusive: false } }, testColumns),
+		).toBe(false)
+		expect(
+			matchesTableFilter({ n: 5 }, { id: '1', columnKey: 'n', operator: 'between', value: { lo: 1, hi: 5, loInclusive: false, hiInclusive: false } }, testColumns),
+		).toBe(false)
+		expect(f({ lo: 1, hi: 5, loInclusive: false, hiInclusive: false })).toBe(true)
+		// [1, 5)
+		expect(
+			matchesTableFilter({ n: 5 }, { id: '1', columnKey: 'n', operator: 'between', value: { lo: 1, hi: 5, loInclusive: true, hiInclusive: false } }, testColumns),
+		).toBe(false)
+		expect(
+			matchesTableFilter({ n: 1 }, { id: '1', columnKey: 'n', operator: 'between', value: { lo: 1, hi: 5, loInclusive: true, hiInclusive: false } }, testColumns),
+		).toBe(true)
+		// (1, 5]
+		expect(
+			matchesTableFilter({ n: 1 }, { id: '1', columnKey: 'n', operator: 'between', value: { lo: 1, hi: 5, loInclusive: false, hiInclusive: true } }, testColumns),
+		).toBe(false)
+		expect(
+			matchesTableFilter({ n: 5 }, { id: '1', columnKey: 'n', operator: 'between', value: { lo: 1, hi: 5, loInclusive: false, hiInclusive: true } }, testColumns),
+		).toBe(true)
+	})
+
+	it('between swaps bounds and maps inclusivity to sorted endpoints', () => {
+		// Min field 5, Max field 1: interval (1, 5] when lower (hi) exclusive, upper (lo) inclusive
+		expect(
+			matchesTableFilter(
+				{ n: 1 },
+				{
+					id: '1',
+					columnKey: 'n',
+					operator: 'between',
+					value: { lo: 5, hi: 1, loInclusive: true, hiInclusive: false },
+				},
+				testColumns,
+			),
+		).toBe(false)
+		expect(
+			matchesTableFilter(
+				{ n: 5 },
+				{
+					id: '1',
+					columnKey: 'n',
+					operator: 'between',
+					value: { lo: 5, hi: 1, loInclusive: true, hiInclusive: false },
+				},
+				testColumns,
+			),
+		).toBe(true)
+		expect(
+			matchesTableFilter(
+				{ n: 3 },
+				{
+					id: '1',
+					columnKey: 'n',
+					operator: 'between',
+					value: { lo: 5, hi: 1, loInclusive: true, hiInclusive: false },
+				},
+				testColumns,
+			),
+		).toBe(true)
+	})
+
+	it('between equal lo and hi requires both inclusive for a match at that point', () => {
+		expect(
+			matchesTableFilter(
+				{ n: 3 },
+				{ id: '1', columnKey: 'n', operator: 'between', value: { lo: 3, hi: 3, loInclusive: true, hiInclusive: true } },
+				testColumns,
+			),
+		).toBe(true)
+		expect(
+			matchesTableFilter(
+				{ n: 3 },
+				{ id: '1', columnKey: 'n', operator: 'between', value: { lo: 3, hi: 3, loInclusive: true, hiInclusive: false } },
+				testColumns,
+			),
+		).toBe(false)
 	})
 })
 
@@ -268,7 +360,29 @@ describe('formatTableFilterSummary', () => {
 				{ id: '1', columnKey: 'n', operator: 'between', value: [1, 2] },
 				testColumns,
 			),
-		).toBe('N between 1 … 2')
+		).toBe('N between [1 … 2]')
+		expect(
+			formatTableFilterSummary(
+				{
+					id: '1',
+					columnKey: 'n',
+					operator: 'between',
+					value: { lo: 1, hi: 2, loInclusive: false, hiInclusive: false },
+				},
+				testColumns,
+			),
+		).toBe('N between (1 … 2)')
+		expect(
+			formatTableFilterSummary(
+				{
+					id: '1',
+					columnKey: 'n',
+					operator: 'between',
+					value: { lo: 1, hi: 2, loInclusive: true, hiInclusive: false },
+				},
+				testColumns,
+			),
+		).toBe('N between [1 … 2)')
 		expect(
 			formatTableFilterSummary(
 				{

@@ -86,6 +86,14 @@ const draftNumLo = ref('')
 /** @type {import('vue').Ref<string>} */
 const draftNumHi = ref('')
 
+/** Inclusive lower bound when operator is `between` (pairs with draftNumLo). */
+/** @type {import('vue').Ref<boolean>} */
+const draftNumLoInclusive = ref(true)
+
+/** Inclusive upper bound when operator is `between` (pairs with draftNumHi). */
+/** @type {import('vue').Ref<boolean>} */
+const draftNumHiInclusive = ref(true)
+
 /** @type {import('vue').Ref<string[]>} */
 const draftEnumSelected = ref([])
 
@@ -173,6 +181,8 @@ function resetDraftForColumn(key) {
 		draftNumSingle.value = ''
 		draftNumLo.value = ''
 		draftNumHi.value = ''
+		draftNumLoInclusive.value = true
+		draftNumHiInclusive.value = true
 		draftNumAnyRows.value = ['']
 	}
 }
@@ -256,9 +266,25 @@ function loadFilterIntoDraft(f) {
 			}
 		} else {
 			const op = f.operator
-			if (op === 'between' && Array.isArray(v) && v.length === 2) {
-				draftNumLo.value = String(v[0])
-				draftNumHi.value = String(v[1])
+			if (op === 'between') {
+				if (
+					v !== null &&
+					typeof v === 'object' &&
+					!Array.isArray(v) &&
+					'lo' in v &&
+					'hi' in v
+				) {
+					const o = /** @type {{ lo: unknown, hi: unknown, loInclusive?: unknown, hiInclusive?: unknown }} */ (v)
+					draftNumLo.value = String(o.lo)
+					draftNumHi.value = String(o.hi)
+					draftNumLoInclusive.value = o.loInclusive !== false
+					draftNumHiInclusive.value = o.hiInclusive !== false
+				} else if (Array.isArray(v) && v.length === 2) {
+					draftNumLo.value = String(v[0])
+					draftNumHi.value = String(v[1])
+					draftNumLoInclusive.value = true
+					draftNumHiInclusive.value = true
+				}
 			} else if (op === 'eqAny') {
 				draftNumAnyRows.value =
 					Array.isArray(v) && v.length > 0 ? v.map((x) => String(x)) : ['']
@@ -387,7 +413,12 @@ function applyDraft() {
 			partial = {
 				columnKey: d.key,
 				operator: op,
-				value: [Number(draftNumLo.value), Number(draftNumHi.value)],
+				value: {
+					lo: Number(draftNumLo.value),
+					hi: Number(draftNumHi.value),
+					loInclusive: draftNumLoInclusive.value,
+					hiInclusive: draftNumHiInclusive.value,
+				},
 			}
 		} else if (op === 'eqAny') {
 			partial = {
@@ -537,7 +568,7 @@ function summaryText(f) {
 
 						<div v-if="selectedColumnDef?.type === 'number'" class="c-table-filter--row">
 							<template v-if="draftOperator === 'between'">
-								<label class="c-table-filter--field">
+								<div class="c-table-filter--field">
 									<span class="c-table-filter--label">Min</span>
 									<input
 										ref="valueFocusRef"
@@ -546,8 +577,12 @@ function summaryText(f) {
 										:step="selectedColumnDef.numberStep"
 										class="c-table-filter--input"
 									/>
-								</label>
-								<label class="c-table-filter--field">
+									<label class="form--checkbox  c-table-filter--enum_item">
+										<input v-model="draftNumLoInclusive" type="checkbox" />
+										Inclusive
+									</label>
+								</div>
+								<div class="c-table-filter--field">
 									<span class="c-table-filter--label">Max</span>
 									<input
 										v-model="draftNumHi"
@@ -555,7 +590,11 @@ function summaryText(f) {
 										:step="selectedColumnDef.numberStep"
 										class="c-table-filter--input"
 									/>
-								</label>
+									<label class="form--checkbox  c-table-filter--enum_item">
+										<input v-model="draftNumHiInclusive" type="checkbox" />
+										Inclusive
+									</label>
+								</div>
 							</template>
 							<template v-else-if="draftOperator === 'eqAny'">
 								<div class="c-table-filter--field  c-table-filter--field_grow  c-table-filter--any_block">

@@ -74,6 +74,44 @@ function asNumber(v) {
 }
 
 /**
+ * Normalizes a `between` filter value (object or legacy `[lo, hi]` array) to sorted
+ * numeric endpoints and per-end inclusivity.
+ * @param {unknown} v
+ * @returns {{ loNum: number, hiNum: number, inclLow: boolean, inclHigh: boolean } | null}
+ */
+function numberBetweenBounds(v) {
+	if (Array.isArray(v) && v.length === 2) {
+		const a = asNumber(v[0])
+		const b = asNumber(v[1])
+		if (!Number.isFinite(a) || !Number.isFinite(b)) return null
+		const loNum = Math.min(a, b)
+		const hiNum = Math.max(a, b)
+		return { loNum, hiNum, inclLow: true, inclHigh: true }
+	}
+	if (v !== null && typeof v === 'object' && !Array.isArray(v)) {
+		const o = /** @type {{ lo?: unknown, hi?: unknown, loInclusive?: unknown, hiInclusive?: unknown }} */ (v)
+		const lo = asNumber(o.lo)
+		const hi = asNumber(o.hi)
+		if (!Number.isFinite(lo) || !Number.isFinite(hi)) return null
+		const loInclusive = o.loInclusive !== false
+		const hiInclusive = o.hiInclusive !== false
+		if (lo < hi) {
+			return { loNum: lo, hiNum: hi, inclLow: loInclusive, inclHigh: hiInclusive }
+		}
+		if (lo > hi) {
+			return { loNum: hi, hiNum: lo, inclLow: hiInclusive, inclHigh: loInclusive }
+		}
+		return {
+			loNum: lo,
+			hiNum: hi,
+			inclLow: loInclusive && hiInclusive,
+			inclHigh: loInclusive && hiInclusive,
+		}
+	}
+	return null
+}
+
+/**
  * @param {string} s
  * @returns {string[]}
  */
@@ -240,13 +278,13 @@ export function matchesTableFilter(row, filter, columnDefs) {
 				return v.some((x) => Number.isFinite(asNumber(x)) && asNumber(x) === n)
 			}
 			case 'between': {
-				if (!Array.isArray(v) || v.length !== 2) return false
-				const a = asNumber(v[0])
-				const b = asNumber(v[1])
-				if (!Number.isFinite(n) || !Number.isFinite(a) || !Number.isFinite(b)) return false
-				const lo = Math.min(a, b)
-				const hi = Math.max(a, b)
-				return n >= lo && n <= hi
+				const bounds = numberBetweenBounds(v)
+				if (!bounds) return false
+				if (!Number.isFinite(n)) return false
+				const { loNum, hiNum, inclLow, inclHigh } = bounds
+				const okLow = inclLow ? n >= loNum : n > loNum
+				const okHigh = inclHigh ? n <= hiNum : n < hiNum
+				return okLow && okHigh
 			}
 			default:
 				return true
@@ -306,8 +344,13 @@ export function formatTableFilterSummary(filter, columnDefs) {
 			const arr = Array.isArray(v) ? v : []
 			return `${label} ${ol} ${arr.join(' · ')}`
 		}
-		if (op === 'between' && Array.isArray(v) && v.length === 2) {
-			return `${label} ${ol} ${asString(v[0])} … ${asString(v[1])}`
+		if (op === 'between') {
+			const bounds = numberBetweenBounds(v)
+			if (bounds) {
+				const left = bounds.inclLow ? '[' : '('
+				const right = bounds.inclHigh ? ']' : ')'
+				return `${label} ${ol} ${left}${asString(bounds.loNum)} … ${asString(bounds.hiNum)}${right}`
+			}
 		}
 		return `${label} ${ol} ${asString(v)}`
 	}
