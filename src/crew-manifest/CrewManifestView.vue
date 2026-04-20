@@ -1,25 +1,20 @@
 <script setup>
 import { computed, ref } from 'vue'
 import TableFilter from '../shared/components/TableFilter.component.vue'
-import Tooltip from '../shared/components/Tooltip.component.vue'
 import { useTableFilter } from '../shared/table-filter.compose.js'
-import { kerbalDisplayName } from '../ksp/kerbal.util.js'
 import { useSaveFileStore } from '../save-file/save-file.store.js'
+import CrewManifestTable from './CrewManifestTable.component.vue'
 import { CREW_MANIFEST_FILTER_COLUMNS } from './crew-manifest-filter.const.js'
 import {
-	cycleCrewManifestSortDirForColumn,
-	initialCrewManifestSortDirForColumn,
-	sortCrewManifestRows,
-} from './crew-manifest-sort.util.js'
-import {
-	buildCrewManifestRows,
-	formatCrewManifestMarkdown,
-	formatCrewManifestRankTooltipLabel,
-	formatTotalXpDisplay,
-	rankToStars,
-} from './crew-manifest.util.js'
+	formatCrewManifestGroupSummary,
+	groupCrewManifestRows,
+	summarizeCrewManifestGroup,
+} from './crew-manifest-group.util.js'
+import { sortCrewManifestRows } from './crew-manifest-sort.util.js'
+import { buildCrewManifestRows, formatCrewManifestMarkdown } from './crew-manifest.util.js'
 
-/** @typedef {import('./crew-manifest-sort.util.js').CrewManifestSortColumn} CrewManifestSortColumn */
+/** @typedef {import('./crew-manifest-group.util.js').CrewManifestGroupBy} CrewManifestGroupBy */
+/** @typedef {import('./crew-manifest-sort.util.js').CrewManifestSortSpec} CrewManifestSortSpec */
 
 const saveFile = useSaveFileStore()
 
@@ -32,14 +27,32 @@ const { filters, applyTo } = useTableFilter(CREW_MANIFEST_FILTER_COLUMNS)
 
 const filteredRows = computed(() => applyTo(allRows.value))
 
-/** @type {import('vue').Ref<import('./crew-manifest-sort.util.js').CrewManifestSortSpec>} */
+/** @type {import('vue').Ref<CrewManifestGroupBy>} */
+const groupBy = ref('ungrouped')
+
+/** @type {import('vue').Ref<CrewManifestSortSpec>} */
 const primarySort = ref({ key: 'body', dir: 'asc' })
 
-/** @type {import('vue').Ref<import('./crew-manifest-sort.util.js').CrewManifestSortSpec>} */
+/** @type {import('vue').Ref<CrewManifestSortSpec>} */
 const secondarySort = ref({ key: 'vessel', dir: 'asc' })
 
 const sortedRows = computed(() =>
 	sortCrewManifestRows(filteredRows.value, primarySort.value, secondarySort.value),
+)
+
+const groups = computed(() => groupCrewManifestRows(sortedRows.value, groupBy.value))
+
+const groupsWithSummary = computed(() =>
+	groups.value.map(g => ({
+		...g,
+		summaryLine:
+			groupBy.value === 'ungrouped'
+				? ''
+				: formatCrewManifestGroupSummary(
+					summarizeCrewManifestGroup(g.rows),
+					groupBy.value,
+				),
+	})),
 )
 
 const markdown = computed(() =>
@@ -47,6 +60,7 @@ const markdown = computed(() =>
 		primary: primarySort.value,
 		secondary: secondarySort.value,
 		filters: filters.value,
+		groupBy: groupBy.value,
 	}),
 )
 
@@ -74,146 +88,101 @@ function downloadMarkdown() {
 }
 
 /**
- * @param {CrewManifestSortColumn} key
- * @param {MouseEvent} event
+ * @param {CrewManifestSortSpec} spec
  */
-function onSortHeaderClick(key, event) {
-	if (event.shiftKey) {
-		if (primarySort.value.key === key) return
-		if (secondarySort.value.key === key) {
-			const next = cycleCrewManifestSortDirForColumn(key, secondarySort.value.dir)
-			if (next === null) secondarySort.value = { key: null, dir: null }
-			else secondarySort.value = { key, dir: next }
-		} else {
-			secondarySort.value = { key, dir: initialCrewManifestSortDirForColumn(key) }
-		}
-		return
-	}
-
-	secondarySort.value = { key: null, dir: null }
-	if (primarySort.value.key === key) {
-		const next = cycleCrewManifestSortDirForColumn(key, primarySort.value.dir)
-		if (next === null) primarySort.value = { key: null, dir: null }
-		else primarySort.value = { key, dir: next }
-	} else {
-		primarySort.value = { key, dir: initialCrewManifestSortDirForColumn(key) }
-	}
+function onUpdatePrimarySort(spec) {
+	primarySort.value = spec
 }
 
 /**
- * @param {CrewManifestSortColumn} key
- * @param {'primary'|'secondary'} which
+ * @param {CrewManifestSortSpec} spec
  */
-function sortIndicator(key, which) {
-	const spec = which === 'primary' ? primarySort.value : secondarySort.value
-	if (spec.key !== key || spec.dir === null) return ''
-	return spec.dir === 'asc' ? '\u2191' : '\u2193'
+function onUpdateSecondarySort(spec) {
+	secondarySort.value = spec
 }
 </script>
 
 <template>
 	<div class="v-crew-manifest">
-		<h2>Krew Manifest</h2>
+		<div class="v-crew-manifest--title_row">
+			<h2 class="v-crew-manifest--title">Krew Manifest</h2>
+			<div class="v-crew-manifest--export">
+				<button type="button" class="btn" @click="downloadMarkdown">Download .md</button>
+				<button type="button" class="btn" @click="copyMarkdown">Copy Markdown</button>
+				<span v-if="copyMessage" class="form_help" role="status">{{ copyMessage }}</span>
+			</div>
+		</div>
 		<p class="lead">
 			Generated from <strong>{{ saveFile.fileName }}</strong>
 			(<template v-if="filters.length > 0">{{ sortedRows.length }} of {{ allRows.length }}</template>
 			<template v-else>{{ sortedRows.length }}</template>
 			kerbals).
 		</p>
-		<div class="v-crew-manifest--actions">
-			<button type="button" class="btn" @click="downloadMarkdown">Download .md</button>
-			<button type="button" class="btn" @click="copyMarkdown">Copy Markdown</button>
-			<span v-if="copyMessage" class="form_help" role="status">{{ copyMessage }}</span>
+		<div class="v-crew-manifest--toolbar">
+			<div class="v-crew-manifest--group_by">
+				<label for="crew-manifest-group-by" class="form_label  v-crew-manifest--group_label">Group by</label>
+				<select
+					id="crew-manifest-group-by"
+					v-model="groupBy"
+					class="form_control  v-crew-manifest--group_select"
+				>
+					<option value="ungrouped">Ungrouped</option>
+					<option value="location">Location</option>
+					<option value="vessel">Vessel</option>
+				</select>
+			</div>
+			<div class="v-crew-manifest--filters">
+				<TableFilter
+					v-model:filters="filters"
+					:column-defs="CREW_MANIFEST_FILTER_COLUMNS"
+					:rows="allRows"
+				/>
+			</div>
 		</div>
-		<TableFilter
-			v-model:filters="filters"
-			:column-defs="CREW_MANIFEST_FILTER_COLUMNS"
-			:rows="allRows"
-		/>
-		<div class="v-crew-manifest--table_wrap">
-			<table class="v-crew-manifest--table">
-				<thead>
-					<tr>
-						<th class="v-crew-manifest--sort_th" @click="onSortHeaderClick('name', $event)">
-							Name
-							<span class="v-crew-manifest--sort_primary">{{ sortIndicator('name', 'primary') }}</span>
-							<span class="v-crew-manifest--sort_secondary">{{ sortIndicator('name', 'secondary') }}</span>
-						</th>
-						<th class="v-crew-manifest--sort_th" @click="onSortHeaderClick('mark', $event)">
-							Mark
-							<span class="v-crew-manifest--sort_primary">{{ sortIndicator('mark', 'primary') }}</span>
-							<span class="v-crew-manifest--sort_secondary">{{ sortIndicator('mark', 'secondary') }}</span>
-						</th>
-						<th class="v-crew-manifest--sort_th" @click="onSortHeaderClick('role', $event)">
-							Role
-							<span class="v-crew-manifest--sort_primary">{{ sortIndicator('role', 'primary') }}</span>
-							<span class="v-crew-manifest--sort_secondary">{{ sortIndicator('role', 'secondary') }}</span>
-						</th>
-						<th class="v-crew-manifest--sort_th" @click="onSortHeaderClick('rank', $event)">
-							Rank
-							<span class="v-crew-manifest--sort_primary">{{ sortIndicator('rank', 'primary') }}</span>
-							<span class="v-crew-manifest--sort_secondary">{{ sortIndicator('rank', 'secondary') }}</span>
-						</th>
-						<th class="v-crew-manifest--sort_th" @click="onSortHeaderClick('vessel', $event)">
-							Vessel
-							<span class="v-crew-manifest--sort_primary">{{ sortIndicator('vessel', 'primary') }}</span>
-							<span class="v-crew-manifest--sort_secondary">{{ sortIndicator('vessel', 'secondary') }}</span>
-						</th>
-						<th class="v-crew-manifest--sort_th" @click="onSortHeaderClick('situation', $event)">
-							Situation
-							<span class="v-crew-manifest--sort_primary">{{ sortIndicator('situation', 'primary') }}</span>
-							<span class="v-crew-manifest--sort_secondary">{{ sortIndicator('situation', 'secondary') }}</span>
-						</th>
-						<th class="v-crew-manifest--sort_th" @click="onSortHeaderClick('body', $event)">
-							Location
-							<span class="v-crew-manifest--sort_primary">{{ sortIndicator('body', 'primary') }}</span>
-							<span class="v-crew-manifest--sort_secondary">{{ sortIndicator('body', 'secondary') }}</span>
-						</th>
-						<th class="v-crew-manifest--sort_th" @click="onSortHeaderClick('suit', $event)">
-							Suit
-							<span class="v-crew-manifest--sort_primary">{{ sortIndicator('suit', 'primary') }}</span>
-							<span class="v-crew-manifest--sort_secondary">{{ sortIndicator('suit', 'secondary') }}</span>
-						</th>
-						<th class="v-crew-manifest--sort_th" @click="onSortHeaderClick('bodyModel', $event)">
-							Model
-							<span class="v-crew-manifest--sort_primary">{{ sortIndicator('bodyModel', 'primary') }}</span>
-							<span class="v-crew-manifest--sort_secondary">{{ sortIndicator('bodyModel', 'secondary') }}</span>
-						</th>
-						<th class="v-crew-manifest--sort_th" @click="onSortHeaderClick('color', $event)">
-							Color
-							<span class="v-crew-manifest--sort_primary">{{ sortIndicator('color', 'primary') }}</span>
-							<span class="v-crew-manifest--sort_secondary">{{ sortIndicator('color', 'secondary') }}</span>
-						</th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr v-for="(r, idx) in sortedRows" :key="`${r.name}-${idx}`">
-						<td>{{ kerbalDisplayName(r.name) }}</td>
-						<td>
-							<Tooltip v-if="r.mark" as="abbr" :label="r.mark.title">{{ r.mark.emoji }}</Tooltip>
-						</td>
-						<td>{{ r.role }}</td>
-						<td class="v-crew-manifest--rank_cell">
-							<Tooltip
-								as="text"
-								:label="formatCrewManifestRankTooltipLabel(r.rank, r.totalXp)"
-							>
-								{{ rankToStars(r.rank) }}
-							</Tooltip>
-						</td>
-						<td>{{ r.vessel }}</td>
-						<td>{{ r.situation }}</td>
-						<td>{{ r.body }}</td>
-						<td>{{ r.suit }}</td>
-						<td>
-							<Tooltip v-if="r.bodyModel" as="abbr" :label="r.bodyModel.title">{{ r.bodyModel.abbr }}</Tooltip>
-							<span v-else>—</span>
-						</td>
-						<td>{{ r.color }}</td>
-					</tr>
-				</tbody>
-			</table>
-		</div>
+		<div v-if="filteredRows.length === 0" class="form_help">No kerbals match the current filters.</div>
+
+		<template v-else-if="groupBy === 'ungrouped'">
+			<section class="v-crew-manifest--section">
+				<CrewManifestTable
+					:rows="groups[0].rows"
+					:primary-sort="primarySort"
+					:secondary-sort="secondarySort"
+					:hide-body="false"
+					:hide-vessel="false"
+					@update:primary-sort="onUpdatePrimarySort"
+					@update:secondary-sort="onUpdateSecondarySort"
+				/>
+			</section>
+		</template>
+
+		<template v-else>
+			<section
+				v-for="(g, idx) in groupsWithSummary"
+				:key="`${groupBy}:${g.key}:${idx}`"
+				class="v-crew-manifest--section"
+			>
+				<details open>
+					<summary class="v-crew-manifest--summary_row">
+						<div class="v-crew-manifest--summary_main">
+							<hgroup class="v-crew-manifest--heading_group">
+								<h3 class="v-crew-manifest--heading">{{ g.title }}</h3>
+								<p v-if="g.caption" class="v-crew-manifest--heading_sub">{{ g.caption }}</p>
+							</hgroup>
+							<p v-if="g.summaryLine" class="v-crew-manifest--summary">{{ g.summaryLine }}</p>
+						</div>
+					</summary>
+					<CrewManifestTable
+						:rows="g.rows"
+						:primary-sort="primarySort"
+						:secondary-sort="secondarySort"
+						:hide-body="groupBy === 'location'"
+						:hide-vessel="groupBy === 'vessel'"
+						@update:primary-sort="onUpdatePrimarySort"
+						@update:secondary-sort="onUpdateSecondarySort"
+					/>
+				</details>
+			</section>
+		</template>
 	</div>
 </template>
 
@@ -222,61 +191,116 @@ function sortIndicator(key, which) {
 	max-width: 100%;
 }
 
-.v-crew-manifest--actions {
+.v-crew-manifest--title_row {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 0.75rem 1rem;
+	margin-bottom: 0.35rem;
+}
+
+.v-crew-manifest--title {
+	margin: 0;
+}
+
+.v-crew-manifest--export {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
-	gap: 0.75rem 1rem;
+	gap: 0.5rem 0.75rem;
+}
+
+.v-crew-manifest--toolbar {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-start;
+	gap: 0.5rem 0.75rem;
 	margin-bottom: 1rem;
 }
 
-.v-crew-manifest--table_wrap {
-	overflow-x: auto;
-	border: 1px solid var(--house--border_color-interactive);
-	border-radius: var(--house--border_radius, 4px);
+.v-crew-manifest--group_by {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.35rem 0.5rem;
+	flex: 0 0 auto;
 }
 
-.v-crew-manifest--table {
-	width: 100%;
-	border-collapse: collapse;
-	font-size: 0.9rem;
-}
-
-.v-crew-manifest--table th,
-.v-crew-manifest--table td {
-	padding: 0.4rem 0.6rem;
-	text-align: left;
-	border-bottom: 1px solid var(--house--border_color-interactive);
-	vertical-align: top;
-}
-
-.v-crew-manifest--table th {
-	font-weight: 600;
-	background: var(--house--color--surface-muted, rgba(0, 0, 0, 0.04));
+.v-crew-manifest--group_label {
+	margin: 0;
+	font-size: var(--house--text--size-small, 0.85rem);
+	font-weight: 500;
 	white-space: nowrap;
 }
 
-.v-crew-manifest--sort_th {
-	cursor: pointer;
+.v-crew-manifest--group_select {
+	width: auto;
+	min-width: 7.5rem;
+	max-width: 11rem;
+	padding-block: 0.2rem;
+	font-size: var(--house--text--size-small, 0.85rem);
+}
+
+.v-crew-manifest--filters {
+	flex: 1 1 0;
+	min-width: 0;
+}
+
+/* Toolbar margin-bottom replaces TableFilter’s margin. */
+.v-crew-manifest--filters :deep(.c-table-filter) {
+	margin-bottom: 0;
+	width: 100%;
+	min-width: 0;
+}
+
+.v-crew-manifest--section {
+	margin-bottom: 2rem;
+}
+
+.v-crew-manifest--section details > :not(summary) {
+	margin-top: 0.75rem;
+}
+
+.v-crew-manifest--summary_row {
+	/* Keep default `display: list-item` so the disclosure marker stays visible. */
 	user-select: none;
 }
 
-.v-crew-manifest--sort_primary {
-	margin-left: 0.25rem;
-	font-size: 0.85em;
+.v-crew-manifest--summary_main {
+	display: flex;
+	flex-direction: column;
+	gap: 0.35rem;
 }
 
-.v-crew-manifest--sort_secondary {
-	margin-left: 0.15rem;
-	font-size: 0.7em;
-	opacity: 0.65;
+.v-crew-manifest--heading_group {
+	display: flex;
+	align-items: baseline;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	margin: 0;
 }
 
-.v-crew-manifest--table tbody tr:last-child td {
-	border-bottom: none;
+.v-crew-manifest--heading {
+	margin: 0;
+	font-size: 1.15rem;
+	font-weight: 600;
 }
 
-.v-crew-manifest--rank_cell {
-	white-space: nowrap;
+.v-crew-manifest--heading_sub {
+	margin: 0;
+	font-size: 0.85rem;
+	font-weight: 400;
+	color: var(--house--color--ink-muted);
+}
+
+.v-crew-manifest--summary {
+	margin: 0;
+	font-size: 0.9rem;
+	color: var(--house--color--ink-muted);
+}
+
+.v-crew-manifest--summary_row .v-crew-manifest--summary {
+	padding-inline-start: 0.75rem;
 }
 </style>

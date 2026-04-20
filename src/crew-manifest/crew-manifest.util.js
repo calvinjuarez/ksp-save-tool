@@ -10,6 +10,12 @@ import { formatTableFilterSummary } from '../shared/table-filter.util.js'
 import { buildSaveDerived } from '../save-file/save-derived.util.js'
 import { asArray } from '../save-file/save-file.util.js'
 import { CREW_MANIFEST_FILTER_COLUMNS } from './crew-manifest-filter.const.js'
+import {
+	CREW_MANIFEST_GROUP_BY_LABELS,
+	formatCrewManifestGroupSummary,
+	groupCrewManifestRows,
+	summarizeCrewManifestGroup,
+} from './crew-manifest-group.util.js'
 import { crewManifestMark } from './crew-manifest-mark.const.js'
 import { rankToStars } from './crew-manifest-rank.util.js'
 import { formatCrewManifestSortSpecForMarkdown } from './crew-manifest-sort.util.js'
@@ -185,13 +191,15 @@ function sortKeyVessel(vessel) {
  * @param {import('./crew-manifest-sort.util.js').CrewManifestSortSpec} primary
  * @param {import('./crew-manifest-sort.util.js').CrewManifestSortSpec} secondary
  * @param {import('../shared/table-filter.util.js').TableFilter[]} filters
+ * @param {import('./crew-manifest-group.util.js').CrewManifestGroupBy} [groupBy]
  * @returns {string[]}
  */
-function crewManifestMarkdownViewStateLines(primary, secondary, filters) {
+function crewManifestMarkdownViewStateLines(primary, secondary, filters, groupBy = 'ungrouped') {
 	const lines = [
 		'## View state',
 		'',
 		`- **Sort:** Primary: ${formatCrewManifestSortSpecForMarkdown(primary)}; Secondary: ${formatCrewManifestSortSpecForMarkdown(secondary)}`,
+		`- **Group by:** ${CREW_MANIFEST_GROUP_BY_LABELS[groupBy]}`,
 	]
 	if (filters.length === 0) {
 		lines.push('- **Filters:** None')
@@ -205,11 +213,61 @@ function crewManifestMarkdownViewStateLines(primary, secondary, filters) {
 }
 
 /**
+ * @param {CrewManifestRow} r
+ * @param {boolean} hideVessel
+ * @param {boolean} hideBody
+ * @returns {string}
+ */
+function crewManifestMarkdownTableRow(r, hideVessel, hideBody) {
+	const modelMd = r.bodyModel !== null ? r.bodyModel.abbr : '—'
+	const markMd = r.mark !== null ? r.mark.emoji : '—'
+	const rankMd = rankToStars(r.rank)
+	/** @type {string[]} */
+	const cells = [
+		kerbalDisplayName(r.name),
+		markMd,
+		r.role,
+		rankMd,
+	]
+	if (!hideVessel) cells.push(r.vessel)
+	cells.push(r.situation)
+	if (!hideBody) cells.push(r.body)
+	cells.push(r.suit, modelMd, r.color)
+	return `| ${cells.map(escapeCell).join(' | ')} |`
+}
+
+/**
+ * @param {CrewManifestRow[]} rows
+ * @param {boolean} hideVessel
+ * @param {boolean} hideBody
+ * @returns {string[]}
+ */
+function crewManifestMarkdownTableLines(rows, hideVessel, hideBody) {
+	/** @type {string[]} */
+	const head = ['Name', 'Mark', 'Role', 'Rank']
+	if (!hideVessel) head.push('Vessel')
+	head.push('Situation')
+	if (!hideBody) head.push('Location')
+	head.push('Suit', 'Model', 'Color')
+
+	const sep = head.map(() => '---')
+	const lines = [
+		`| ${head.join(' | ')} |`,
+		`| ${sep.join(' | ')} |`,
+	]
+	for (const r of rows) {
+		lines.push(crewManifestMarkdownTableRow(r, hideVessel, hideBody))
+	}
+	return lines
+}
+
+/**
  * @param {CrewManifestRow[]} rows
  * @param {{
  *   primary: import('./crew-manifest-sort.util.js').CrewManifestSortSpec
  *   secondary: import('./crew-manifest-sort.util.js').CrewManifestSortSpec
  *   filters: import('../shared/table-filter.util.js').TableFilter[]
+ *   groupBy?: import('./crew-manifest-group.util.js').CrewManifestGroupBy
  * }} [viewState]
  * @returns {string}
  */
@@ -218,11 +276,13 @@ export function formatCrewManifestMarkdown(rows, viewState) {
 		'# KSP Krew Manifest Report',
 		'',
 	]
+	const groupBy = viewState?.groupBy ?? 'ungrouped'
 	if (viewState) {
 		lines.push(...crewManifestMarkdownViewStateLines(
 			viewState.primary,
 			viewState.secondary,
 			viewState.filters,
+			groupBy,
 		))
 		lines.push('')
 	}
@@ -234,30 +294,28 @@ export function formatCrewManifestMarkdown(rows, viewState) {
 		'- 🗺️ = Tourist',
 		'',
 		'',
-		'## Full Crew Table',
-		'',
-		'| Name | Mark | Role | Rank | Vessel | Situation | Location | Suit | Model | Color |',
-		'| ---    | ---  | ---  | ---  | ---    | ---       | -------- | ---  | ---   | ---   |',
 	)
-	for (const r of rows) {
-		const modelMd = r.bodyModel !== null ? r.bodyModel.abbr : '—'
-		const markMd = r.mark !== null ? r.mark.emoji : '—'
-		const rankMd = rankToStars(r.rank)
-		const cells = [
-			kerbalDisplayName(r.name),
-			markMd,
-			r.role,
-			rankMd,
-			r.vessel,
-			r.situation,
-			r.body,
-			r.suit,
-			modelMd,
-			r.color,
-		].map(escapeCell)
-		lines.push(`| ${cells.join(' | ')} |`)
+
+	if (groupBy !== 'ungrouped') {
+		const groups = groupCrewManifestRows(rows, groupBy)
+		const hideBody = groupBy === 'location'
+		const hideVessel = groupBy === 'vessel'
+		for (const g of groups) {
+			lines.push(`### ${escapeCell(g.title)}`, '')
+			if (g.caption) {
+				lines.push(`*${escapeCell(g.caption)}*`, '')
+			}
+			const summary = formatCrewManifestGroupSummary(
+				summarizeCrewManifestGroup(g.rows),
+				groupBy,
+			)
+			if (summary) lines.push(summary, '')
+			lines.push(...crewManifestMarkdownTableLines(g.rows, hideVessel, hideBody), '')
+		}
+		return lines.join('\n')
 	}
-	lines.push('')
+
+	lines.push('## Full Crew Table', '', ...crewManifestMarkdownTableLines(rows, false, false), '')
 	return lines.join('\n')
 }
 

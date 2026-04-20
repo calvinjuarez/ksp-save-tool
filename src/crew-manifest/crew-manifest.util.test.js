@@ -247,6 +247,7 @@ describe('formatCrewManifestMarkdown', () => {
 		expect(md).toContain('## View state')
 		expect(md).toContain('Primary: Location (ascending)')
 		expect(md).toContain('Secondary: —')
+		expect(md).toContain('- **Group by:** Ungrouped')
 		expect(md).toContain('- **Filters:** None')
 	})
 
@@ -281,8 +282,71 @@ describe('formatCrewManifestMarkdown', () => {
 				],
 			},
 		)
+		expect(md).toContain('- **Group by:** Ungrouped')
 		expect(md).toContain('- **Filters:**')
 		expect(md).toContain('Role: Pilot')
+	})
+
+	it('groups markdown by location with per-section tables and hides Location column', () => {
+		const rowKerbin = {
+			name: 'A Kerman',
+			role: 'Pilot',
+			rank: 1,
+			totalXp: 0,
+			vessel: 'Ship',
+			situation: 'ORBITING',
+			body: 'Kerbin',
+			suit: 'Default',
+			bodyModel: { abbr: 'M', title: 'Masculine' },
+			color: '0',
+			mark: null,
+			markKind: null,
+		}
+		const rowDuna = {
+			...rowKerbin,
+			name: 'B Kerman',
+			body: 'Duna',
+			vessel: 'Rover',
+		}
+		const md = formatCrewManifestMarkdown([rowDuna, rowKerbin], {
+			primary: { key: 'body', dir: 'asc' },
+			secondary: { key: null, dir: null },
+			filters: [],
+			groupBy: 'location',
+		})
+		expect(md).toContain('- **Group by:** Location')
+		expect(md).toContain('### Kerbin')
+		expect(md).toContain('### Duna')
+		expect(md).not.toContain('## Full Crew Table')
+		expect(md).toContain('| Name | Mark | Role | Rank | Vessel | Situation | Suit | Model | Color |')
+		expect(md).not.toContain('| Location |')
+	})
+
+	it('groups markdown by vessel and hides Vessel column', () => {
+		const r = {
+			name: 'A Kerman',
+			role: 'Pilot',
+			rank: 1,
+			totalXp: 0,
+			vessel: 'Alpha',
+			situation: 'Landed',
+			body: 'Kerbin',
+			suit: 'Default',
+			bodyModel: null,
+			color: '—',
+			mark: null,
+			markKind: null,
+		}
+		const md = formatCrewManifestMarkdown([r], {
+			primary: { key: 'vessel', dir: 'asc' },
+			secondary: { key: null, dir: null },
+			filters: [],
+			groupBy: 'vessel',
+		})
+		expect(md).toContain('- **Group by:** Vessel')
+		expect(md).toContain('### Alpha')
+		expect(md).toContain('| Name | Mark | Role | Rank | Situation | Location | Suit | Model | Color |')
+		expect(md).not.toContain('| Vessel |')
 	})
 })
 
