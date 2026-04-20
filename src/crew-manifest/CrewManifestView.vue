@@ -14,6 +14,7 @@ import {
 import {
 	buildCrewManifestRows,
 	formatCrewManifestMarkdown,
+	formatCrewManifestRankTooltipLabel,
 	formatTotalXpDisplay,
 	rankToStars,
 } from './crew-manifest.util.js'
@@ -195,7 +196,7 @@ function sortIndicator(key, which) {
 						<td class="v-crew-manifest--rank_cell">
 							<Tooltip
 								as="text"
-								:label="`Rank ${r.rank}; XP ${formatTotalXpDisplay(r.totalXp)}`"
+								:label="formatCrewManifestRankTooltipLabel(r.rank, r.totalXp)"
 							>
 								{{ rankToStars(r.rank) }}
 							</Tooltip>

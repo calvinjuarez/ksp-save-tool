@@ -17,7 +17,7 @@ defineProps({
 	 * Trigger element / semantics.
 	 * - `abbr` — real &lt;abbr&gt; (expansion in aria-label; no title to avoid native tooltips).
 	 * - `abbr-like` — dotted underline on inline/cell triggers (e.g. non-abbr hints).
-	 * - `text` — activatable content (e.g. stars); aria-label carries meaning, no underline.
+	 * - `text` — activatable content (e.g. stars); aria-label carries meaning; dotted hint line.
 	 * - `cell` — block wrapper with underline (tables, progress bar).
 	 * - `button` — native button.
 	 * @type {'abbr' | 'abbr-like' | 'text' | 'cell' | 'button'}
@@ -214,6 +214,9 @@ function toggleOpen() {
 
 .c-tooltip--trigger__text {
 	display: inline;
+	border-bottom: 1px dotted currentColor;
+	text-decoration: none;
+	padding-bottom: 0.08em;
 	cursor: help;
 }
 

@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
 	buildCrewManifestRows,
 	formatCrewManifestMarkdown,
+	formatCrewManifestRankTooltipLabel,
 	formatTotalXpDisplay,
 } from './crew-manifest.util.js'
 
@@ -290,6 +291,20 @@ describe('formatTotalXpDisplay', () => {
 		expect(formatTotalXpDisplay(11.25)).toBe('11.3')
 		expect(formatTotalXpDisplay(64)).toBe('64')
 		expect(formatTotalXpDisplay(0)).toBe('0')
+	})
+})
+
+describe('formatCrewManifestRankTooltipLabel', () => {
+	it('uses natural phrasing for star count and XP', () => {
+		expect(formatCrewManifestRankTooltipLabel(0, 0)).toBe('Rank: no stars (0 XP)')
+		expect(formatCrewManifestRankTooltipLabel(1, 7)).toBe('Rank: 1 star (7 XP)')
+		expect(formatCrewManifestRankTooltipLabel(3, 64)).toBe('Rank: 3 stars (64 XP)')
+		expect(formatCrewManifestRankTooltipLabel(5, 11.25)).toBe('Rank: 5 stars (11.3 XP)')
+	})
+
+	it('clamps rank like star display', () => {
+		expect(formatCrewManifestRankTooltipLabel(99, 100)).toBe('Rank: 5 stars (100 XP)')
+		expect(formatCrewManifestRankTooltipLabel(-3, 0)).toBe('Rank: no stars (0 XP)')
 	})
 })
 
