@@ -189,11 +189,14 @@ function sortIndicator(key, which) {
 					<tr v-for="(r, idx) in sortedRows" :key="`${r.name}-${idx}`">
 						<td>{{ kerbalDisplayName(r.name) }}</td>
 						<td>
-							<Tooltip v-if="r.mark" :label="r.mark.title">{{ r.mark.emoji }}</Tooltip>
+							<Tooltip v-if="r.mark" as="abbr" :label="r.mark.title">{{ r.mark.emoji }}</Tooltip>
 						</td>
 						<td>{{ r.role }}</td>
 						<td class="v-crew-manifest--rank_cell">
-							<Tooltip :label="`Rank ${r.rank}; XP ${formatTotalXpDisplay(r.totalXp)}`">
+							<Tooltip
+								as="text"
+								:label="`Rank ${r.rank}; XP ${formatTotalXpDisplay(r.totalXp)}`"
+							>
 								{{ rankToStars(r.rank) }}
 							</Tooltip>
 						</td>
@@ -202,7 +205,7 @@ function sortIndicator(key, which) {
 						<td>{{ r.body }}</td>
 						<td>{{ r.suit }}</td>
 						<td>
-							<Tooltip v-if="r.bodyModel" :label="r.bodyModel.title">{{ r.bodyModel.abbr }}</Tooltip>
+							<Tooltip v-if="r.bodyModel" as="abbr" :label="r.bodyModel.title">{{ r.bodyModel.abbr }}</Tooltip>
 							<span v-else>—</span>
 						</td>
 						<td>{{ r.color }}</td>

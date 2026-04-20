@@ -7,21 +7,27 @@ const HOVER_OPEN_MS = 450
 /** Time to move from trigger to teleported panel without closing. */
 const HOVER_CLOSE_GRACE_MS = 220
 
-const props = defineProps({
+defineProps({
 	/** Hint text; shown in the panel and exposed to assistive tech on the trigger. */
 	label: {
 		type: String,
 		required: true,
 	},
 	/**
-	 * Trigger presentation: real button, inline abbr-like span, or block cell wrapper.
-	 * @type {'button' | 'abbr-like' | 'cell'}
+	 * Trigger element / semantics.
+	 * - `abbr` — real &lt;abbr&gt; (expansion in aria-label; no title to avoid native tooltips).
+	 * - `abbr-like` — dotted underline on inline/cell triggers (e.g. non-abbr hints).
+	 * - `text` — activatable content (e.g. stars); aria-label carries meaning, no underline.
+	 * - `cell` — block wrapper with underline (tables, progress bar).
+	 * - `button` — native button.
+	 * @type {'abbr' | 'abbr-like' | 'text' | 'cell' | 'button'}
 	 */
 	as: {
 		type: String,
 		default: 'abbr-like',
 		/** @param {unknown} v */
-		validator: (v) => typeof v === 'string' && ['button', 'abbr-like', 'cell'].includes(v),
+		validator: (v) =>
+			typeof v === 'string' && ['abbr', 'abbr-like', 'text', 'cell', 'button'].includes(v),
 	},
 })
 
@@ -126,6 +132,31 @@ function toggleOpen() {
 		>
 			<slot />
 		</button>
+		<abbr
+			v-else-if="as === 'abbr'"
+			class="c-tooltip--trigger c-tooltip--trigger__abbr"
+			tabindex="0"
+			:aria-label="label"
+			:aria-expanded="open"
+			:aria-describedby="open ? tipId : undefined"
+			@keydown.enter.prevent="toggleOpen"
+			@keydown.space.prevent="toggleOpen"
+		>
+			<slot />
+		</abbr>
+		<span
+			v-else-if="as === 'text'"
+			class="c-tooltip--trigger c-tooltip--trigger__text"
+			role="button"
+			tabindex="0"
+			:aria-label="label"
+			:aria-expanded="open"
+			:aria-describedby="open ? tipId : undefined"
+			@keydown.enter.prevent="toggleOpen"
+			@keydown.space.prevent="toggleOpen"
+		>
+			<slot />
+		</span>
 		<span
 			v-else
 			:class="[
@@ -159,8 +190,6 @@ function toggleOpen() {
 	border: none;
 	border-radius: 0;
 	cursor: help;
-	text-decoration: underline dotted;
-	text-underline-offset: 0.12em;
 }
 
 .c-tooltip--trigger:focus-visible {
@@ -168,13 +197,24 @@ function toggleOpen() {
 	outline-offset: 2px;
 }
 
+/* Border draws reliably under emoji / symbols; text-decoration often skips them. */
+.c-tooltip--trigger__abbr,
+.c-tooltip--trigger__abbr-like {
+	display: inline;
+	border-bottom: 1px dotted currentColor;
+	text-decoration: none;
+	padding-bottom: 0.08em;
+	cursor: help;
+}
+
 .c-tooltip--trigger__button {
 	display: inline-block;
 	max-width: 100%;
 }
 
-.c-tooltip--trigger__abbr-like {
+.c-tooltip--trigger__text {
 	display: inline;
+	cursor: help;
 }
 
 .c-tooltip--trigger__cell {
@@ -182,6 +222,10 @@ function toggleOpen() {
 	width: fit-content;
 	max-width: 100%;
 	box-sizing: border-box;
+	border-bottom: 1px dotted currentColor;
+	text-decoration: none;
+	padding-bottom: 0.08em;
+	cursor: help;
 }
 
 .c-tooltip--body {
