@@ -29,7 +29,7 @@ See [ADR-005](adr/005-module-style-src-layout.md) for rationale and trade-offs.
 ## Module categories
 
 - **`app/`** – Shell: root `App.vue`, env store, 404 view, `app.const.js` (PWA + copy).
-- **`save-file/`** – Parse upload, Pinia tree, helpers that read `.sfs`/`GAME` trees, and `SaveFileExplorerView.vue` (nested `/save-explorer` routes).
+- **`save-file/`** – Parse upload, Pinia tree, helpers that read `.sfs`/`GAME` trees, memoized vessel walks (`save-derived.util.js`), and `SaveFileExplorerView.vue` (nested `/save-explorer` routes).
 - **`shared/`** – Cross-feature UI and utilities (e.g. generic `FileUpload.component.vue`, `TableFilter.component.vue`, `table-filter.*`).
 - **`settings/`** – Settings route and future UI.
 - **`ksp/`** – pure KSP helpers: body names from `ORBIT.REF` (`body.util.js`), stock body ordering for reports (`body-rank.const.js`), kerbal roster parsing (`kerbal.util.js`), science experiment/situation/biome labels (`science-taxonomy.util.js`), and related utilities.

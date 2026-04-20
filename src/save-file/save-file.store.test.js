@@ -38,6 +38,10 @@ describe('useSaveFileStore', () => {
 		expect(store.crewCount).toBe(1)
 		expect(store.fileName).toBe('persistent.sfs')
 		expect(store.tree?.GAME?.Title).toBe('Test Save')
+		expect(store.saveDerived).not.toBeNull()
+		expect(store.saveDerived?.scienceDataBySubjectId).toBeDefined()
+		expect(store.saveDerived?.kerbalAssignmentsByName).toBeDefined()
+		expect(store.saveDerived?.asteroidNameByUid).toBeDefined()
 	})
 
 	it('clear resets state', async () => {

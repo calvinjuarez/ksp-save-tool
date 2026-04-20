@@ -1,6 +1,7 @@
 import { parse } from 'ksp-confignode'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
+import { buildSaveDerived } from './save-derived.util.js'
 import { crewCountFromTree, gameTitleFromTree, vesselCountFromTree } from './save-file.util.js'
 
 export const useSaveFileStore = defineStore('saveFile', () => {
@@ -16,6 +17,9 @@ export const useSaveFileStore = defineStore('saveFile', () => {
 	const vesselCount = computed(() => vesselCountFromTree(tree.value ?? undefined))
 	const crewCount = computed(() => crewCountFromTree(tree.value ?? undefined))
 	const hasSave = computed(() => tree.value !== null && loadError.value === null)
+
+	/** Memoized vessel walk: science onboard, kerbal assignments, asteroid/comet names by part uid. */
+	const saveDerived = computed(() => (tree.value ? buildSaveDerived(tree.value) : null))
 
 	/**
 	 * @param {File} file
@@ -60,6 +64,7 @@ export const useSaveFileStore = defineStore('saveFile', () => {
 		vesselCount,
 		crewCount,
 		hasSave,
+		saveDerived,
 		loadFromFile,
 		clear,
 	}
