@@ -66,7 +66,7 @@ function downloadMarkdown() {
 	const url = URL.createObjectURL(blob)
 	const a = document.createElement('a')
 	a.href = url
-	a.download = 'ksp_crew_manifest_report.md'
+	a.download = 'ksp_krew_manifest_report.md'
 	a.click()
 	URL.revokeObjectURL(url)
 }
@@ -111,7 +111,7 @@ function sortIndicator(key, which) {
 
 <template>
 	<div class="v-crew-manifest">
-		<h2>Crew Manifest</h2>
+		<h2>Krew Manifest</h2>
 		<p class="lead">
 			Generated from <strong>{{ saveFile.fileName }}</strong>
 			(<template v-if="filters.length > 0">{{ sortedRows.length }} of {{ allRows.length }}</template>

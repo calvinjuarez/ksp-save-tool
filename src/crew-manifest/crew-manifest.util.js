@@ -253,7 +253,7 @@ function crewManifestMarkdownViewStateLines(primary, secondary, filters) {
  */
 export function formatCrewManifestMarkdown(rows, viewState) {
 	const lines = [
-		'# KSP Crew Manifest Report',
+		'# KSP Krew Manifest Report',
 		'',
 	]
 	if (viewState) {

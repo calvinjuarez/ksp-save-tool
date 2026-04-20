@@ -16,7 +16,7 @@ const routes = [
 				path: 'crew-manifest',
 				name: 'crew-manifest',
 				component: () => import('./crew-manifest/CrewManifestView.vue'),
-				meta: { title: 'Crew Manifest' },
+				meta: { title: 'Krew Manifest' },
 			},
 		],
 	},

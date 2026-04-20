@@ -5,7 +5,7 @@
 export const SAVE_EXPLORER_REPORTS = [
 	{
 		routeName: 'crew-manifest',
-		title: 'Crew Manifest',
+		title: 'Krew Manifest',
 		description: 'Roster kerbals and copy or download as Markdown.',
 	},
 ]

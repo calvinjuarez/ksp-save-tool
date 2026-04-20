@@ -226,7 +226,7 @@ describe('formatCrewManifestMarkdown', () => {
 				markKind: null,
 			},
 		])
-		expect(md).toContain('# KSP Crew Manifest Report')
+		expect(md).toContain('# KSP Krew Manifest Report')
 		expect(md).toContain(
 			'| Name | Mark | Role | Rank | Vessel | Situation | At | Suit | Model | Color |',
 		)
