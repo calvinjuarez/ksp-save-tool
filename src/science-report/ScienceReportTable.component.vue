@@ -11,6 +11,7 @@ import {
 	isFullyStudiedNumerically,
 	TRACE_UNCOLLECTED_THRESHOLD,
 } from './science-report.util.js'
+import Tooltip from '../shared/components/Tooltip.component.vue'
 
 /** @typedef {import('./science-report-sort.util.js').ScienceReportSortColumn} ScienceReportSortColumn */
 
@@ -205,21 +206,22 @@ function sortIndicator(key, which) {
 					<td>{{ r.situationLabel }}</td>
 					<td>{{ r.biomeLabel }}</td>
 					<td class="c-science_report_table--science">
-						<div
-							class="c-science_report_table--bar_track"
-							:title="scienceTooltip(r)"
-						>
-							<div
-								class="c-science_report_table--bar_fill"
-								:style="{ width: `${scienceProgressPct(r)}%` }"
-							/>
-						</div>
+						<Tooltip as="cell" :label="scienceTooltip(r)">
+							<div class="c-science_report_table--bar_track">
+								<div
+									class="c-science_report_table--bar_fill"
+									:style="{ width: `${scienceProgressPct(r)}%` }"
+								/>
+							</div>
+						</Tooltip>
 						<p class="c-science_report_table--science_caption">{{ scienceCaption(r) }}</p>
 						<p class="c-science_report_table--science_sub">
 							{{ r.cap > 0 ? `${formatSciDisplay(r.earned)} / ${formatSciDisplay(r.cap)} sci` : '' }}
 						</p>
 					</td>
-					<td :title="onboardTooltip(r)">{{ onboardDisplay(r) }}</td>
+					<td>
+						<Tooltip as="cell" :label="onboardTooltip(r)">{{ onboardDisplay(r) }}</Tooltip>
+					</td>
 					<td>{{ vesselsDisplay(r) }}</td>
 				</tr>
 			</tbody>

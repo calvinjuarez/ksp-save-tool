@@ -1,6 +1,7 @@
 <script setup>
 import { computed, ref } from 'vue'
 import TableFilter from '../shared/components/TableFilter.component.vue'
+import Tooltip from '../shared/components/Tooltip.component.vue'
 import { useTableFilter } from '../shared/table-filter.compose.js'
 import { kerbalDisplayName } from '../ksp/kerbal.util.js'
 import { useSaveFileStore } from '../save-file/save-file.store.js'
@@ -188,26 +189,20 @@ function sortIndicator(key, which) {
 					<tr v-for="(r, idx) in sortedRows" :key="`${r.name}-${idx}`">
 						<td>{{ kerbalDisplayName(r.name) }}</td>
 						<td>
-							<abbr
-								v-if="r.mark"
-								:title="r.mark.title"
-								:aria-label="r.mark.title"
-							>{{ r.mark.emoji }}</abbr>
+							<Tooltip v-if="r.mark" :label="r.mark.title">{{ r.mark.emoji }}</Tooltip>
 						</td>
 						<td>{{ r.role }}</td>
 						<td class="v-crew-manifest--rank_cell">
-							<abbr
-								class="v-crew-manifest--rank_abbr"
-								:title="`Rank ${r.rank}; XP ${formatTotalXpDisplay(r.totalXp)}`"
-								:aria-label="`Rank ${r.rank}; XP ${formatTotalXpDisplay(r.totalXp)}`"
-							>{{ rankToStars(r.rank) }}</abbr>
+							<Tooltip :label="`Rank ${r.rank}; XP ${formatTotalXpDisplay(r.totalXp)}`">
+								{{ rankToStars(r.rank) }}
+							</Tooltip>
 						</td>
 						<td>{{ r.vessel }}</td>
 						<td>{{ r.situation }}</td>
 						<td>{{ r.body }}</td>
 						<td>{{ r.suit }}</td>
 						<td>
-							<abbr v-if="r.bodyModel" :title="r.bodyModel.title">{{ r.bodyModel.abbr }}</abbr>
+							<Tooltip v-if="r.bodyModel" :label="r.bodyModel.title">{{ r.bodyModel.abbr }}</Tooltip>
 							<span v-else>—</span>
 						</td>
 						<td>{{ r.color }}</td>
@@ -279,9 +274,5 @@ function sortIndicator(key, which) {
 
 .v-crew-manifest--rank_cell {
 	white-space: nowrap;
-}
-
-.v-crew-manifest--rank_abbr {
-	cursor: help;
 }
 </style>

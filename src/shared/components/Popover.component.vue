@@ -33,7 +33,22 @@ const props = defineProps({
 		type: String,
 		default: '',
 	},
+	/**
+	 * When true, panel width follows content (max-content) instead of a wide default min-width.
+	 * Still capped by max-width so long copy wraps within the viewport.
+	 */
+	panelHugContent: {
+		type: Boolean,
+		default: false,
+	},
 })
+
+const emit = defineEmits([
+	'triggerPointerEnter',
+	'triggerPointerLeave',
+	'panelPointerEnter',
+	'panelPointerLeave',
+])
 
 const open = defineModel('open', {
 	type: Boolean,
@@ -177,6 +192,8 @@ defineExpose({ toggle, updatePosition })
 			ref="triggerWrapRef"
 			class="c-popover--trigger"
 			@click="toggle"
+			@pointerenter="emit('triggerPointerEnter', $event)"
+			@pointerleave="emit('triggerPointerLeave', $event)"
 		>
 			<slot />
 		</div>
@@ -185,8 +202,11 @@ defineExpose({ toggle, updatePosition })
 				v-show="open"
 				ref="panelRef"
 				class="c-popover--panel"
+				:class="{ 'c-popover--panel__hug': panelHugContent }"
 				role="dialog"
 				aria-modal="false"
+				@pointerenter="emit('panelPointerEnter', $event)"
+				@pointerleave="emit('panelPointerLeave', $event)"
 				:style="
 					panelStyle
 						? {
@@ -228,5 +248,11 @@ defineExpose({ toggle, updatePosition })
 	border-radius: var(--house--border_radius-sm);
 	background: white;
 	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+
+	&.c-popover--panel__hug {
+		min-width: 0;
+		width: max-content;
+		max-width: min(28rem, calc(100vw - 2rem));
+	}
 }
 </style>
