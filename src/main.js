@@ -3,10 +3,12 @@ import { createPinia } from 'pinia'
 import './style.css'
 import App from './app/App.vue'
 import router from './router'
+import { persistUiPrefsPlugin } from './app/persist-ui-prefs.plugin.js'
 import { useEnvStore } from './app/env.store.js'
 
 const app = createApp(App)
 const pinia = createPinia()
+pinia.use(persistUiPrefsPlugin)
 app.use(pinia)
 app.use(router)
 
