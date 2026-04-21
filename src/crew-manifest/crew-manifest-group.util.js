@@ -45,12 +45,13 @@ export const CREW_MANIFEST_GROUP_BY_LABELS = Object.freeze({
 const DASH_LAST = '\uffff'
 
 /**
- * Order used when a vessel has multiple mark kinds present. Most urgent
- * (open rescue) first, ending with already-rescued.
+ * Mark kinds surfaced as an emoji suffix on group headings. Already-rescued
+ * crew (🛟) are intentionally excluded: the heading signals work remaining
+ * on the vessel, not decoration for resolved cases.
  *
  * @type {import('./crew-manifest-mark.const.js').CrewManifestMarkKind[]}
  */
-const MARK_SUFFIX_ORDER = ['openRescue', 'tourist', 'rescued']
+const MARK_SUFFIX_ORDER = ['openRescue', 'tourist']
 
 /**
  * @param {string} s

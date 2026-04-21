@@ -175,18 +175,22 @@ describe('formatCrewManifestMarksEmojiSuffix', () => {
 		expect(formatCrewManifestMarksEmojiSuffix(s)).toBe('')
 	})
 
-	it('lists each present mark kind once, urgency first', () => {
+	it('lists openRescue then tourist once, urgency first', () => {
 		const s = summarizeCrewManifestGroup([
-			row({ markKind: 'rescued' }),
 			row({ markKind: 'openRescue' }),
 			row({ markKind: 'tourist' }),
 			row({ markKind: 'openRescue' }),
 		])
-		expect(formatCrewManifestMarksEmojiSuffix(s)).toBe('🆘 🗺️ 🛟')
+		expect(formatCrewManifestMarksEmojiSuffix(s)).toBe('🆘 🗺️')
 	})
 
 	it('shows a single emoji when only one mark kind is present', () => {
 		const s = summarizeCrewManifestGroup([row({ markKind: 'tourist' })])
 		expect(formatCrewManifestMarksEmojiSuffix(s)).toBe('🗺️')
+	})
+
+	it('does not lift already-rescued (🛟) crew onto the heading', () => {
+		const s = summarizeCrewManifestGroup([row({ markKind: 'rescued' })])
+		expect(formatCrewManifestMarksEmojiSuffix(s)).toBe('')
 	})
 })
