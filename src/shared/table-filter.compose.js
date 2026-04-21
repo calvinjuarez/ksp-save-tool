@@ -7,11 +7,17 @@ import { applyTableFilters, tableFilterNextId } from './table-filter.util.js'
  */
 
 /**
- * @param {readonly TableFilterColumnDef[]} columnDefs
+ * @typedef {Object} UseTableFilterOptions
+ * @property {import('vue').Ref<TableFilter[]>} [filters] - Shared filters ref (e.g. from a Pinia prefs store).
  */
-export function useTableFilter(columnDefs) {
+
+/**
+ * @param {readonly TableFilterColumnDef[]} columnDefs
+ * @param {UseTableFilterOptions} [options]
+ */
+export function useTableFilter(columnDefs, options = {}) {
 	/** @type {import('vue').Ref<TableFilter[]>} */
-	const filters = ref([])
+	const filters = options.filters ?? ref([])
 
 	/**
 	 * @param {Omit<TableFilter, 'id'>} partial
