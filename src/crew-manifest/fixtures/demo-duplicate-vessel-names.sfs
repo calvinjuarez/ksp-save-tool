@@ -1,0 +1,79 @@
+GAME
+{
+	version = 1.12.5
+	Title = Demo duplicate vessel names (ksp-save-tool)
+	Description = Two craft share the name Alpha; lct orders #1 vs #2 in Group by Vessel.
+	Mode = SANDBOX
+	Status = 1
+	scene = 7
+	ROSTER
+	{
+		KERBAL
+		{
+			name = Jebediah Kerman
+			trait = Pilot
+			state = Assigned
+			type = Crew
+			tour = False
+			suit = Default
+			gender = Male
+			comboId = default_male_0
+			experienceLevel = 1
+		}
+		KERBAL
+		{
+			name = Valentina Kerman
+			trait = Pilot
+			state = Assigned
+			type = Crew
+			tour = False
+			suit = Default
+			gender = Female
+			comboId = default_female_0
+			experienceLevel = 1
+		}
+	}
+	FLIGHTSTATE
+	{
+		VESSEL
+		{
+			pid = aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+			name = Alpha
+			type = Ship
+			sit = ORBITING
+			landed = False
+			splashed = False
+			lct = 1000
+			met = 0
+			ORBIT
+			{
+				REF = 1
+			}
+			PART
+			{
+				name = mk1pod
+				crew = Jebediah Kerman
+			}
+		}
+		VESSEL
+		{
+			pid = bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+			name = Alpha
+			type = Ship
+			sit = ORBITING
+			landed = False
+			splashed = False
+			lct = 5000
+			met = 0
+			ORBIT
+			{
+				REF = 1
+			}
+			PART
+			{
+				name = mk1pod
+				crew = Valentina Kerman
+			}
+		}
+	}
+}
