@@ -21,6 +21,8 @@ describe('crew-manifest.util (Easy Mode move-the-rover save)', () => {
 			const jeb = rows.find(r => r.name === 'Jebediah Kerman')
 			expect(jeb).toBeDefined()
 			expect(jeb?.vessel).toBe('Zarathustra Asteroid Station')
+			expect(jeb?.vesselPid).toBe('88b277898785474499bc23179bea9bf3')
+			expect(jeb?.vesselLct).toBeCloseTo(20007365.70762866, 5)
 			expect(jeb?.situation).toBe('ORBITING')
 			expect(jeb?.body).toBe('Kerbin')
 			expect(jeb?.suit).toBe('Slim')

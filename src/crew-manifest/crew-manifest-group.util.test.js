@@ -14,6 +14,8 @@ function row(partial) {
 		rank: 1,
 		totalXp: 0,
 		vessel: '—',
+		vesselPid: null,
+		vesselLct: null,
 		situation: '—',
 		body: 'Home',
 		suit: 'Default',
@@ -63,8 +65,8 @@ describe('groupCrewManifestRows', () => {
 	it('vessel groups alphabetically with Unassigned last', () => {
 		const rows = [
 			row({ name: 'a', vessel: '—' }),
-			row({ name: 'b', vessel: 'Beta' }),
-			row({ name: 'c', vessel: 'Alpha' }),
+			row({ name: 'b', vessel: 'Beta', vesselPid: 'p-beta' }),
+			row({ name: 'c', vessel: 'Alpha', vesselPid: 'p-alpha' }),
 		]
 		const g = groupCrewManifestRows(rows, 'vessel')
 		expect(g.map(x => x.title)).toEqual(['Alpha', 'Beta', 'Unassigned'])
@@ -74,14 +76,46 @@ describe('groupCrewManifestRows', () => {
 	it('vessel with no rows returns no groups', () => {
 		expect(groupCrewManifestRows([], 'vessel')).toEqual([])
 	})
+
+	it('splits same display name with different pids and assigns titleIndex by lct then pid', () => {
+		const rows = [
+			row({ name: 'b', vessel: 'Alpha', vesselPid: 'p-b', vesselLct: 200 }),
+			row({ name: 'a', vessel: 'Alpha', vesselPid: 'p-a', vesselLct: 100 }),
+		]
+		const g = groupCrewManifestRows(rows, 'vessel')
+		expect(g).toHaveLength(2)
+		expect(g.map(x => x.title)).toEqual(['Alpha', 'Alpha'])
+		expect(g[0].titleIndex).toBe(1)
+		expect(g[1].titleIndex).toBe(2)
+		expect(g[0].rows[0].vesselPid).toBe('p-a')
+		expect(g[1].rows[0].vesselPid).toBe('p-b')
+	})
+
+	it('tiebreaks equal lct by pid ascending', () => {
+		const rows = [
+			row({ name: 'x', vessel: 'Alpha', vesselPid: 'zzz', vesselLct: 50 }),
+			row({ name: 'y', vessel: 'Alpha', vesselPid: 'aaa', vesselLct: 50 }),
+		]
+		const g = groupCrewManifestRows(rows, 'vessel')
+		expect(g[0].rows[0].vesselPid).toBe('aaa')
+		expect(g[1].rows[0].vesselPid).toBe('zzz')
+	})
+
+	it('leaves titleIndex undefined when display name is unique', () => {
+		const g = groupCrewManifestRows(
+			[row({ name: 'a', vessel: 'Solo', vesselPid: 'p1' })],
+			'vessel',
+		)
+		expect(g[0].titleIndex).toBeUndefined()
+	})
 })
 
 describe('summarizeCrewManifestGroup', () => {
 	it('tallies roles, distinct vessels/bodies, marks, and rank stats', () => {
 		const summary = summarizeCrewManifestGroup([
-			row({ role: 'Pilot', vessel: 'V1', body: 'Kerbin', rank: 2, markKind: 'openRescue' }),
-			row({ role: 'Pilot', vessel: 'V1', body: 'Kerbin', rank: 2 }),
-			row({ role: 'Engineer', vessel: 'V2', body: 'Mun', rank: 0, markKind: 'tourist' }),
+			row({ role: 'Pilot', vessel: 'V1', vesselPid: 'pid-v1', body: 'Kerbin', rank: 2, markKind: 'openRescue' }),
+			row({ role: 'Pilot', vessel: 'V1', vesselPid: 'pid-v1', body: 'Kerbin', rank: 2 }),
+			row({ role: 'Engineer', vessel: 'V2', vesselPid: 'pid-v2', body: 'Mun', rank: 0, markKind: 'tourist' }),
 		])
 		expect(summary.kerbalCount).toBe(3)
 		expect(summary.byRole).toEqual({ Pilot: 2, Engineer: 1 })
@@ -90,6 +124,22 @@ describe('summarizeCrewManifestGroup', () => {
 		expect(summary.marks).toEqual({ openRescue: 1, rescued: 0, tourist: 1 })
 		expect(summary.avgRank).toBeCloseTo(4 / 3, 5)
 		expect(summary.maxRank).toBe(2)
+	})
+
+	it('counts distinct pids when the same vessel name appears on two craft', () => {
+		const summary = summarizeCrewManifestGroup([
+			row({ vessel: 'Alpha', vesselPid: 'p1', body: 'Kerbin' }),
+			row({ vessel: 'Alpha', vesselPid: 'p2', body: 'Kerbin' }),
+		])
+		expect(summary.vesselCount).toBe(2)
+	})
+
+	it('counts one vessel when two kerbals share a pid', () => {
+		const summary = summarizeCrewManifestGroup([
+			row({ vessel: 'Alpha', vesselPid: 'p1', body: 'Kerbin' }),
+			row({ vessel: 'Alpha', vesselPid: 'p1', body: 'Kerbin' }),
+		])
+		expect(summary.vesselCount).toBe(1)
 	})
 })
 

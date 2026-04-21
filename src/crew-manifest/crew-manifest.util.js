@@ -45,6 +45,8 @@ export { rankToStars }
  * @property {number} rank
  * @property {number} totalXp
  * @property {string} vessel
+ * @property {string | null} vesselPid save VESSEL `pid` when assigned; null when unassigned or missing
+ * @property {number | null} vesselLct save VESSEL `lct` (launch campaign time) when assigned; null when unassigned or missing
  * @property {string} situation
  * @property {string} body
  * @property {string} suit
@@ -141,6 +143,8 @@ export function buildCrewManifestRows(tree, derived) {
 		const name = typeof k.name === 'string' ? k.name : '—'
 		const assign = assignments.get(name)
 		const vessel = assign ? assign.vesselName : '—'
+		const vesselPid = assign?.vesselPid ?? null
+		const vesselLct = assign?.vesselLct ?? null
 		const situation = assign ? assign.sit : '—'
 		let body = '—'
 		if (assign?.orbitRef !== undefined) {
@@ -161,6 +165,8 @@ export function buildCrewManifestRows(tree, derived) {
 			rank,
 			totalXp,
 			vessel,
+			vesselPid,
+			vesselLct,
 			situation,
 			body,
 			suit,
@@ -310,7 +316,9 @@ export function formatCrewManifestMarkdown(rows, viewState) {
 			const suffix = g.isUnassigned
 				? ''
 				: formatCrewManifestMarksEmojiSuffix(summaryObj)
-			const heading = suffix ? `${escapeCell(g.title)} ${suffix}` : escapeCell(g.title)
+			const indexPart = g.titleIndex !== undefined ? ` #${g.titleIndex}` : ''
+			const baseHeading = `${escapeCell(g.title)}${indexPart}`
+			const heading = suffix ? `${baseHeading} ${suffix}` : baseHeading
 			lines.push(`### ${heading}`, '')
 			if (g.caption) {
 				lines.push(`*${escapeCell(g.caption)}*`, '')

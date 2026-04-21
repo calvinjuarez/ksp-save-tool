@@ -17,6 +17,8 @@ function row(partial) {
 		rank: 0,
 		totalXp: 0,
 		vessel: '—',
+		vesselPid: null,
+		vesselLct: null,
 		situation: '—',
 		body: '—',
 		suit: '—',

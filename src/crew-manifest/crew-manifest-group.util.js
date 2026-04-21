@@ -15,6 +15,7 @@ import { CREW_MANIFEST_MARKS } from './crew-manifest-mark.const.js'
  * @typedef {Object} CrewManifestGroup
  * @property {string} key
  * @property {string} title
+ * @property {number} [titleIndex] disambiguation when multiple vessels share the same display name (1-based)
  * @property {string} [caption]
  * @property {boolean} [isMoon]
  * @property {boolean} [isUnassigned]
@@ -61,6 +62,37 @@ function vesselSortKey(s) {
 	return s === '—' ? DASH_LAST : s
 }
 
+/** Kerbals not on a vessel in FLIGHTSTATE */
+const UNASSIGNED_VESSEL_KEY = '\u0000unassigned'
+
+/**
+ * @param {CrewManifestRow} r
+ * @returns {string}
+ */
+function vesselGroupMapKey(r) {
+	if (r.vesselPid !== null) return r.vesselPid
+	if (r.vessel === '—') return UNASSIGNED_VESSEL_KEY
+	return `name:${r.vessel}`
+}
+
+/**
+ * @param {{ vesselLct: number | null, vesselPid: string | null }} a
+ * @param {{ vesselLct: number | null, vesselPid: string | null }} b
+ * @returns {number}
+ */
+function compareVesselLctThenPid(a, b) {
+	const la = a.vesselLct
+	const lb = b.vesselLct
+	const aNull = la === null || la === undefined
+	const bNull = lb === null || lb === undefined
+	if (aNull && !bNull) return 1
+	if (!aNull && bNull) return -1
+	if (!aNull && !bNull && la !== lb) return la - lb
+	const pa = a.vesselPid ?? ''
+	const pb = b.vesselPid ?? ''
+	return pa.localeCompare(pb)
+}
+
 /**
  * @param {string} role
  * @param {number} count
@@ -93,7 +125,8 @@ export function summarizeCrewManifestGroup(rows) {
 
 	for (const r of rows) {
 		byRole[r.role] = (byRole[r.role] ?? 0) + 1
-		if (r.vessel !== '—') vessels.add(r.vessel)
+		if (r.vesselPid !== null) vessels.add(r.vesselPid)
+		else if (r.vessel !== '—') vessels.add(r.vessel)
 		if (r.body !== '—') bodies.add(r.body)
 		if (r.situation !== '—') situations.add(r.situation)
 		if (r.markKind === 'openRescue') openRescue++
@@ -240,31 +273,64 @@ export function groupCrewManifestRows(rows, groupBy) {
 		})
 	}
 
-	// vessel
-	/** @type {Map<string, CrewManifestRow[]>} */
-	const byVessel = new Map()
+	// vessel — bucket by save `pid` so duplicate display names stay separate
+	/** @type {Map<string, { mapKey: string, vesselPid: string | null, displayTitle: string, vesselLct: number | null, rows: CrewManifestRow[], titleIndex?: number }>} */
+	const byPid = new Map()
 	for (const r of rows) {
-		const k = r.vessel
-		const list = byVessel.get(k) ?? []
-		list.push(r)
-		byVessel.set(k, list)
+		const mapKey = vesselGroupMapKey(r)
+		let b = byPid.get(mapKey)
+		if (!b) {
+			b = {
+				mapKey,
+				vesselPid: r.vesselPid,
+				displayTitle: r.vessel,
+				vesselLct: r.vesselLct,
+				rows: [],
+			}
+			byPid.set(mapKey, b)
+		}
+		b.rows.push(r)
 	}
 
-	const keys = [...byVessel.keys()].sort((a, b) =>
-		vesselSortKey(a).localeCompare(vesselSortKey(b), undefined, {
+	const buckets = [...byPid.values()]
+
+	/** @type {Map<string, typeof buckets>} */
+	const byDisplayTitle = new Map()
+	for (const b of buckets) {
+		if (b.mapKey === UNASSIGNED_VESSEL_KEY) continue
+		const list = byDisplayTitle.get(b.displayTitle) ?? []
+		list.push(b)
+		byDisplayTitle.set(b.displayTitle, list)
+	}
+	for (const list of byDisplayTitle.values()) {
+		if (list.length < 2) continue
+		list.sort(compareVesselLctThenPid)
+		for (let i = 0; i < list.length; i++) {
+			list[i].titleIndex = i + 1
+		}
+	}
+
+	buckets.sort((a, b) => {
+		const ua = a.mapKey === UNASSIGNED_VESSEL_KEY
+		const ub = b.mapKey === UNASSIGNED_VESSEL_KEY
+		if (ua && !ub) return 1
+		if (!ua && ub) return -1
+		const c = vesselSortKey(a.displayTitle).localeCompare(vesselSortKey(b.displayTitle), undefined, {
 			numeric: true,
 			sensitivity: 'base',
-		}),
-	)
+		})
+		if (c !== 0) return c
+		return compareVesselLctThenPid(a, b)
+	})
 
-	return keys.map((vessel) => {
-		const groupRows = byVessel.get(vessel) ?? []
-		const isUnassigned = vessel === '—'
+	return buckets.map((b) => {
+		const isUnassigned = b.mapKey === UNASSIGNED_VESSEL_KEY
 		return {
-			key: vessel,
-			title: isUnassigned ? 'Unassigned' : vessel,
+			key: isUnassigned ? '—' : (b.vesselPid ?? b.mapKey),
+			title: isUnassigned ? 'Unassigned' : b.displayTitle,
+			...(b.titleIndex !== undefined ? { titleIndex: b.titleIndex } : {}),
 			isUnassigned,
-			rows: groupRows,
+			rows: b.rows,
 		}
 	})
 }

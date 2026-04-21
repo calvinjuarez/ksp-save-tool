@@ -146,6 +146,9 @@ function downloadMarkdown() {
 							<hgroup class="v-crew-manifest--heading_group">
 								<h3 class="v-crew-manifest--heading">
 									{{ g.title }}<span
+										v-if="g.titleIndex !== undefined"
+										class="v-crew-manifest--title_index"
+									>{{ ' ' }}#{{ g.titleIndex }}</span><span
 										v-if="g.titleSuffix"
 										class="v-crew-manifest--title_marks"
 									>{{ ' ' }}{{ g.titleSuffix }}</span>
@@ -268,6 +271,12 @@ function downloadMarkdown() {
 	margin: 0;
 	font-size: 1.15rem;
 	font-weight: 600;
+}
+
+.v-crew-manifest--title_index {
+	color: var(--house--color--ink-muted);
+	font-size: var(--house--text--size-small, 0.85rem);
+	font-weight: 400;
 }
 
 .v-crew-manifest--heading_sub {

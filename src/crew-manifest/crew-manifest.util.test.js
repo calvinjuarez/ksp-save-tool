@@ -39,6 +39,8 @@ describe('buildCrewManifestRows', () => {
 				FLIGHTSTATE: {
 					VESSEL: {
 						name: 'My Ship',
+						pid: 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+						lct: '42',
 						sit: 'ORBITING',
 						ORBIT: { REF: '1' },
 						PART: { crew: 'Alice Kerman' },
@@ -54,6 +56,8 @@ describe('buildCrewManifestRows', () => {
 			rank: 3,
 			totalXp: 0,
 			vessel: 'My Ship',
+			vesselPid: 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+			vesselLct: 42,
 			situation: 'ORBITING',
 			body: 'Kerbin',
 			suit: 'Slim',
@@ -67,6 +71,8 @@ describe('buildCrewManifestRows', () => {
 			rank: 2,
 			totalXp: 0,
 			vessel: '—',
+			vesselPid: null,
+			vesselLct: null,
 			situation: '—',
 			body: 'Home',
 			suit: 'Default',
@@ -329,6 +335,8 @@ describe('formatCrewManifestMarkdown', () => {
 			rank: 1,
 			totalXp: 0,
 			vessel: 'Alpha',
+			vesselPid: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+			vesselLct: 1,
 			situation: 'LANDED',
 			body: 'Kerbin',
 			suit: 'Default',
@@ -353,6 +361,36 @@ describe('formatCrewManifestMarkdown', () => {
 		expect(md).toContain('Landed on Kerbin ·')
 	})
 
+	it('groups markdown by vessel with titleIndex when display names collide', () => {
+		const base = {
+			role: 'Pilot',
+			rank: 1,
+			totalXp: 0,
+			vessel: 'Alpha',
+			situation: 'LANDED',
+			body: 'Kerbin',
+			suit: 'Default',
+			bodyModel: null,
+			color: '—',
+			mark: null,
+			markKind: null,
+		}
+		const md = formatCrewManifestMarkdown(
+			[
+				{ ...base, name: 'A Kerman', vesselPid: 'p1111111111111111111111111111111', vesselLct: 20 },
+				{ ...base, name: 'B Kerman', vesselPid: 'p2222222222222222222222222222222', vesselLct: 10 },
+			],
+			{
+				primary: { key: 'vessel', dir: 'asc' },
+				secondary: { key: null, dir: null },
+				filters: [],
+				groupBy: 'vessel',
+			},
+		)
+		expect(md).toContain('### Alpha #1')
+		expect(md).toContain('### Alpha #2')
+	})
+
 	it('humanizes the Situation cell in the ungrouped markdown table', () => {
 		const md = formatCrewManifestMarkdown([
 			{
@@ -361,6 +399,8 @@ describe('formatCrewManifestMarkdown', () => {
 				rank: 1,
 				totalXp: 0,
 				vessel: 'Alpha',
+				vesselPid: 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+				vesselLct: 0,
 				situation: 'ORBITING',
 				body: 'Kerbin',
 				suit: 'Default',
@@ -385,11 +425,13 @@ describe('formatCrewManifestMarkdown', () => {
 			color: '—',
 		}
 		const rows = [
-			{ ...base, name: 'A Kerman', vessel: 'Alpha', mark: null, markKind: null },
+			{ ...base, name: 'A Kerman', vessel: 'Alpha', vesselPid: 'pa', vesselLct: 1, mark: null, markKind: null },
 			{
 				...base,
 				name: 'B Kerman',
 				vessel: 'Bravo',
+				vesselPid: 'pb',
+				vesselLct: 2,
 				mark: { emoji: '🆘', title: 'Needs Rescue' },
 				markKind: 'openRescue',
 			},
@@ -397,6 +439,8 @@ describe('formatCrewManifestMarkdown', () => {
 				...base,
 				name: 'C Kerman',
 				vessel: 'Bravo',
+				vesselPid: 'pb',
+				vesselLct: 2,
 				mark: { emoji: '🗺️', title: 'Tourist' },
 				markKind: 'tourist',
 			},
