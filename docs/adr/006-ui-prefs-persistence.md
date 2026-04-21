@@ -4,13 +4,9 @@
 
 Accepted
 
-## See also
-
-- [annotations-persistence.md](../roadmap/annotations-persistence.md) – Broader persistence roadmap (IndexedDB, save identity, annotations).
-
 ## Context
 
-Table-heavy features need to remember grouping, sort, and filter state across reloads. The roadmap sketches a small Pinia persistence plugin for this tier, with IndexedDB reserved for heavier data later.
+Table-heavy features need to remember grouping, sort, and filter state across reloads. We want a small, synchronous, browser-local mechanism that does not require a server, a new npm dependency, or heavier storage APIs for this class of data.
 
 ## Decision
 
@@ -22,7 +18,7 @@ Table-heavy features need to remember grouping, sort, and filter state across re
 
 **Pros:**
 
-- Aligns with the roadmap’s `localStorage` tier for small UI prefs.
+- Small UI prefs stay in `localStorage` with immediate hydration after load (no async tier required for this use case).
 - Validates and repairs persisted payloads (e.g. drop filters for removed column keys) without corrupting the store.
 - Cross-tab sync is centralized in one listener.
 
@@ -34,4 +30,4 @@ Table-heavy features need to remember grouping, sort, and filter state across re
 ## Implementation Notes
 
 - Hydration assigns `ref.value` on the raw Pinia state object (`toRaw(pinia.state.value[id])`). Pinia’s `$patch` object merge replaces `ref` nodes; the function callback sees a proxy that unwraps refs, so neither mode is used for rehydration.
-- IndexedDB, save fingerprinting, and annotations remain out of scope for this ADR.
+- This ADR is intentionally limited to the `localStorage` tier for UI preferences. Choosing IndexedDB, sync, or large offline datasets for other features is out of scope here and would be a separate ADR if we adopt them.
