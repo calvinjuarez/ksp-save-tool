@@ -348,6 +348,75 @@ describe('formatCrewManifestMarkdown', () => {
 		expect(md).toContain('| Name | Mark | Role | Rank | Situation | Location | Suit | Model | Color |')
 		expect(md).not.toContain('| Vessel |')
 	})
+
+	it('suffixes vessel headings with mark emoji when rescue/tourist kerbals are on board', () => {
+		const base = {
+			role: 'Pilot',
+			rank: 1,
+			totalXp: 0,
+			situation: 'ORBITING',
+			body: 'Kerbin',
+			suit: 'Default',
+			bodyModel: null,
+			color: '—',
+		}
+		const rows = [
+			{ ...base, name: 'A Kerman', vessel: 'Alpha', mark: null, markKind: null },
+			{
+				...base,
+				name: 'B Kerman',
+				vessel: 'Bravo',
+				mark: { emoji: '🆘', title: 'Needs Rescue' },
+				markKind: 'openRescue',
+			},
+			{
+				...base,
+				name: 'C Kerman',
+				vessel: 'Bravo',
+				mark: { emoji: '🗺️', title: 'Tourist' },
+				markKind: 'tourist',
+			},
+		]
+		const md = formatCrewManifestMarkdown(rows, {
+			primary: { key: 'vessel', dir: 'asc' },
+			secondary: { key: null, dir: null },
+			filters: [],
+			groupBy: 'vessel',
+		})
+		expect(md).toContain('### Alpha\n')
+		expect(md).toContain('### Bravo 🆘 🗺️')
+	})
+
+	it('suffixes location headings with mark emoji when rescue/tourist kerbals are in that location', () => {
+		const base = {
+			role: 'Pilot',
+			rank: 1,
+			totalXp: 0,
+			vessel: 'Ship',
+			situation: 'ORBITING',
+			suit: 'Default',
+			bodyModel: null,
+			color: '—',
+		}
+		const rows = [
+			{ ...base, name: 'A Kerman', body: 'Kerbin', mark: null, markKind: null },
+			{
+				...base,
+				name: 'B Kerman',
+				body: 'Mun',
+				mark: { emoji: '🆘', title: 'Needs Rescue' },
+				markKind: 'openRescue',
+			},
+		]
+		const md = formatCrewManifestMarkdown(rows, {
+			primary: { key: 'body', dir: 'asc' },
+			secondary: { key: null, dir: null },
+			filters: [],
+			groupBy: 'location',
+		})
+		expect(md).toContain('### Kerbin\n')
+		expect(md).toContain('### Mun 🆘')
+	})
 })
 
 describe('formatTotalXpDisplay', () => {

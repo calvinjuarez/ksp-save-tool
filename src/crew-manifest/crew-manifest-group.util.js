@@ -1,5 +1,7 @@
 import { MOON_PARENT_BODY, STOCK_BODY_ORDER } from '../ksp/body-rank.const.js'
 import { bodySortKey } from '../ksp/body-rank.util.js'
+import { humanizeVesselSituation } from '../ksp/vessel-situation.util.js'
+import { CREW_MANIFEST_MARKS } from './crew-manifest-mark.const.js'
 
 /**
  * @typedef {import('./crew-manifest.util.js').CrewManifestRow} CrewManifestRow
@@ -25,6 +27,9 @@ import { bodySortKey } from '../ksp/body-rank.util.js'
  * @property {Record<string, number>} byRole
  * @property {number} vesselCount
  * @property {number} bodyCount
+ * @property {number} situationCount
+ * @property {string | null} uniqueBody body shared by every non-unassigned row, else `null`
+ * @property {string | null} uniqueSituation situation shared by every non-unassigned row, else `null`
  * @property {{ openRescue: number, rescued: number, tourist: number }} marks
  * @property {number} avgRank
  * @property {number} maxRank
@@ -38,6 +43,14 @@ export const CREW_MANIFEST_GROUP_BY_LABELS = Object.freeze({
 })
 
 const DASH_LAST = '\uffff'
+
+/**
+ * Order used when a vessel has multiple mark kinds present. Most urgent
+ * (open rescue) first, ending with already-rescued.
+ *
+ * @type {import('./crew-manifest-mark.const.js').CrewManifestMarkKind[]}
+ */
+const MARK_SUFFIX_ORDER = ['openRescue', 'tourist', 'rescued']
 
 /**
  * @param {string} s
@@ -69,6 +82,8 @@ export function summarizeCrewManifestGroup(rows) {
 	const vessels = new Set()
 	/** @type {Set<string>} */
 	const bodies = new Set()
+	/** @type {Set<string>} */
+	const situations = new Set()
 	let openRescue = 0
 	let rescued = 0
 	let tourist = 0
@@ -79,6 +94,7 @@ export function summarizeCrewManifestGroup(rows) {
 		byRole[r.role] = (byRole[r.role] ?? 0) + 1
 		if (r.vessel !== '—') vessels.add(r.vessel)
 		if (r.body !== '—') bodies.add(r.body)
+		if (r.situation !== '—') situations.add(r.situation)
 		if (r.markKind === 'openRescue') openRescue++
 		else if (r.markKind === 'rescued') rescued++
 		else if (r.markKind === 'tourist') tourist++
@@ -91,6 +107,9 @@ export function summarizeCrewManifestGroup(rows) {
 		byRole,
 		vesselCount: vessels.size,
 		bodyCount: bodies.size,
+		situationCount: situations.size,
+		uniqueBody: bodies.size === 1 ? /** @type {string} */ ([...bodies][0]) : null,
+		uniqueSituation: situations.size === 1 ? /** @type {string} */ ([...situations][0]) : null,
 		marks: { openRescue, rescued, tourist },
 		avgRank: rows.length > 0 ? rankSum / rows.length : 0,
 		maxRank,
@@ -105,9 +124,16 @@ export function summarizeCrewManifestGroup(rows) {
 export function formatCrewManifestGroupSummary(summary, groupBy) {
 	if (summary.kerbalCount === 0) return ''
 
-	const parts = [
+	/** @type {string[]} */
+	const parts = []
+
+	if (groupBy === 'vessel' && summary.uniqueSituation && summary.uniqueBody) {
+		parts.push(`${humanizeVesselSituation(summary.uniqueSituation)} ${summary.uniqueBody}`)
+	}
+
+	parts.push(
 		`${summary.kerbalCount} kerbal${summary.kerbalCount === 1 ? '' : 's'}`,
-	]
+	)
 
 	const roleEntries = Object.entries(summary.byRole).sort((a, b) => {
 		const d = b[1] - a[1]
@@ -133,18 +159,24 @@ export function formatCrewManifestGroupSummary(summary, groupBy) {
 		)
 	}
 
-	if (summary.marks.openRescue > 0) {
-		const n = summary.marks.openRescue
-		parts.push(`${n} rescue${n === 1 ? '' : 's'}`)
-	}
-
-	if (summary.marks.tourist > 0) {
-		parts.push(
-			`${summary.marks.tourist} tourist${summary.marks.tourist === 1 ? '' : 's'}`,
-		)
-	}
-
 	return parts.join(' · ')
+}
+
+/**
+ * Emoji suffix string for a group heading, surfacing any rescue/tourist marks
+ * present on its crew. Emojis are space-separated and ordered by urgency.
+ * Returns an empty string when no marks are present.
+ *
+ * @param {CrewManifestGroupSummary} summary
+ * @returns {string}
+ */
+export function formatCrewManifestMarksEmojiSuffix(summary) {
+	/** @type {string[]} */
+	const emojis = []
+	for (const kind of MARK_SUFFIX_ORDER) {
+		if (summary.marks[kind] > 0) emojis.push(CREW_MANIFEST_MARKS[kind].emoji)
+	}
+	return emojis.join(' ')
 }
 
 /**

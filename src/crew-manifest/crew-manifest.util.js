@@ -13,6 +13,7 @@ import { CREW_MANIFEST_FILTER_COLUMNS } from './crew-manifest-filter.const.js'
 import {
 	CREW_MANIFEST_GROUP_BY_LABELS,
 	formatCrewManifestGroupSummary,
+	formatCrewManifestMarksEmojiSuffix,
 	groupCrewManifestRows,
 	summarizeCrewManifestGroup,
 } from './crew-manifest-group.util.js'
@@ -301,14 +302,16 @@ export function formatCrewManifestMarkdown(rows, viewState) {
 		const hideBody = groupBy === 'location'
 		const hideVessel = groupBy === 'vessel'
 		for (const g of groups) {
-			lines.push(`### ${escapeCell(g.title)}`, '')
+			const summaryObj = summarizeCrewManifestGroup(g.rows)
+			const suffix = g.isUnassigned
+				? ''
+				: formatCrewManifestMarksEmojiSuffix(summaryObj)
+			const heading = suffix ? `${escapeCell(g.title)} ${suffix}` : escapeCell(g.title)
+			lines.push(`### ${heading}`, '')
 			if (g.caption) {
 				lines.push(`*${escapeCell(g.caption)}*`, '')
 			}
-			const summary = formatCrewManifestGroupSummary(
-				summarizeCrewManifestGroup(g.rows),
-				groupBy,
-			)
+			const summary = formatCrewManifestGroupSummary(summaryObj, groupBy)
 			if (summary) lines.push(summary, '')
 			lines.push(...crewManifestMarkdownTableLines(g.rows, hideVessel, hideBody), '')
 		}

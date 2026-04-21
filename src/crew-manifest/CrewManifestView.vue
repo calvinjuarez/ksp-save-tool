@@ -7,6 +7,7 @@ import CrewManifestTable from './CrewManifestTable.component.vue'
 import { CREW_MANIFEST_FILTER_COLUMNS } from './crew-manifest-filter.const.js'
 import {
 	formatCrewManifestGroupSummary,
+	formatCrewManifestMarksEmojiSuffix,
 	groupCrewManifestRows,
 	summarizeCrewManifestGroup,
 } from './crew-manifest-group.util.js'
@@ -43,16 +44,17 @@ const sortedRows = computed(() =>
 const groups = computed(() => groupCrewManifestRows(sortedRows.value, groupBy.value))
 
 const groupsWithSummary = computed(() =>
-	groups.value.map(g => ({
-		...g,
-		summaryLine:
-			groupBy.value === 'ungrouped'
-				? ''
-				: formatCrewManifestGroupSummary(
-					summarizeCrewManifestGroup(g.rows),
-					groupBy.value,
-				),
-	})),
+	groups.value.map((g) => {
+		if (groupBy.value === 'ungrouped') {
+			return { ...g, summaryLine: '', titleSuffix: '' }
+		}
+		const summary = summarizeCrewManifestGroup(g.rows)
+		return {
+			...g,
+			summaryLine: formatCrewManifestGroupSummary(summary, groupBy.value),
+			titleSuffix: g.isUnassigned ? '' : formatCrewManifestMarksEmojiSuffix(summary),
+		}
+	}),
 )
 
 const markdown = computed(() =>
@@ -165,7 +167,12 @@ function onUpdateSecondarySort(spec) {
 					<summary class="v-crew-manifest--summary_row">
 						<div class="v-crew-manifest--summary_main">
 							<hgroup class="v-crew-manifest--heading_group">
-								<h3 class="v-crew-manifest--heading">{{ g.title }}</h3>
+								<h3 class="v-crew-manifest--heading">
+									{{ g.title }}<span
+										v-if="g.titleSuffix"
+										class="v-crew-manifest--title_marks"
+									>{{ ' ' }}{{ g.titleSuffix }}</span>
+								</h3>
 								<p v-if="g.caption" class="v-crew-manifest--heading_sub">{{ g.caption }}</p>
 							</hgroup>
 							<p v-if="g.summaryLine" class="v-crew-manifest--summary">{{ g.summaryLine }}</p>

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
 	formatCrewManifestGroupSummary,
+	formatCrewManifestMarksEmojiSuffix,
 	groupCrewManifestRows,
 	summarizeCrewManifestGroup,
 } from './crew-manifest-group.util.js'
@@ -104,7 +105,17 @@ describe('formatCrewManifestGroupSummary', () => {
 		expect(line).toContain('1 scientist')
 		expect(line).toMatch(/avg 1\.5★/)
 		expect(line).toContain('2 vessels')
-		expect(line).toContain('1 rescue')
+	})
+
+	it('omits rescue/tourist counts from the summary line (shown as emoji suffix on vessel name instead)', () => {
+		const s = summarizeCrewManifestGroup([
+			row({ markKind: 'openRescue' }),
+			row({ markKind: 'tourist' }),
+			row({ markKind: 'rescued' }),
+		])
+		const line = formatCrewManifestGroupSummary(s, 'vessel')
+		expect(line).not.toMatch(/rescue/i)
+		expect(line).not.toMatch(/tourist/i)
 	})
 
 	it('mentions multiple locations when grouped by vessel and bodies differ', () => {
@@ -114,5 +125,68 @@ describe('formatCrewManifestGroupSummary', () => {
 		])
 		const line = formatCrewManifestGroupSummary(s, 'vessel')
 		expect(line).toContain('2 locations')
+	})
+
+	it('leads vessel summaries with humanized situation + location when all rows agree', () => {
+		const s = summarizeCrewManifestGroup([
+			row({ role: 'Pilot', situation: 'ORBITING', body: 'Kerbin' }),
+			row({ role: 'Engineer', situation: 'ORBITING', body: 'Kerbin' }),
+		])
+		const line = formatCrewManifestGroupSummary(s, 'vessel')
+		expect(line.startsWith('Orbiting Kerbin · ')).toBe(true)
+		expect(line).toContain('2 kerbals')
+	})
+
+	it('humanizes compound situation tokens (SUB_ORBITAL → Sub-orbital)', () => {
+		const s = summarizeCrewManifestGroup([
+			row({ situation: 'SUB_ORBITAL', body: 'Mun' }),
+		])
+		const line = formatCrewManifestGroupSummary(s, 'vessel')
+		expect(line.startsWith('Sub-orbital Mun · ')).toBe(true)
+	})
+
+	it('omits the situation + location lead when rows disagree', () => {
+		const mixedSituations = summarizeCrewManifestGroup([
+			row({ situation: 'ORBITING', body: 'Kerbin' }),
+			row({ situation: 'LANDED', body: 'Kerbin' }),
+		])
+		expect(formatCrewManifestGroupSummary(mixedSituations, 'vessel')).not.toMatch(/Kerbin · \d/)
+
+		const mixedBodies = summarizeCrewManifestGroup([
+			row({ situation: 'ORBITING', body: 'Kerbin' }),
+			row({ situation: 'ORBITING', body: 'Mun' }),
+		])
+		const line = formatCrewManifestGroupSummary(mixedBodies, 'vessel')
+		expect(line.startsWith('Orbiting')).toBe(false)
+	})
+
+	it('omits the situation + location lead for non-vessel groupings', () => {
+		const s = summarizeCrewManifestGroup([
+			row({ situation: 'ORBITING', body: 'Kerbin' }),
+		])
+		const line = formatCrewManifestGroupSummary(s, 'location')
+		expect(line.startsWith('Orbiting')).toBe(false)
+	})
+})
+
+describe('formatCrewManifestMarksEmojiSuffix', () => {
+	it('returns an empty string when no marks are present', () => {
+		const s = summarizeCrewManifestGroup([row({}), row({})])
+		expect(formatCrewManifestMarksEmojiSuffix(s)).toBe('')
+	})
+
+	it('lists each present mark kind once, urgency first', () => {
+		const s = summarizeCrewManifestGroup([
+			row({ markKind: 'rescued' }),
+			row({ markKind: 'openRescue' }),
+			row({ markKind: 'tourist' }),
+			row({ markKind: 'openRescue' }),
+		])
+		expect(formatCrewManifestMarksEmojiSuffix(s)).toBe('🆘 🗺️ 🛟')
+	})
+
+	it('shows a single emoji when only one mark kind is present', () => {
+		const s = summarizeCrewManifestGroup([row({ markKind: 'tourist' })])
+		expect(formatCrewManifestMarksEmojiSuffix(s)).toBe('🗺️')
 	})
 })
