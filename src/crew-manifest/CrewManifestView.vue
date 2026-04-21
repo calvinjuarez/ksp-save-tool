@@ -1,9 +1,11 @@
 <script setup>
 import { computed, ref } from 'vue'
+import { storeToRefs } from 'pinia'
 import TableFilter from '../shared/components/TableFilter.component.vue'
 import { useTableFilter } from '../shared/table-filter.compose.js'
 import { useSaveFileStore } from '../save-file/save-file.store.js'
 import CrewManifestTable from './CrewManifestTable.component.vue'
+import { useCrewManifestPrefsStore } from './crew-manifest-prefs.store.js'
 import { CREW_MANIFEST_FILTER_COLUMNS } from './crew-manifest-filter.const.js'
 import {
 	formatCrewManifestGroupSummary,
@@ -14,28 +16,18 @@ import {
 import { sortCrewManifestRows } from './crew-manifest-sort.util.js'
 import { buildCrewManifestRows, formatCrewManifestMarkdown } from './crew-manifest.util.js'
 
-/** @typedef {import('./crew-manifest-group.util.js').CrewManifestGroupBy} CrewManifestGroupBy */
-/** @typedef {import('./crew-manifest-sort.util.js').CrewManifestSortSpec} CrewManifestSortSpec */
-
 const saveFile = useSaveFileStore()
+const prefs = useCrewManifestPrefsStore()
+const { groupBy, primarySort, secondarySort, filters } = storeToRefs(prefs)
 
 const allRows = computed(() => {
 	if (!saveFile.tree || !saveFile.saveDerived) return []
 	return buildCrewManifestRows(saveFile.tree, saveFile.saveDerived)
 })
 
-const { filters, applyTo } = useTableFilter(CREW_MANIFEST_FILTER_COLUMNS)
+const { applyTo } = useTableFilter(CREW_MANIFEST_FILTER_COLUMNS, { filters })
 
 const filteredRows = computed(() => applyTo(allRows.value))
-
-/** @type {import('vue').Ref<CrewManifestGroupBy>} */
-const groupBy = ref('ungrouped')
-
-/** @type {import('vue').Ref<CrewManifestSortSpec>} */
-const primarySort = ref({ key: 'body', dir: 'asc' })
-
-/** @type {import('vue').Ref<CrewManifestSortSpec>} */
-const secondarySort = ref({ key: 'vessel', dir: 'asc' })
 
 const sortedRows = computed(() =>
 	sortCrewManifestRows(filteredRows.value, primarySort.value, secondarySort.value),
@@ -88,20 +80,6 @@ function downloadMarkdown() {
 	a.click()
 	URL.revokeObjectURL(url)
 }
-
-/**
- * @param {CrewManifestSortSpec} spec
- */
-function onUpdatePrimarySort(spec) {
-	primarySort.value = spec
-}
-
-/**
- * @param {CrewManifestSortSpec} spec
- */
-function onUpdateSecondarySort(spec) {
-	secondarySort.value = spec
-}
 </script>
 
 <template>
@@ -146,13 +124,11 @@ function onUpdateSecondarySort(spec) {
 		<template v-else-if="groupBy === 'ungrouped'">
 			<section class="v-crew-manifest--section">
 				<CrewManifestTable
+					v-model:primary-sort="primarySort"
+					v-model:secondary-sort="secondarySort"
 					:rows="groups[0].rows"
-					:primary-sort="primarySort"
-					:secondary-sort="secondarySort"
 					:hide-body="false"
 					:hide-vessel="false"
-					@update:primary-sort="onUpdatePrimarySort"
-					@update:secondary-sort="onUpdateSecondarySort"
 				/>
 			</section>
 		</template>
@@ -179,13 +155,11 @@ function onUpdateSecondarySort(spec) {
 						</div>
 					</summary>
 					<CrewManifestTable
+						v-model:primary-sort="primarySort"
+						v-model:secondary-sort="secondarySort"
 						:rows="g.rows"
-						:primary-sort="primarySort"
-						:secondary-sort="secondarySort"
 						:hide-body="groupBy === 'location'"
 						:hide-vessel="groupBy === 'vessel'"
-						@update:primary-sort="onUpdatePrimarySort"
-						@update:secondary-sort="onUpdateSecondarySort"
 					/>
 				</details>
 			</section>
