@@ -17,7 +17,7 @@ See [ADR-005](adr/005-module-style-src-layout.md) for rationale and trade-offs.
 | `.component.vue` | Non-route Vue component (PascalCase), e.g. shared UI building blocks.
 | `.compose.js`    | Vue composables: `ref`/`computed`/lifecycle; exports use `use*` names.
 | `.const.js`      | Frozen data: maps, string constants, `APP_*` exports.
-| `.store.js`      | Pinia stores (global reactive state).
+| `.store.js`      | Pinia stores (global reactive state). Feature-specific UI prefs that persist to `localStorage` use `{feature}-prefs.store.js` (see [ADR-006](adr/006-ui-prefs-persistence.md)); keys use the `ksp-explorer:save:<feature-slug>` namespace.
 | `.test.js`       | Vitest tests.
 | `.util.js`       | Pure functions: no Vue, no side effects.
 | `View.vue`       | Route-level view (PascalCase, like Vue’s component convention).

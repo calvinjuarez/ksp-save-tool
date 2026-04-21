@@ -44,7 +44,7 @@ flowchart TD
 
 **Tiered persistence:**
 
-- Small UI preferences (filters, sorts, settings) → **`localStorage`** via a small Pinia persistence plugin. Synchronous hydration avoids a flash of default state.
+- Small UI preferences (filters, sorts, settings) → **`localStorage`** via a small Pinia persistence plugin. Synchronous hydration avoids a flash of default state. **Shipped for table prefs:** see [ADR-006](../adr/006-ui-prefs-persistence.md) and `ksp-explorer:save:*` keys in [`src/app/persist-ui-prefs.plugin.js`](../../src/app/persist-ui-prefs.plugin.js).
 - Save records and annotations → **IndexedDB**.
 
 Recommend **Dexie** as the IndexedDB client (schema, indexes on `fingerprint` and `saveId`, declarative migrations). This is a recommendation, not a locked choice; alternatives such as `idb` or raw IndexedDB are acceptable.
