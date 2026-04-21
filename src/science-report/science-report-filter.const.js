@@ -1,5 +1,5 @@
 import { compareBodyNames } from '../ksp/body-rank.util.js'
-import { humanizeSituation } from '../ksp/science-taxonomy.util.js'
+import { humanizeScienceSituation } from '../ksp/science-taxonomy.util.js'
 
 /**
  * Column definitions for the science report table filter UI.
@@ -25,7 +25,7 @@ export const SCIENCE_REPORT_FILTER_COLUMNS = Object.freeze([
 		key: 'situation',
 		label: 'Situation',
 		type: 'enum',
-		enumOptionLabel: humanizeSituation,
+		enumOptionLabel: humanizeScienceSituation,
 		accessor: (row) =>
 			/** @type {import('./science-report.util.js').ScienceReportRow} */ (row).situation,
 	},

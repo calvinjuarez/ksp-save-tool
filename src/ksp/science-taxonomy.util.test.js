@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
 	humanizeBiome,
 	humanizeExperimentId,
-	humanizeSituation,
+	humanizeScienceSituation,
 	unknownProceduralObjectLabel,
 } from './science-taxonomy.util.js'
 
@@ -22,15 +22,15 @@ describe('humanizeExperimentId', () => {
 	})
 })
 
-describe('humanizeSituation', () => {
+describe('humanizeScienceSituation', () => {
 	it('maps stock tokens', () => {
-		expect(humanizeSituation('SrfLanded')).toBe('Landed')
-		expect(humanizeSituation('InSpaceHigh')).toBe('High Orbit')
-		expect(humanizeSituation('FlyingLow')).toBe('Low Atmosphere')
+		expect(humanizeScienceSituation('SrfLanded')).toBe('Landed')
+		expect(humanizeScienceSituation('InSpaceHigh')).toBe('High Orbit')
+		expect(humanizeScienceSituation('FlyingLow')).toBe('Low Atmosphere')
 	})
 
 	it('passes through em dash', () => {
-		expect(humanizeSituation('—')).toBe('—')
+		expect(humanizeScienceSituation('—')).toBe('—')
 	})
 })
 

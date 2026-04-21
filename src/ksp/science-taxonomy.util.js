@@ -57,12 +57,14 @@ function camelCaseToWords(s) {
 }
 
 /**
- * Human-readable flight situation from the raw subject-id token.
+ * Human-readable flight situation from the raw science subject-id token
+ * (e.g. `SrfLanded`, `FlyingLow`). Distinct from stock vessel situation tokens
+ * handled in {@link ../ksp/vessel-situation.util.js}.
  *
  * @param {string} sit
  * @returns {string}
  */
-export function humanizeSituation(sit) {
+export function humanizeScienceSituation(sit) {
 	if (typeof sit !== 'string' || sit.length === 0 || sit === '—') return '—'
 	const mapped = SITUATION_LABEL[sit]
 	if (mapped !== undefined) return mapped

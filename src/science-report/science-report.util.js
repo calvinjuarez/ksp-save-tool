@@ -7,7 +7,7 @@ import { bodySortKey } from '../ksp/body-rank.util.js'
 import {
 	humanizeBiome,
 	humanizeExperimentId,
-	humanizeSituation,
+	humanizeScienceSituation,
 	unknownProceduralObjectLabel,
 } from '../ksp/science-taxonomy.util.js'
 import { buildSaveDerived } from '../save-file/save-derived.util.js'
@@ -203,7 +203,7 @@ export function buildScienceReportRows(tree, derived) {
 		const biome = parsed?.biome ?? '—'
 
 		const experimentLabel = humanizeExperimentId(experiment === '—' ? '' : experiment)
-		const situationLabel = humanizeSituation(situation)
+		const situationLabel = humanizeScienceSituation(situation)
 		const biomeLabel = resolveBiomeLabel(biome, asteroidNameByUid)
 
 		let experimentTitle = r?.title ?? v?.title ?? experiment
