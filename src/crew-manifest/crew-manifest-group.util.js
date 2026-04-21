@@ -1,6 +1,6 @@
 import { MOON_PARENT_BODY, STOCK_BODY_ORDER } from '../ksp/body-rank.const.js'
 import { bodySortKey } from '../ksp/body-rank.util.js'
-import { humanizeVesselSituation } from '../ksp/vessel-situation.util.js'
+import { formatVesselSituationLocation } from '../ksp/vessel-situation.util.js'
 import { CREW_MANIFEST_MARKS } from './crew-manifest-mark.const.js'
 
 /**
@@ -128,8 +128,20 @@ export function formatCrewManifestGroupSummary(summary, groupBy) {
 	/** @type {string[]} */
 	const parts = []
 
+	// Situational context leads the summary: we use the richest available
+	// phrase for *where / what setting*, then fall back to a set-size count
+	// for the complementary axis (vessels for location groups, locations
+	// for vessel groups that span bodies).
 	if (groupBy === 'vessel' && summary.uniqueSituation && summary.uniqueBody) {
-		parts.push(`${humanizeVesselSituation(summary.uniqueSituation)} ${summary.uniqueBody}`)
+		parts.push(formatVesselSituationLocation(summary.uniqueSituation, summary.uniqueBody))
+	} else if (groupBy === 'location' && summary.vesselCount > 0) {
+		parts.push(
+			`${summary.vesselCount} vessel${summary.vesselCount === 1 ? '' : 's'}`,
+		)
+	} else if (groupBy === 'vessel' && summary.bodyCount > 1) {
+		parts.push(
+			`${summary.bodyCount} locations`,
+		)
 	}
 
 	parts.push(
@@ -148,17 +160,6 @@ export function formatCrewManifestGroupSummary(summary, groupBy) {
 	const avgRounded = Math.round(summary.avgRank * 10) / 10
 	const avgStr = Number.isInteger(avgRounded) ? String(avgRounded) : avgRounded.toFixed(1)
 	parts.push(`avg ${avgStr}★`)
-
-	if (groupBy === 'location' && summary.vesselCount > 0) {
-		parts.push(
-			`${summary.vesselCount} vessel${summary.vesselCount === 1 ? '' : 's'}`,
-		)
-	}
-	if (groupBy === 'vessel' && summary.bodyCount > 1) {
-		parts.push(
-			`${summary.bodyCount} locations`,
-		)
-	}
 
 	return parts.join(' · ')
 }

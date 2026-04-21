@@ -107,6 +107,41 @@ describe('formatCrewManifestGroupSummary', () => {
 		expect(line).toContain('2 vessels')
 	})
 
+	it('leads location summaries with vessel count, then kerbals → roles → rank', () => {
+		const s = summarizeCrewManifestGroup([
+			row({ role: 'Pilot', vessel: 'A', body: 'Kerbin', rank: 2 }),
+			row({ role: 'Scientist', vessel: 'B', body: 'Kerbin', rank: 1 }),
+		])
+		expect(formatCrewManifestGroupSummary(s, 'location')).toBe(
+			'2 vessels · 2 kerbals · 1 pilot · 1 scientist · avg 1.5★',
+		)
+	})
+
+	it('leads vessel summaries with locations count when the vessel spans bodies', () => {
+		const s = summarizeCrewManifestGroup([
+			row({ role: 'Pilot', body: 'Kerbin', rank: 2 }),
+			row({ role: 'Pilot', body: 'Mun', rank: 2 }),
+		])
+		expect(formatCrewManifestGroupSummary(s, 'vessel')).toBe(
+			'2 locations · 2 kerbals · 2 pilots · avg 2★',
+		)
+	})
+
+	it('prefers situation + location over the locations count for vessel summaries', () => {
+		const s = summarizeCrewManifestGroup([
+			row({ situation: 'ORBITING', body: 'Kerbin', rank: 1 }),
+			row({ situation: 'ORBITING', body: 'Kerbin', rank: 1 }),
+		])
+		expect(formatCrewManifestGroupSummary(s, 'vessel').startsWith('Orbiting Kerbin · 2 kerbals')).toBe(true)
+	})
+
+	it('falls back to leading with kerbal count when no context is available', () => {
+		const s = summarizeCrewManifestGroup([
+			row({ vessel: '—', body: '—', situation: '—', rank: 1 }),
+		])
+		expect(formatCrewManifestGroupSummary(s, 'location').startsWith('1 kerbal · ')).toBe(true)
+	})
+
 	it('omits rescue/tourist counts from the summary line (shown as emoji suffix on vessel name instead)', () => {
 		const s = summarizeCrewManifestGroup([
 			row({ markKind: 'openRescue' }),
@@ -127,7 +162,7 @@ describe('formatCrewManifestGroupSummary', () => {
 		expect(line).toContain('2 locations')
 	})
 
-	it('leads vessel summaries with humanized situation + location when all rows agree', () => {
+	it('leads vessel summaries with situation + location and no preposition for orbital states', () => {
 		const s = summarizeCrewManifestGroup([
 			row({ role: 'Pilot', situation: 'ORBITING', body: 'Kerbin' }),
 			row({ role: 'Engineer', situation: 'ORBITING', body: 'Kerbin' }),
@@ -137,12 +172,28 @@ describe('formatCrewManifestGroupSummary', () => {
 		expect(line).toContain('2 kerbals')
 	})
 
-	it('humanizes compound situation tokens (SUB_ORBITAL → Sub-orbital)', () => {
+	it('uses "on" for surface states when composing the lead', () => {
+		const landed = summarizeCrewManifestGroup([row({ situation: 'LANDED', body: 'Minmus' })])
+		expect(formatCrewManifestGroupSummary(landed, 'vessel').startsWith('Landed on Minmus · ')).toBe(true)
+
+		const splashed = summarizeCrewManifestGroup([row({ situation: 'SPLASHED', body: 'Kerbin' })])
+		expect(formatCrewManifestGroupSummary(splashed, 'vessel').startsWith('Splashed on Kerbin · ')).toBe(true)
+	})
+
+	it('uses "over" for atmospheric flight and "at" for docked states', () => {
+		const flying = summarizeCrewManifestGroup([row({ situation: 'FLYING', body: 'Eve' })])
+		expect(formatCrewManifestGroupSummary(flying, 'vessel').startsWith('Flying over Eve · ')).toBe(true)
+
+		const docked = summarizeCrewManifestGroup([row({ situation: 'DOCKED', body: 'Kerbin' })])
+		expect(formatCrewManifestGroupSummary(docked, 'vessel').startsWith('Docked at Kerbin · ')).toBe(true)
+	})
+
+	it('humanizes compound situation tokens (SUB_ORBITAL → Sub-orbital over …)', () => {
 		const s = summarizeCrewManifestGroup([
 			row({ situation: 'SUB_ORBITAL', body: 'Mun' }),
 		])
 		const line = formatCrewManifestGroupSummary(s, 'vessel')
-		expect(line.startsWith('Sub-orbital Mun · ')).toBe(true)
+		expect(line.startsWith('Sub-orbital over Mun · ')).toBe(true)
 	})
 
 	it('omits the situation + location lead when rows disagree', () => {
