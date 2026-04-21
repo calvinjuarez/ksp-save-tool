@@ -30,6 +30,10 @@ const props = defineProps({
 		type: Boolean,
 		default: false,
 	},
+	hideSituation: {
+		type: Boolean,
+		default: false,
+	},
 	hideVessel: {
 		type: Boolean,
 		default: false,
@@ -110,7 +114,11 @@ function sortIndicator(key, which) {
 						<span class="c-crew_manifest_table--sort_primary">{{ sortIndicator('vessel', 'primary') }}</span>
 						<span class="c-crew_manifest_table--sort_secondary">{{ sortIndicator('vessel', 'secondary') }}</span>
 					</th>
-					<th class="c-crew_manifest_table--sort_th" @click="onSortHeaderClick('situation', $event)">
+					<th
+						v-if="!hideSituation"
+						class="c-crew_manifest_table--sort_th"
+						@click="onSortHeaderClick('situation', $event)"
+					>
 						Situation
 						<span class="c-crew_manifest_table--sort_primary">{{ sortIndicator('situation', 'primary') }}</span>
 						<span class="c-crew_manifest_table--sort_secondary">{{ sortIndicator('situation', 'secondary') }}</span>
@@ -157,7 +165,7 @@ function sortIndicator(key, which) {
 						</Tooltip>
 					</td>
 					<td v-if="!hideVessel">{{ r.vessel }}</td>
-					<td>{{ humanizeVesselSituation(r.situation) }}</td>
+					<td v-if="!hideSituation">{{ humanizeVesselSituation(r.situation) }}</td>
 					<td v-if="!hideBody">{{ r.body }}</td>
 					<td>{{ r.suit }}</td>
 					<td>

@@ -128,6 +128,7 @@ function downloadMarkdown() {
 					v-model:secondary-sort="secondarySort"
 					:rows="groups[0].rows"
 					:hide-body="false"
+					:hide-situation="false"
 					:hide-vessel="false"
 				/>
 			</section>
@@ -158,7 +159,8 @@ function downloadMarkdown() {
 						v-model:primary-sort="primarySort"
 						v-model:secondary-sort="secondarySort"
 						:rows="g.rows"
-						:hide-body="groupBy === 'location'"
+						:hide-body="groupBy === 'location' || groupBy === 'vessel'"
+						:hide-situation="groupBy === 'vessel'"
 						:hide-vessel="groupBy === 'vessel'"
 					/>
 				</details>

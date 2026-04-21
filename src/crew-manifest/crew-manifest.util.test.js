@@ -322,14 +322,14 @@ describe('formatCrewManifestMarkdown', () => {
 		expect(md).not.toContain('| Location |')
 	})
 
-	it('groups markdown by vessel and hides Vessel column', () => {
+	it('groups markdown by vessel and hides Vessel, Situation, and Location columns', () => {
 		const r = {
 			name: 'A Kerman',
 			role: 'Pilot',
 			rank: 1,
 			totalXp: 0,
 			vessel: 'Alpha',
-			situation: 'Landed',
+			situation: 'LANDED',
 			body: 'Kerbin',
 			suit: 'Default',
 			bodyModel: null,
@@ -345,8 +345,12 @@ describe('formatCrewManifestMarkdown', () => {
 		})
 		expect(md).toContain('- **Group by:** Vessel')
 		expect(md).toContain('### Alpha')
-		expect(md).toContain('| Name | Mark | Role | Rank | Situation | Location | Suit | Model | Color |')
+		expect(md).toContain('| Name | Mark | Role | Rank | Suit | Model | Color |')
 		expect(md).not.toContain('| Vessel |')
+		expect(md).not.toContain('| Situation |')
+		expect(md).not.toContain('| Location |')
+		// The "where" info lives in the group summary lead instead of the table.
+		expect(md).toContain('Landed on Kerbin ·')
 	})
 
 	it('humanizes the Situation cell in the ungrouped markdown table', () => {

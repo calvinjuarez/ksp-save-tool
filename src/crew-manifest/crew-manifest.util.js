@@ -217,10 +217,11 @@ function crewManifestMarkdownViewStateLines(primary, secondary, filters, groupBy
 /**
  * @param {CrewManifestRow} r
  * @param {boolean} hideVessel
+ * @param {boolean} hideSituation
  * @param {boolean} hideBody
  * @returns {string}
  */
-function crewManifestMarkdownTableRow(r, hideVessel, hideBody) {
+function crewManifestMarkdownTableRow(r, hideVessel, hideSituation, hideBody) {
 	const modelMd = r.bodyModel !== null ? r.bodyModel.abbr : '—'
 	const markMd = r.mark !== null ? r.mark.emoji : '—'
 	const rankMd = rankToStars(r.rank)
@@ -232,7 +233,7 @@ function crewManifestMarkdownTableRow(r, hideVessel, hideBody) {
 		rankMd,
 	]
 	if (!hideVessel) cells.push(r.vessel)
-	cells.push(humanizeVesselSituation(r.situation))
+	if (!hideSituation) cells.push(humanizeVesselSituation(r.situation))
 	if (!hideBody) cells.push(r.body)
 	cells.push(r.suit, modelMd, r.color)
 	return `| ${cells.map(escapeCell).join(' | ')} |`
@@ -241,14 +242,15 @@ function crewManifestMarkdownTableRow(r, hideVessel, hideBody) {
 /**
  * @param {CrewManifestRow[]} rows
  * @param {boolean} hideVessel
+ * @param {boolean} hideSituation
  * @param {boolean} hideBody
  * @returns {string[]}
  */
-function crewManifestMarkdownTableLines(rows, hideVessel, hideBody) {
+function crewManifestMarkdownTableLines(rows, hideVessel, hideSituation, hideBody) {
 	/** @type {string[]} */
 	const head = ['Name', 'Mark', 'Role', 'Rank']
 	if (!hideVessel) head.push('Vessel')
-	head.push('Situation')
+	if (!hideSituation) head.push('Situation')
 	if (!hideBody) head.push('Location')
 	head.push('Suit', 'Model', 'Color')
 
@@ -258,7 +260,7 @@ function crewManifestMarkdownTableLines(rows, hideVessel, hideBody) {
 		`| ${sep.join(' | ')} |`,
 	]
 	for (const r of rows) {
-		lines.push(crewManifestMarkdownTableRow(r, hideVessel, hideBody))
+		lines.push(crewManifestMarkdownTableRow(r, hideVessel, hideSituation, hideBody))
 	}
 	return lines
 }
@@ -300,8 +302,9 @@ export function formatCrewManifestMarkdown(rows, viewState) {
 
 	if (groupBy !== 'ungrouped') {
 		const groups = groupCrewManifestRows(rows, groupBy)
-		const hideBody = groupBy === 'location'
 		const hideVessel = groupBy === 'vessel'
+		const hideSituation = groupBy === 'vessel'
+		const hideBody = groupBy === 'location' || groupBy === 'vessel'
 		for (const g of groups) {
 			const summaryObj = summarizeCrewManifestGroup(g.rows)
 			const suffix = g.isUnassigned
@@ -314,12 +317,12 @@ export function formatCrewManifestMarkdown(rows, viewState) {
 			}
 			const summary = formatCrewManifestGroupSummary(summaryObj, groupBy)
 			if (summary) lines.push(summary, '')
-			lines.push(...crewManifestMarkdownTableLines(g.rows, hideVessel, hideBody), '')
+			lines.push(...crewManifestMarkdownTableLines(g.rows, hideVessel, hideSituation, hideBody), '')
 		}
 		return lines.join('\n')
 	}
 
-	lines.push('## Full Crew Table', '', ...crewManifestMarkdownTableLines(rows, false, false), '')
+	lines.push('## Full Crew Table', '', ...crewManifestMarkdownTableLines(rows, false, false, false), '')
 	return lines.join('\n')
 }
 
