@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import Tooltip from '../shared/components/Tooltip.component.vue'
 import {
 	cycleScienceReportSortDirForColumn,
@@ -20,6 +20,14 @@ const props = defineProps({
 		type: Array,
 		required: true,
 	},
+	primarySort: {
+		type: Object,
+		required: true,
+	},
+	secondarySort: {
+		type: Object,
+		required: true,
+	},
 	hideBody: {
 		type: Boolean,
 		default: false,
@@ -30,14 +38,10 @@ const props = defineProps({
 	},
 })
 
-/** @type {import('vue').Ref<import('./science-report-sort.util.js').ScienceReportSortSpec>} */
-const primarySort = ref({ key: 'science', dir: 'asc' })
-
-/** @type {import('vue').Ref<import('./science-report-sort.util.js').ScienceReportSortSpec>} */
-const secondarySort = ref({ key: null, dir: null })
+const emit = defineEmits(['update:primarySort', 'update:secondarySort'])
 
 const sortedRows = computed(() =>
-	sortScienceReportRows(props.rows, primarySort.value, secondarySort.value),
+	sortScienceReportRows(props.rows, props.primarySort, props.secondarySort),
 )
 
 /**
@@ -111,24 +115,24 @@ function vesselTransmissible(v) {
  */
 function onSortHeaderClick(key, event) {
 	if (event.shiftKey) {
-		if (primarySort.value.key === key) return
-		if (secondarySort.value.key === key) {
-			const next = cycleScienceReportSortDirForColumn(key, secondarySort.value.dir)
-			if (next === null) secondarySort.value = { key: null, dir: null }
-			else secondarySort.value = { key, dir: next }
+		if (props.primarySort.key === key) return
+		if (props.secondarySort.key === key) {
+			const next = cycleScienceReportSortDirForColumn(key, props.secondarySort.dir)
+			if (next === null) emit('update:secondarySort', { key: null, dir: null })
+			else emit('update:secondarySort', { key, dir: next })
 		} else {
-			secondarySort.value = { key, dir: initialScienceReportSortDirForColumn(key) }
+			emit('update:secondarySort', { key, dir: initialScienceReportSortDirForColumn(key) })
 		}
 		return
 	}
 
-	secondarySort.value = { key: null, dir: null }
-	if (primarySort.value.key === key) {
-		const next = cycleScienceReportSortDirForColumn(key, primarySort.value.dir)
-		if (next === null) primarySort.value = { key: null, dir: null }
-		else primarySort.value = { key, dir: next }
+	emit('update:secondarySort', { key: null, dir: null })
+	if (props.primarySort.key === key) {
+		const next = cycleScienceReportSortDirForColumn(key, props.primarySort.dir)
+		if (next === null) emit('update:primarySort', { key: null, dir: null })
+		else emit('update:primarySort', { key, dir: next })
 	} else {
-		primarySort.value = { key, dir: initialScienceReportSortDirForColumn(key) }
+		emit('update:primarySort', { key, dir: initialScienceReportSortDirForColumn(key) })
 	}
 }
 
@@ -137,7 +141,7 @@ function onSortHeaderClick(key, event) {
  * @param {'primary'|'secondary'} which
  */
 function sortIndicator(key, which) {
-	const spec = which === 'primary' ? primarySort.value : secondarySort.value
+	const spec = which === 'primary' ? props.primarySort : props.secondarySort
 	if (spec.key !== key || spec.dir === null) return ''
 	return spec.dir === 'asc' ? '\u2191' : '\u2193'
 }

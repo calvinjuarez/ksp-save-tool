@@ -1,9 +1,11 @@
 <script setup>
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
+import { storeToRefs } from 'pinia'
 import TableFilter from '../shared/components/TableFilter.component.vue'
 import { useTableFilter } from '../shared/table-filter.compose.js'
 import { useSaveFileStore } from '../save-file/save-file.store.js'
 import { SCIENCE_REPORT_FILTER_COLUMNS } from './science-report-filter.const.js'
+import { useScienceReportPrefsStore } from './science-report-prefs.store.js'
 import ScienceReportTable from './ScienceReportTable.component.vue'
 import {
 	buildScienceReportRows,
@@ -13,18 +15,16 @@ import {
 	summarizeScienceReportGroup,
 } from './science-report.util.js'
 
-/** @typedef {'ungrouped' | 'location' | 'experiment'} ScienceReportGroupBy */
-
 const saveFile = useSaveFileStore()
-
-const groupBy = ref(/** @type {ScienceReportGroupBy} */ ('location'))
+const prefs = useScienceReportPrefsStore()
+const { groupBy, primarySort, secondarySort, filters } = storeToRefs(prefs)
 
 const allRows = computed(() => {
 	if (!saveFile.tree || !saveFile.saveDerived) return []
 	return buildScienceReportRows(saveFile.tree, saveFile.saveDerived)
 })
 
-const { filters, applyTo } = useTableFilter(SCIENCE_REPORT_FILTER_COLUMNS)
+const { applyTo } = useTableFilter(SCIENCE_REPORT_FILTER_COLUMNS, { filters })
 
 const filteredRows = computed(() => applyTo(allRows.value))
 
@@ -94,6 +94,8 @@ function scienceReportGroupSummaryLine(g) {
 		<template v-else-if="groupBy === 'ungrouped'">
 			<section class="v-science-report--section">
 				<ScienceReportTable
+					v-model:primary-sort="primarySort"
+					v-model:secondary-sort="secondarySort"
 					:rows="groups[0].rows"
 					:hide-body="false"
 					:hide-experiment="false"
@@ -118,6 +120,8 @@ function scienceReportGroupSummaryLine(g) {
 						</div>
 					</summary>
 					<ScienceReportTable
+						v-model:primary-sort="primarySort"
+						v-model:secondary-sort="secondarySort"
 						:rows="g.rows"
 						:hide-body="groupBy === 'location'"
 						:hide-experiment="groupBy === 'experiment'"
