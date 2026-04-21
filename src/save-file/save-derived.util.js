@@ -18,7 +18,7 @@ import { asArray } from './save-file.util.js'
  * @typedef {Object} SaveDerived
  * @property {Map<string, ProceduralBodyEntry>} asteroidNameByUid keyed by part `uid` string
  * @property {Map<string, { data: number, trans: number, title: string, vessels: Map<string, { data: number, xmit: number }> }>} scienceDataBySubjectId
- * @property {Map<string, { vesselName: string, sit: string, orbitRef: string | undefined }>} kerbalAssignmentsByName
+ * @property {Map<string, { vesselName: string, vesselPid: string | null, vesselLct: number | null, sit: string, orbitRef: string | undefined }>} kerbalAssignmentsByName
  */
 
 /** @type {Readonly<Record<string, ProceduralBodyKind>>} */
@@ -148,7 +148,7 @@ export function buildSaveDerived(tree) {
 	const asteroidNameByUid = new Map()
 	/** @type {Map<string, { data: number, trans: number, title: string, vessels: Map<string, { data: number, xmit: number }> }>} */
 	const scienceDataBySubjectId = new Map()
-	/** @type {Map<string, { vesselName: string, sit: string, orbitRef: string | undefined }>} */
+	/** @type {Map<string, { vesselName: string, vesselPid: string | null, vesselLct: number | null, sit: string, orbitRef: string | undefined }>} */
 	const kerbalAssignmentsByName = new Map()
 
 	const vessels = asArray(tree?.GAME?.FLIGHTSTATE, 'VESSEL')
@@ -156,6 +156,10 @@ export function buildSaveDerived(tree) {
 		if (!vessel || typeof vessel !== 'object') continue
 		const vRec = /** @type {Record<string, unknown>} */ (vessel)
 		const vesselName = typeof vRec.name === 'string' ? vRec.name : '—'
+		const pidRaw = vRec.pid
+		const vesselPid = typeof pidRaw === 'string' && pidRaw.length > 0 ? pidRaw : null
+		const lctN = num(vRec.lct)
+		const vesselLct = Number.isFinite(lctN) ? lctN : null
 		const sit = typeof vRec.sit === 'string' ? vRec.sit : '—'
 		const orbit = vRec.ORBIT
 		const orbitRef =
@@ -165,7 +169,7 @@ export function buildSaveDerived(tree) {
 
 		for (const name of collectCrewNamesFromVessel(vessel)) {
 			if (!kerbalAssignmentsByName.has(name)) {
-				kerbalAssignmentsByName.set(name, { vesselName, sit, orbitRef })
+				kerbalAssignmentsByName.set(name, { vesselName, vesselPid, vesselLct, sit, orbitRef })
 			}
 		}
 

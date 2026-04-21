@@ -80,6 +80,8 @@ describe('buildSaveDerived', () => {
 					VESSEL: [
 						{
 							name: 'First',
+							pid: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+							lct: '100.5',
 							sit: 'Landed',
 							ORBIT: { REF: '1' },
 							PART: { crew: 'Jeb Kerman' },
@@ -96,6 +98,8 @@ describe('buildSaveDerived', () => {
 		const d = buildSaveDerived(tree)
 		expect(d.kerbalAssignmentsByName.get('Jeb Kerman')).toEqual({
 			vesselName: 'First',
+			vesselPid: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+			vesselLct: 100.5,
 			sit: 'Landed',
 			orbitRef: '1',
 		})
