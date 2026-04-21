@@ -1,4 +1,5 @@
 import { bodySortKey } from '../ksp/body-rank.util.js'
+import { humanizeVesselSituation } from '../ksp/vessel-situation.util.js'
 
 /**
  * @typedef {'asc' | 'desc' | null} CrewManifestSortDir
@@ -119,7 +120,7 @@ function compareByColumn(key, a, b) {
 		case 'vessel':
 			return compareLocaleText(a.vessel, b.vessel)
 		case 'situation':
-			return compareLocaleText(a.situation, b.situation)
+			return compareLocaleText(humanizeVesselSituation(a.situation), humanizeVesselSituation(b.situation))
 		case 'body':
 			return bodySortKey(a.body) - bodySortKey(b.body) || compareLocaleText(a.body, b.body)
 		case 'suit':

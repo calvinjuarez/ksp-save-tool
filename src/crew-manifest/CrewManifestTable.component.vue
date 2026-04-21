@@ -1,6 +1,7 @@
 <script setup>
 import Tooltip from '../shared/components/Tooltip.component.vue'
 import { kerbalDisplayName } from '../ksp/kerbal.util.js'
+import { humanizeVesselSituation } from '../ksp/vessel-situation.util.js'
 import {
 	cycleCrewManifestSortDirForColumn,
 	initialCrewManifestSortDirForColumn,
@@ -156,7 +157,7 @@ function sortIndicator(key, which) {
 						</Tooltip>
 					</td>
 					<td v-if="!hideVessel">{{ r.vessel }}</td>
-					<td>{{ r.situation }}</td>
+					<td>{{ humanizeVesselSituation(r.situation) }}</td>
 					<td v-if="!hideBody">{{ r.body }}</td>
 					<td>{{ r.suit }}</td>
 					<td>

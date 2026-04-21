@@ -6,6 +6,7 @@ import {
 	kerbalTotalXpFromKerbal,
 	parseBodyModel,
 } from '../ksp/kerbal.util.js'
+import { humanizeVesselSituation } from '../ksp/vessel-situation.util.js'
 import { formatTableFilterSummary } from '../shared/table-filter.util.js'
 import { buildSaveDerived } from '../save-file/save-derived.util.js'
 import { asArray } from '../save-file/save-file.util.js'
@@ -231,7 +232,7 @@ function crewManifestMarkdownTableRow(r, hideVessel, hideBody) {
 		rankMd,
 	]
 	if (!hideVessel) cells.push(r.vessel)
-	cells.push(r.situation)
+	cells.push(humanizeVesselSituation(r.situation))
 	if (!hideBody) cells.push(r.body)
 	cells.push(r.suit, modelMd, r.color)
 	return `| ${cells.map(escapeCell).join(' | ')} |`

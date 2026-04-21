@@ -1,4 +1,5 @@
 import { compareBodyNames } from '../ksp/body-rank.util.js'
+import { humanizeVesselSituation } from '../ksp/vessel-situation.util.js'
 import { crewManifestMarkEnumOptionLabel } from './crew-manifest-mark.const.js'
 import {
 	CREW_MANIFEST_RANK_ENUM_VALUES,
@@ -61,6 +62,7 @@ export const CREW_MANIFEST_FILTER_COLUMNS = Object.freeze([
 		key: 'situation',
 		label: 'Situation',
 		type: 'enum',
+		enumOptionLabel: humanizeVesselSituation,
 		accessor: (row) =>
 			/** @type {import('./crew-manifest.util.js').CrewManifestRow} */ (row).situation,
 	},

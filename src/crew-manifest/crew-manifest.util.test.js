@@ -349,6 +349,26 @@ describe('formatCrewManifestMarkdown', () => {
 		expect(md).not.toContain('| Vessel |')
 	})
 
+	it('humanizes the Situation cell in the ungrouped markdown table', () => {
+		const md = formatCrewManifestMarkdown([
+			{
+				name: 'Bob Kerman',
+				role: 'Pilot',
+				rank: 1,
+				totalXp: 0,
+				vessel: 'Alpha',
+				situation: 'ORBITING',
+				body: 'Kerbin',
+				suit: 'Default',
+				bodyModel: null,
+				color: '—',
+				mark: null,
+				markKind: null,
+			},
+		])
+		expect(md).toContain('| Bob | — | Pilot | ★ | Alpha | Orbiting | Kerbin |')
+	})
+
 	it('suffixes vessel headings with mark emoji when rescue/tourist kerbals are on board', () => {
 		const base = {
 			role: 'Pilot',
