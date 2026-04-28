@@ -2,6 +2,10 @@
 import { computed } from 'vue'
 import Tooltip from '../shared/components/Tooltip.component.vue'
 import {
+	vesselNameHasStrippableParenthetical,
+	vesselNameWithoutParentheticals,
+} from '../shared/vessel-name.util.js'
+import {
 	cycleScienceReportSortDirForColumn,
 	initialScienceReportSortDirForColumn,
 	SCIENCE_REPORT_SORT_COLUMN_LABELS,
@@ -81,23 +85,6 @@ function scienceRatioMutedSuffix(r) {
 		return `< ${TRACE_UNCOLLECTED_THRESHOLD} uncollected`
 	}
 	return `${formatSciDisplay(r.remaining)} uncollected`
-}
-
-/**
- * Vessel name for table display: parenthetical segments removed, whitespace collapsed.
- *
- * @param {string} name
- */
-function vesselNameWithoutParentheticals(name) {
-	const stripped = name.replace(/\s*\([^)]*\)/g, '').replace(/\s+/g, ' ').trim()
-	return stripped.length > 0 ? stripped : name
-}
-
-/**
- * @param {string} name
- */
-function vesselNameHasStrippableParenthetical(name) {
-	return vesselNameWithoutParentheticals(name) !== name
 }
 
 /**
