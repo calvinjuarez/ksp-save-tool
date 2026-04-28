@@ -1,5 +1,9 @@
 <script setup>
 import Tooltip from '../shared/components/Tooltip.component.vue'
+import {
+	vesselNameHasStrippableParenthetical,
+	vesselNameWithoutParentheticals,
+} from '../shared/vessel-name.util.js'
 import { kerbalDisplayName } from '../ksp/kerbal.util.js'
 import { humanizeVesselSituation } from '../ksp/vessel-situation.util.js'
 import {
@@ -164,7 +168,16 @@ function sortIndicator(key, which) {
 							{{ rankToStars(r.rank) }}
 						</Tooltip>
 					</td>
-					<td v-if="!hideVessel">{{ r.vessel }}</td>
+					<td v-if="!hideVessel">
+						<Tooltip
+							v-if="vesselNameHasStrippableParenthetical(r.vessel)"
+							as="abbr"
+							:label="r.vessel"
+						>
+							{{ vesselNameWithoutParentheticals(r.vessel) }}
+						</Tooltip>
+						<template v-else>{{ r.vessel }}</template>
+					</td>
 					<td v-if="!hideSituation">{{ humanizeVesselSituation(r.situation) }}</td>
 					<td v-if="!hideBody">{{ r.body }}</td>
 					<td>{{ r.suit }}</td>
